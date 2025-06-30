@@ -1,0 +1,333 @@
+﻿@model NopValley.Plugins.Misc.Models.Catalog.ProductDetailsModel
+
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Seo
+@using Nop.Core.Infrastructure
+@using Nop.Services.Catalog
+@using Nop.Services.Html
+@using Nop.Services.Seo
+
+@inject IHtmlFormatter htmlFormatter
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
+
+@{
+    Layout = "_ColumnsOneProduct";
+
+    //title
+    NopHtml.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    //meta
+    NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
+    NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-product-details-page");
+
+    //canonical URL
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var productUrl = Url.RouteUrl<Product>(new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(productUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
+
+    //open graph META tags
+    if (seoSettings.OpenGraphMetaTags)
+    {
+        NopHtml.AddHeadCustomParts("<meta property=\"og:type\" content=\"product\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:description\" content=\"" + Html.Encode(htmlFormatter.StripTags(Model.MetaDescription)) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:image:url\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:url\" content=\"" + webHelper.GetThisPageUrl(false) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"og:site_name\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+    }
+
+    //Twitter META tags
+    if (seoSettings.TwitterMetaTags)
+    {
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:card\" content=\"summary\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:site\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:description\" content=\"" + Html.Encode(htmlFormatter.StripTags(Model.MetaDescription)) + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        NopHtml.AddHeadCustomParts("<meta property=\"twitter:url\" content=\"" + webHelper.GetThisPageUrl(false) + "\" />");
+    }
+
+    NopHtml.AddJsonLdParts(Model.JsonLd);
+}
+<!--product breadcrumb-->
+@section Breadcrumb
+{
+    @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
+}
+
+@{
+    var _categoryService = EngineContext.Current.Resolve<ICategoryService>();
+    var productIdModel = Model.Id;
+    List<int> productCategoryIds = _categoryService.GetProductCategoriesByProductIdAsync(productIdModel).Result.Select(x => x.CategoryId).ToList();
+
+    var productCategories = _categoryService.GetCategoriesByIdsAsync(productCategoryIds.ToArray()).Result.Select(x => x.Name).ToList();
+
+    var _urlRecordService = EngineContext.Current.Resolve<IUrlRecordService>();
+    var categories = "";
+    var i = 1;
+    foreach (var productCategory in productCategories)
+    {
+        categories += productCategory;
+        if (productCategories.Count != i)
+        {
+            categories += ", ";
+        }
+        i++;
+    }
+
+    //this fixes the problem with ampersands in the category banners
+    var pCategory = _categoryService.GetProductCategoriesByProductIdAsync(productIdModel).Result.FirstOrDefault();
+    Category category = _categoryService.GetCategoryByIdAsync(pCategory.CategoryId).Result;
+
+    var seName = (await _urlRecordService.GetSeNameAsync(category));
+    var url = string.Format("/Themes/Unclebills/Content/images/{0}.jpg", seName);
+}
+<style>
+    .section-withimg.product-withimg {
+        background-image: url('@url');
+    }
+</style>
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
+<div class="page product-details-page">
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
+        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+            <div data-productid="@Model.Id">
+                <div class="product-essential">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="gallery">
+                                <!--product pictures-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductDetailsPictures.cshtml", Model)
+                                <!--product videos-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductDetailsVideos.cshtml", Model)
+                            </div>
+                            @*<a href="#" class="buyer-program-link">Frequent Buyer Program!</a>*@
+                            <div class="ps-details">
+                                <h4>Details</h4>
+                                <ul>
+                                    <li itemprop="brand"><strong>Brand:</strong> @Html.Partial("~/Plugins/NopValley.Misc/Views/Product/_ProductManufacturers.cshtml", Model.ProductManufacturers)</li>
+                                    <li><strong>Primary Ingredient:</strong> @Model.PrimaryIngredient</li>
+                                    <li><strong>Category:</strong> @categories</li>
+                                    <li><strong>Package Weight:</strong> @Model.Weight</li>
+                                    @if (Model.ExpandsTo != "N/A")
+                                    {
+                                        <li><strong>Expands To:</strong> @Model.ExpandsTo</li>
+                                    }
+                                    <li><strong>Grain Free?</strong>  @Model.GrainFree</li>
+                                    <li><strong><a href="https://www.unclebills.com/rewards-deals/frequent-buyer-program" class="evc-price-link">Frequent Buyer Program?</a></strong> @Model.FrequentBuyer</li>
+                                    <li itemprop="sku"><strong>SKU:</strong> @Model.Sku</li>
+                                </ul>
+                                <div class="barcode-image">
+                                    @*<a id="barcode" href="~/Themes/Unclebills/Content/images/barcode.gif" >
+											<img src="~/Themes/Unclebills/Content/images/barcode.gif" />
+										</a>*@
+                                </div>
+
+                                <script type="text/javascript">
+                                    $(document).ready(function () {
+                                        $('#barcode').magnificPopup(
+                                            {
+                                                type: 'image',
+                                                removalDelay: 300,
+                                                gallery: {
+                                                    enabled: true,
+                                                    tPrev: 'Previous (Left arrow key)',
+                                                    tNext: 'Next (Right arrow key)',
+                                                    tCounter: '%curr% of %total%'
+                                                },
+                                                tClose: 'Close (Esc)',
+                                                tLoading: 'Loading...'
+                                            });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="overview">
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_Discontinued.cshtml", Model)
+                                <div class="product-name">
+                                    <h1>
+                                        @Model.Name
+                                    </h1>
+                                </div>
+                                @{
+                                    var dataDictPrice = new ViewDataDictionary(ViewData);
+                                    dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_{Model.Id}";
+                                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductPriceTop, additionalData = Model })
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductPrice.cshtml", Model.ProductPrice, dataDictPrice)
+                                }
+
+                                <div class="product-tabs">
+									@*<ul class="nav nav-pills flex-column flex-sm-row d-block d-sm-none" id="myTab" role="tablist">
+											<li class="nav-item">
+												<a class="nav-link active" id="description-tab" data-toggle="pill" href="#description" role="tab" aria-controls="description" aria-selected="true">Description</a>
+											</li>
+											<li class="nav-item">
+												<a class="nav-link" id="ingredients-tab" data-toggle="pill" href="#ingredients" role="tab" aria-controls="ingredients" aria-selected="false">Ingredients</a>
+											</li>
+											<li class="nav-item">
+												<a class="nav-link" id="guaranteed-analysis-tab" data-toggle="pill" href="#guaranteed-analysis" role="tab" aria-controls="guaranteed-analysis" aria-selected="false">Guaranteed Analysis</a>
+											</li>
+										</ul>*@
+									<ul class="nav nav-tabs flex-column flex-sm-row" id="myTab" role="tablist">
+										<li class="nav-item">
+											<a class="nav-link text-center active" id="description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">Description</a>
+										</li>
+										<li class="nav-item">
+											<a class="nav-link text-center" id="ingredients-tab" data-toggle="tab" href="#ingredients" role="tab" aria-controls="ingredients" aria-selected="false">Ingredients</a>
+										</li>
+										<li class="nav-item">
+											<a class="nav-link text-center" id="guaranteed-analysis-tab" data-toggle="tab" href="#guaranteed-analysis" role="tab" aria-controls="guaranteed-analysis" aria-selected="false">Guaranteed Analysis</a>
+										</li>
+									</ul>
+
+									<div class="tab-content" id="myTabContent">
+										<div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                                            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+											{
+												<div class="short-description" itemprop="description">
+													@Html.Raw(Model.ShortDescription)
+												</div>
+											}
+										</div>
+										<div class="tab-pane fade" id="ingredients" role="tabpanel" aria-labelledby="ingredients-tab">@Html.Raw(Model.Ingredients)</div>
+										<div class="tab-pane fade" id="guaranteed-analysis" role="tabpanel" aria-labelledby="guaranteed-analysis-tab">@Html.Raw(Model.GuaranteedAnalysis)</div>
+									</div>
+
+								</div>
+
+                             
+                                <div class="size-quantity">
+									<div class="product-size">
+										@if (Model.ProductSizes.Count > 0)
+										{
+											<h4>Select size</h4>
+											foreach (var sizeOption in Model.ProductSizes)
+											{
+												string activeText = sizeOption.LinkEnabled ? "" : " active";
+												<a class="size-item @activeText" href="@sizeOption.LinkUrl">@sizeOption.LinkText</a>
+											}
+										}
+									</div>
+									<div class="product-quantity">
+										<h4>Quantity</h4>
+                                        @{
+                                            var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                                            dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
+                                        }
+                                        @Html.Partial("~/Plugins/NopValley.Misc/Views/Product/_AddToCartQuantity.cshtml", Model.AddToCart, dataDictAddToCart)
+									</div>
+								</div>
+								<div class="product-location">
+									@if (Model.AvailableLocations.Count > 0)
+									{
+										<h4>Typically available at these locations:</h4>
+										<ul>
+                                            @foreach ( NopValley.Plugins.Misc.Models.Catalog.ProductDetailsModel.LocationNameToUrlMap map in Model.AvailableLocations)
+											{
+												<li>
+													<a href=@map.LocationUrl>@map.LocationName</a>
+												</li>
+											}
+										</ul>
+									}
+								</div>
+
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_AddToCart.cshtml", Model.AddToCart, dataDictAddToCart)
+
+                                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
+                                <!--product reviews-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductReviewOverview.cshtml", Model.ProductReviewOverview)
+                                <!--manufacturers-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductManufacturers.cshtml", Model.ProductManufacturers)
+                                <!--availability-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_Availability.cshtml", Model)
+                                <!--SKU, MAN, GTIN, vendor-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_SKU_Man_GTIN_Ven.cshtml", Model)
+                                <!--delivery-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_DeliveryInfo.cshtml", Model)
+                                <!--sample download-->
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_DownloadSample.cshtml", Model)
+                                <!--attributes-->
+                                @{
+                                    var dataDictAttributes = new ViewDataDictionary(ViewData);
+                                    dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{Model.Id}";
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductAttributes.cshtml", Model, dataDictAttributes)
+                                }
+                                <!--gift card-->
+                                @{
+                                    var dataDictGiftCard = new ViewDataDictionary(ViewData);
+                                    dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = $"giftcard_{Model.Id}";
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_GiftCardInfo.cshtml", Model.GiftCard, dataDictGiftCard)
+                                }
+                                <!--rental info-->
+                                @{
+                                    var dataDictRental = new ViewDataDictionary(ViewData);
+                                    dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_RentalInfo.cshtml", Model, dataDictRental)
+                                }
+                                <!--price & add to cart & estimate shipping-->
+                                @{
+                                   
+                                   
+                                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductPriceBottom, additionalData = Model })
+
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductTierPrices.cshtml", Model.TierPrices)
+
+
+
+
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductEstimateShipping.cshtml", Model.ProductEstimateShipping)
+                                }
+                                <!--wishlist, compare, email a friend-->
+                                <div class="overview-buttons">
+                                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
+                                    @{
+                                        var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
+                                        dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
+                                        @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_AddToWishlist.cshtml", Model.AddToCart, dataDictAddToWishlist)
+                                    }
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_CompareProductsButton.cshtml", Model)
+                                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductEmailAFriendButton.cshtml", Model)
+                                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
+                                </div>
+                                @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ShareButton.cshtml", Model)
+                                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewBottom, additionalData = Model })
+                            </div>
+                        </div>
+                    </div>
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
+                    
+                  
+                    @if (!string.IsNullOrEmpty(Model.FullDescription))
+                    {
+                        <div class="full-description">
+                            @Html.Raw(Model.FullDescription)
+                        </div>
+                    }
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
+                </div>
+                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforeCollateral, additionalData = Model })
+                <div class="product-collateral">
+                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductSpecifications.cshtml", Model.ProductSpecificationModel)
+                    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductTags.cshtml", Model.ProductTags)
+                </div>
+                @await Component.InvokeAsync(typeof(ProductsAlsoPurchasedViewComponent), new { productId = Model.Id })
+                @await Component.InvokeAsync(typeof(RelatedProductsViewComponent), new { productId = Model.Id })
+            </div>
+        </form>
+        <!--product reviews-->
+        @if (Model.ProductReviewOverview.AllowCustomerReviews)
+        {
+            @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/Product/_ProductReviews.cshtml", Model.ProductReviews)
+        }
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBottom, additionalData = Model })
+    </div>
+</div>

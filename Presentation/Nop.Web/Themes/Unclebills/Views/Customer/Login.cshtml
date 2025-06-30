@@ -1,0 +1,140 @@
+﻿@model LoginModel
+@using Nop.Core
+@using Nop.Core.Domain.Customers
+@using Nop.Core.Infrastructure
+
+@inject IWebHelper webHelper
+@{
+    Layout = "_ColumnsOne";
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Login").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-login-page");
+
+    //register URL with return URL (if specified)
+
+    var registerUrl = Url.RouteUrl("PreRegister");
+    if (!String.IsNullOrEmpty(this.Context.Request.Query["returnUrl"]))
+    {
+        var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+        registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] }, webHelper.GetCurrentRequestProtocol());
+    }
+
+
+    //var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] }, webHelper.GetCurrentRequestProtocol());
+}
+<div class="page registration-page">
+   
+    @await Html.PartialAsync("_ExternalAuthentication.Errors")
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LoginTop, additionalData = Model })
+        
+        <div class="row">
+            <div class="col-sm-6">
+                @if (!Model.CheckoutAsGuest)
+                {
+                    <div class="row">
+                        <div class="col-sm-10">
+                            @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "LoginRegistrationInfo" })
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-sm-6">
+                @if (Model.CheckoutAsGuest)
+                {
+                    <div class="title">
+                        <strong>@T("Account.Login.CheckoutAsGuestOrRegister")</strong>
+                        Don't have an account yet?
+                        <a href="@registerUrl">@T("Account.Register")</a>
+                        @*<a href="@Url.RouteUrl("Login", new {SeName = Html.GetTopicSeName("login") })">@T("Login")</a>*@
+
+                    </div>
+                    <div class="text">
+                        @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "CheckoutAsGuestOrRegister" })
+                    </div>
+                    <div class="buttons">
+                        <input type="button" class="button-1 checkout-as-guest-button" onclick="location.href='@Url.RouteUrl("Checkout")'" value="@T("Account.Login.CheckoutAsGuest")" />
+                        <input type="button" class="button-1 register-button" onclick="location.href='@registerUrl'" value="@T("Account.Register")" />
+                    </div>
+
+                }
+               
+                <div class="row">
+                    <div class="col-sm-5">
+                        <h2 class="sign-in">@T("Account.Login.ReturningCustomer")</h2>
+                    </div>
+                    <div class="col-sm-7 info-top-form">
+                        <div class="no-account">Don't have an account yet?</div>
+                        <a href="@registerUrl">@T("Account.Register")</a>
+                    </div>
+                </div>
+
+                <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
+                    <div asp-validation-summary="ModelOnly" class="message-error">@T("Account.Login.Unsuccessful")</div>
+                   
+                    <div class="form-wrapp mt-4">
+                        <div class="form-group">
+                            @if (Model.UsernamesEnabled)
+                            {
+                                <div class="form-input">
+                                    <label asp-for="Username" asp-postfix=":"></label>
+                                    <input asp-for="Username" class="username" autofocus="autofocus" />
+                                    <span asp-validation-for="Username"></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-input">
+                                    <label asp-for="Email" asp-postfix=":"></label>
+                                    <input asp-for="Email" class="email" autofocus="autofocus" />
+                                    <span asp-validation-for="Email"></span>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password" asp-postfix=":"></label>
+                            <div class="form-input">
+
+                                <div class="login-password">
+                                    <input asp-for="Password" class="password" />
+                                    <span class="password-eye"></span>
+                                </div>
+                                <span asp-validation-for="Password"></span>
+                            </div>
+                            @if (Model.DisplayCaptcha)
+                            {
+                                <nop-captcha />
+                            }
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn">@T("Account.Login.LoginButton")</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="external-authentication">
+            @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
+        </div>
+    
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LoginBottom, additionalData = Model })
+    </div>
+</div>
+
+<script asp-location="Footer">
+    $(function () {
+        const password = $("#@Html.IdFor(m => m.Password)");
+
+        $(".password-eye").on("click", function () {
+            // toggle the type attribute
+            const type = password.attr("type") === "password" ? "text" : "password";
+            password.attr("type", type);
+
+            // toggle the icon
+            $(this).toggleClass("password-eye-open");
+        });
+    });
+</script>

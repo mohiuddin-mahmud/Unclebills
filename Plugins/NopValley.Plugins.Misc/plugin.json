@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "NopValley Misc",
+  "SystemName": "NopValleyMisc",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "NopValley team",
+  "DisplayOrder": 1,
+  "FileName": "NopValley.Plugins.Misc.dll",
+  "Description": "This plugin enables Html Widgets."
+}

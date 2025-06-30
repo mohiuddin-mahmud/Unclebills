@@ -1,0 +1,83 @@
+﻿@model PreRegisterModel
+@using Nop.Web.Models.Customer;
+@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@{
+	Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+	//title
+	Html.AddTitleParts(T("PageTitle.PreRegister").Text);
+	//page class
+	Html.AppendPageCssClassParts("html-registration-page");
+
+	//login URL with return URL (if specified)
+	var loginURL = Url.RouteUrl("Login");
+	if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+	{
+		var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+		loginURL = webHelper.ModifyQueryString(loginURL, "returnurl=" + HttpUtility.UrlEncode(this.Context.Request.QueryString["returnUrl"]), null);
+	}
+}
+@using (Html.BeginForm())
+{
+	@Html.AntiForgeryToken()
+	<div class="page registration-page">
+		<div class="page-body">
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="col-sm-10">
+							@Html.Action("TopicBlock", "Topic", new { systemName = "PreRegister" })
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="col-sm-5">
+							<h2>@T("Account.AccessRewards.Find")</h2>
+						</div>
+						<div class="col-sm-7 info-top-form">
+							<div class="no-account">Already have an account?</div>
+							<a href="@loginURL">@T("Account.Login")</a>
+						</div>
+					</div>
+
+					<div class="form-wrapp mt-4">
+						<div class="form-group">
+							@Html.LabelFor(model => model.cpExtraValueCardNumber, new { }, ":")
+							<div class="form-input">
+								@Html.EditorFor(model => model.cpExtraValueCardNumber)
+								@Html.RequiredHint()
+							</div>
+							@Html.ValidationMessageFor(model => model.cpExtraValueCardNumber)
+						</div>
+						<div class="form-group">
+							@Html.LabelFor(model => model.PhoneLast4, new { }, ":")
+							<div class="form-input">
+								@Html.EditorFor(model => model.PhoneLast4)
+								@Html.RequiredHint()
+							</div>
+							@Html.ValidationMessageFor(model => model.PhoneLast4)
+						</div>
+						@Html.Raw(Html.GenerateHoneypotInput())
+						<div class="text-right">
+							<input type="submit" id="preregister-button" class="btn" value="@T("Account.PreRegister.Button")" name="preregister-button" />
+						</div>
+						@{
+							var validationSummary = Html.ValidationSummary(true);
+						}
+						@if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+						{
+							<div class="message-error">@validationSummary</div>
+						}
+					</div>
+					<script>
+						$(document).ready(function () {
+							$("#cpExtraValueCardNumber").focus();
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+}

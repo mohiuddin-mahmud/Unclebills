@@ -1,0 +1,51 @@
+﻿@model PublicServicePostModel
+
+<div class="picture-gallery">
+
+
+    @if (Model.PictureModels.Count > 0)
+    {
+        <div class="picture-thumbs owl-carousel">
+            @foreach (var picture in Model.PictureModels)
+            {
+                <a class="thumb-item" data-pictureid="@picture.Id" href="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title">
+                    <img src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" />
+                </a>               
+            }
+        </div>
+    }
+</div>
+
+
+<script asp-location="Footer">
+
+    $(document).ready(function () {       
+
+        $('.owl-carousel').on('initialized.owl.carousel', function (event) {
+            if (event.item.count <= 1) {
+                $(this).find('.owl-nav').hide();
+                $(this).find('.owl-dots').hide(); // optional: hide dots too
+            }
+        }).owlCarousel({
+            loop: true,
+            margin: 10,
+            responsiveClass: true,
+            items: 1,
+            nav: true,
+            autoplay:true,
+            autoplayTimeout:1000,
+            autoplayHoverPause:true,
+            smartSpeed: 1000, // Smooth transition speed (ms)
+            animateOut: 'fadeOut', // Optional: fade effect
+            animateIn: 'fadeIn', // Optional: fade effect
+        });
+
+    });
+
+</script>
+<style>
+    .picture-gallery .picture-thumbs .thumb-item {
+        width: 100%;
+        height: unset;
+    }
+</style>

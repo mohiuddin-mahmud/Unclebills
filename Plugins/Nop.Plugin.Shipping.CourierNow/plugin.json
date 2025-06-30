@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Shipping rate computation",
+  "FriendlyName": "CourierNow",
+  "SystemName": "Shipping.CourierNow",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "BoxCrush",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Shipping.CourierNow.dll",
+  "Description": "This plugin offers shipping rates by Courier Now."
+}

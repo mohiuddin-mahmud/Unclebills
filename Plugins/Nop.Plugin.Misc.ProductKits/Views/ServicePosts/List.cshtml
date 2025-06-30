@@ -1,0 +1,145 @@
+@model PublicServicePostListModel
+@using Nop.Web.Components
+@using Nop.Web.Framework.Mvc.Routing
+@using NopValley.Plugins.Misc.Domain
+@{
+    Layout = "~/Plugins/NopValley.Misc/Views/ServicePosts/_ColumnOne.cshtml";
+    //title
+    NopHtml.AddTitleParts(T(ResourceNames.SERVICEPOSTPAGE).Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-service-page");
+}
+<link rel="stylesheet" href="~/Plugins/NopValley.Misc/Content/css/styles.css" />
+
+@* @section left {
+
+    @await Html.PartialAsync("~/Plugins/NopValley.Misc/Views/ServicePosts/_Categories.cshtml", Model)
+} *@
+@{
+    if (Model != null)
+    {
+        <div class="serviceposts-container">
+            <div class="page-title">
+                <h1>@T(ResourceNames.SERVICEPOSTPAGE).Text</h1>
+            </div>
+            <div class="servicepost-grid">                
+                    @foreach (var servicePost in Model.ServicePosts)
+                    {                       
+                        <div class="card">
+                            <div class="post-picture">
+                                <a href="@(Url.RouteUrl<ServicePost>(new { SeName = servicePost.SeName }))" title="@servicePost.PictureModel.Title">
+                                    <img alt="@servicePost.PictureModel.AlternateText" src="@servicePost.PictureModel.ImageUrl" title="@servicePost.PictureModel.Title" />
+                                </a>                                
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                <a href="@(Url.RouteUrl<ServicePost>(new { SeName = servicePost.SeName }))" title="@servicePost.Name">
+                                    @servicePost.Name
+                                    </a>
+                                </div>
+                                <div class="card-text">
+                                @Html.Raw(@servicePost.Body)
+                                </div>
+                                <a class="blogpost-more" href="@(Url.RouteUrl<ServicePost>(new { SeName = servicePost.SeName }))" title="@servicePost.Name">
+                                    Read More...
+                                </a>
+                            </div>
+                        </div>                    
+                }               
+            </div>
+        </div>
+    }
+
+}
+<style>
+    .home-page-blogpost-grid .item-box div a {
+        display: flex;
+    }
+
+
+        .home-page-blogpost-grid .item-box div a img {
+            max-width: 100%;
+            max-height: 100%;
+            border-top-right-radius: 5px;
+            border-top-left-radius: 5px;
+        }
+
+    .blogpost-slider {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+        .blogpost-slider .slick-slide {
+            padding: 0 10px;
+        }
+
+    .blogpost-more {
+        font-size: 14px;
+        color: #0069FF;
+        padding: 10px 0 0 0;
+        font-weight: 600;
+    }
+
+    .home-page-blogpost-grid .item-box > div:first-child {
+        position: relative;
+    }
+
+    .blog-post-date {
+        position: absolute;
+        bottom: 0;
+        left: 15px;
+        border-radius: 6px 6px 0 0;
+        background-color: #fff;
+        padding: 16px 20px 12px;
+        font-size: 17px;
+        display: block;
+        font-size: 17px;
+        font-weight: 700;
+        color: #175288;
+    }
+
+    .blogpost-more {
+        font-size: 14px;
+        color: #0069ff;
+        padding: 10px 0 0 0;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        column-gap: 10px;
+        border-radius: 5px;
+        background-color: #175288;
+        padding: 11px 15px;
+        font-size: 17px;
+        font-weight: 700;
+        transition: .2s ease;
+        color: #fff;
+        margin-top: 10px;
+    }
+
+    .blog-container .title {
+        margin: 0 0 20px;
+        padding: 0px;
+        font-size: 30px;
+        font-weight: normal;
+        color: #000;
+        text-align: left;
+    }
+
+    .card-title a {
+        font-size: 20px;
+    }
+
+    .card-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+        .card-text p {
+            font-size: 16px;
+            line-height: 24px;
+        }
+</style>
+

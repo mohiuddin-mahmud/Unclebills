@@ -1,0 +1,141 @@
+﻿@{
+    Layout = "_Root.Head";
+}
+@{
+    //current category ID
+    var currentCategoryId = 0;
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.InvariantCultureIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.InvariantCultureIgnoreCase))
+    {
+        currentCategoryId = Convert.ToInt32(Url.ActionContext.RouteData.Values["categoryId"].ToString());
+    }
+
+    //current manufacturer ID
+    var currentManufacturerId = 0;
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.InvariantCultureIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("manufacturer", StringComparison.InvariantCultureIgnoreCase))
+    {
+        currentManufacturerId = Convert.ToInt32(Url.ActionContext.RouteData.Values["manufacturerId"].ToString());
+    }
+
+    //current product ID
+    var currentProductId = 0;
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.InvariantCultureIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.InvariantCultureIgnoreCase))
+    {
+        currentProductId = Convert.ToInt32(Url.ActionContext.RouteData.Values["productId"].ToString());
+    }
+}
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyStartHtmlTagAfter })
+@{ await Html.RenderPartialAsync("_Notifications"); }
+@{ await Html.RenderPartialAsync("_JavaScriptDisabledWarning"); }
+<div class="master-wrapper-page">
+    @await Component.InvokeAsync(typeof(AdminHeaderLinksViewComponent))
+    @{ await Html.RenderPartialAsync("_Header"); }
+    <script asp-location="Footer">
+        var localized_data = {
+            AjaxCartFailure: "@T("AjaxCart.Failure")"
+        };
+        AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart', localized_data);
+    </script>
+    
+    <div class="master-wrapper-content" id="main" role="main">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentBefore })
+
+       @*  @if (IsSectionDefined("Breadcrumb"))
+        {
+            @RenderSection("Breadcrumb") 
+        } *@
+        <div class="master-column-wrapper">
+
+            @if (IsSectionDefined("HeroHeaderImage"))
+            {
+
+                @RenderSection("HeroHeaderImage", false);
+            }
+            else
+            {
+                <div class="section-withimg">
+                    <div class="container">
+                        
+
+                        @if (IsSectionDefined("Breadcrumb"))
+                        {
+                            <div class="section-breadcrumb row">
+                                @RenderSection("Breadcrumb")
+                            </div>
+                            <div class="row filter-row">
+                                <div class="sw-title sw-filter col-lg-8 col-md-6 col-sm-5">
+                                    <h1>@Model.Name</h1>
+                                    <div class="sub-title">@Html.Raw(Model.Description)</div>
+                                    <span class="filter-title">Filter by:</span>
+                                    <div class="filter-block">
+                                        <div class="filter-col">
+                                          
+                                            @await Component.InvokeAsync(typeof(CategoryNavigationViewComponent), new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })
+                                        </div>
+                                        <div class="filter-col">
+
+                                         
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-sm-7 pickup-header">
+                                    <div>
+                                        <img class="img-responsive" src="~/Themes/Unclebills/Content/images/ShoppingCart-Logo_ForHeader.png" alt="Shopping Cart Logo for Header" />
+                                        <h4>Welcome!</h4>
+                                        <p><strong>Uncle Bill's NEW Online Store</strong><br />is now offering our customers<br /><em>online ordering <span style="text-decoration: underline;">for in-store pickup!</span></em></p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="section-breadcrumb row">
+                                <ul>
+                                    <li>
+                                        <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+                                            <a href="https://www.unclebills.com" itemprop="url">
+                                                <span itemprop="title">@T("Products.Breadcrumb.Top")</span>
+                                            </a>
+                                        </span>
+                                        <span class="delimiter"><i class="fas fa-chevron-right"></i>@*@breadcrumbDelimiter*@</span>
+                                    </li>
+                                    <li>
+                                        <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+                                            <a href="@Url.RouteUrl("HomePage")" itemprop="url">
+                                                <span itemprop="title">Pet Supplies</span>
+                                            </a>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="row">
+                                <div class="sw-title col-sm-6">
+                                    <h1>Pet Supplies</h1>
+                                    <div class="sub-title">The best selection and the best value!</div>
+                                </div>
+                                <div class="col-sm-6 pickup-header">
+                                    <div>
+                                        <img class="img-responsive" src="~/Themes/Unclebills/Content/images/ShoppingCart-Logo_ForHeader.png" alt="Shopping Cart Logo for Header" />
+                                        <h4>Welcome!</h4>
+                                        <p><strong>Uncle Bill's NEW Online Store</strong><br />is now offering our customers<br /><em>online ordering <span style="text-decoration: underline;">for in-store pickup!</span></em></p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+            }
+
+            @RenderBody()
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ContentAfter })
+    </div>
+    @await Component.InvokeAsync(typeof(FooterViewComponent))
+</div>
+@await Component.InvokeAsync(typeof(EuCookieLawViewComponent))
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.BodyEndHtmlTagBefore })

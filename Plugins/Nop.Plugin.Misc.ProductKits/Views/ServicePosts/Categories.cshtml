@@ -1,0 +1,12 @@
+@model IList<ServicePostCategory>
+
+<ul class="list">
+    @foreach (var category in Model)
+    {
+        <li>
+            <a href="@category.Id">@category.Name</a>
+        </li>
+    }
+</ul>
+
+

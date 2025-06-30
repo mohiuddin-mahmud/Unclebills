@@ -1,0 +1,78 @@
+﻿<div class="header">
+    <a class="skip" href="#main">@T("Header.SkipNavigation.Text")</a>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderBefore })
+    
+    <div class="topnav">
+        <div class="container">
+            <div class="row">
+                <div class="text-left col-sm-4">
+                    Delivery &amp; Curbside Pickup Now Available
+                </div>
+                <div class="text-right col-sm-8">
+                    @await Component.InvokeAsync(typeof(HeaderLinksViewComponent))
+                    @*@Html.Action("FlyoutShoppingCart", "ShoppingCart")*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+   @*  <div class="header-upper">
+        <div class="topnav-wrapper">
+            <div class="header-selectors-wrapper">
+                @await Component.InvokeAsync(typeof(TaxTypeSelectorViewComponent))
+                @await Component.InvokeAsync(typeof(CurrencySelectorViewComponent))
+                @await Component.InvokeAsync(typeof(LanguageSelectorViewComponent))
+                @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderSelectors })
+            </div>
+            <div class="header-links-wrapper">
+                
+                @await Component.InvokeAsync(typeof(FlyoutShoppingCartViewComponent))
+            </div>
+        </div>        
+    </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMiddle })
+     *@
+    <div class="social-search">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div style="text-align: center;" class="col-sm-6">
+                    @* @Html.Action("Social", "Common") *@
+                </div>
+                <div class="col-sm-4">
+                    @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+                    @*<div id="small-search-box-form">
+                            <input type="text" class="search-box-text" placeholder="Search store" id="search-text">
+                            <input type="submit" class="button-1 search-box-button" value="Search" id="search-btn">
+                            <script>
+                                $("#search-btn").click(function () {
+                                    var value = encodeURIComponent($("#search-text").val());
+                                    window.location.href = "https://www.unclebills.com/search?indexCatalogue=all-content&searchQuery=" + value + "&wordsMode=0";
+                                });
+                            </script>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mainnav">
+        <div class="container">
+            <div class="mainnav-bar row">
+                <div class="col-sm-5 col-lg-3 ">
+                    <div class="logo">
+                        @await Component.InvokeAsync(typeof(LogoViewComponent))
+                        @* <a href="https://www.unclebills.com">Uncle Bill's Pet Centers</a> *@
+                    </div>                   
+                </div>
+                <div class="col-sm-7 col-lg-9">
+                    @await Component.InvokeAsync(typeof(TopMenuViewComponent))
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @*  <div class="search-box store-search-box">
+                
+            </div> *@
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderAfter })
+</div>

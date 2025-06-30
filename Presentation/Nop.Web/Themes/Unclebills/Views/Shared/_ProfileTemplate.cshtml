@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "_Root.cshtml";
+}
+
+@if (IsSectionDefined("Breadcrumb"))
+{
+    @section Breadcrumb {
+       
+    @await RenderSectionAsync("Breadcrumb", false)
+    }
+}
+@*<div class="section-withimg">
+    <div class="container">
+        <div class="section-breadcrumb"><ul><li>&nbsp;</li></ul></div>
+    </div>
+</div>*@
+
+
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnBefore })
+@RenderBody()
+@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.MainColumnAfter })
+

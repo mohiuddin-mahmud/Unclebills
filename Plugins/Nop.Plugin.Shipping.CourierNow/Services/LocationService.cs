@@ -1,0 +1,154 @@
+﻿using Nop.Core.Domain.Common;
+using Nop.Core.Domain.Shipping;
+using Nop.Services.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using GoogleApi;
+using GoogleApi.Entities.Maps.DistanceMatrix.Request;
+using GoogleApi.Entities.Maps.Geocoding.Address.Request;
+using Nop.Services.Configuration;
+using Google.Maps;
+using Google.Maps.DistanceMatrix;
+
+namespace Nop.Services.Custom
+{
+    public class LocationService : ILocationService
+    {
+        private readonly String _googleMapsApiKey = null;
+        private readonly IAddressService _addressService = null;
+        private const double METERS_TO_MILES = 1609.344;
+
+        public LocationService(ISettingService settingService, IAddressService addressService)
+        {
+            _googleMapsApiKey = settingService.GetSettingByKey<string>("shippingsettings.googlemapsapikey");
+            _addressService = addressService;
+        }
+
+        public double GetDistanceInMiles(Address address, Warehouse wareHouse)
+        {
+            int meters = 0;
+            if (wareHouse.Latitude.HasValue && wareHouse.Longitude.HasValue)
+            {
+                meters = this.GetDistanceInMeters(address, new Coordinates { Latitude = wareHouse.Latitude.Value, Longitude = wareHouse.Longitude.Value });
+                
+            }
+            else
+            {
+                Address warehouseAddress =  _addressService.GetAddressByIdAsync(wareHouse.AddressId).Result;
+                meters = this.GetDistanceInMeters(address, warehouseAddress);
+            }
+            return (meters / METERS_TO_MILES);
+        }
+
+        public Warehouse GetNearestWarehouse(Address address, IList<Warehouse> warehouses)
+        {
+            Warehouse result = null;
+            int distanceToBeat = 0;
+
+            foreach (var warehouse in warehouses)
+            {
+                int distance = 0;
+                if (warehouse.Latitude.HasValue && warehouse.Longitude.HasValue)
+                {
+                    distance = GetDistanceInMeters(address, new Coordinates { Latitude = warehouse.Latitude.Value, Longitude = warehouse.Longitude.Value });
+                }
+                else
+                {
+                    Address warehouseAddress = _addressService.GetAddressByIdAsync(warehouse.AddressId).Result;
+                    distance = GetDistanceInMeters(address, warehouseAddress);
+                }
+
+                if ((null == result) || (distance < distanceToBeat))
+                {
+                    result = warehouse;
+                    distanceToBeat = distance;
+                }
+            }
+
+            return result;
+        }
+
+        private int GetDistanceInMeters(Address start, Address end)
+        {
+            return GetDistanceInMeters(start.Address1 + ", " + start.City + ", " + start.StateProvince?.Abbreviation + " " + start.ZipPostalCode, end.Address1 + ", " + end.City + ", " + end.StateProvince + " " + end.ZipPostalCode);
+        }
+
+
+        private int GetDistanceInMeters(Address start, Address end)
+        {
+            DistanceMatrixRequest request = new DistanceMatrixRequest()
+            {
+                Key = _googleMapsApiKey,
+                Origins = new Location[]
+                {
+                    new Location(start)
+                },
+                Destinations = new Location[]
+                {
+                    new Location(end)
+                }
+                
+            };
+
+            try
+            {
+                var result = GoogleMaps.DistanceMatrix.Query(request).Rows.FirstOrDefault().Elements.FirstOrDefault();
+                return (null != result) ? result.Distance.Value : int.MaxValue;
+            }
+
+            catch (Exception ee)
+            {
+                return int.MaxValue;
+            }
+
+
+        }
+
+        private int GetDistanceInMeters(Address start, Coordinates end)
+        {
+            List<GoogleApi.Entities.Common.Location> origins = new List<GoogleApi.Entities.Common.Location>();
+            List<GoogleApi.Entities.Common.Location> destinations = new List<GoogleApi.Entities.Common.Location>();
+
+            var startCoords = GetLatLon(start);
+
+            origins.Add(new GoogleApi.Entities.Common.Location() { Latitude = startCoords.Latitude, Longitude = startCoords.Longitude });
+            destinations.Add(new GoogleApi.Entities.Common.Location() { Latitude = end.Latitude, Longitude = end.Longitude });
+
+            DistanceMatrixRequest request = new DistanceMatrixRequest()
+            {
+                Key = _googleMapsApiKey,
+                Origins = origins,
+                Destinations = destinations
+            };
+
+            var result = GoogleMaps.DistanceMatrix.Query(request).Rows.FirstOrDefault().Elements.FirstOrDefault();
+
+            return (null != result) ? result.Distance.Value : int.MaxValue;
+        }
+
+        public Coordinates GetLatLon(Address address)
+        {
+            return GetLatLon(address.Address1 + ", " + address.City + ", " + address.StateProvince + " " + address.ZipPostalCode);
+        }
+
+        private Coordinates GetLatLon(string address)
+        {
+
+            AddressGeocodeRequest request = new AddressGeocodeRequest()
+            {
+                Key = _googleMapsApiKey,
+                Address = address
+            };
+            var result = GoogleMaps.AddressGeocode.Query(request).Results.FirstOrDefault();
+
+            return (null != result) ? new Coordinates { Latitude = result.Geometry.Location.Latitude, Longitude = result.Geometry.Location.Longitude } : null;
+        }
+
+        public class Coordinates
+        {
+            public Double Latitude { get; set; }
+            public Double Longitude { get; set; }
+        }
+    }
+}

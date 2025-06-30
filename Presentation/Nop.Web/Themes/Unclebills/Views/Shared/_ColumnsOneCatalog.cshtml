@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_RootCatalog";
+}
+
+@* @await RenderSectionAsync("Breadcrumb", true) *@
+
+@if (IsSectionDefined("Breadcrumb"))
+{    
+
+    @section Breadcrumb {
+    @await RenderSectionAsync("Breadcrumb", false)
+    }
+}
+
+
+<div class="main-catalog">
+    <div class="container">
+        @* @await RenderSectionAsync("CatalogFilters", true); *@
+
+        @await RenderSectionAsync("CatalogFilters", false)
+        @RenderBody()
+    </div>
+</div>

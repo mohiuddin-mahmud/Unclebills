@@ -1,0 +1,2838 @@
+﻿//using BarcodeLib;
+//using CsvHelper;
+//using CsvHelper.Configuration;
+//using Newtonsoft.Json;
+//using Nop.Core.Configuration;
+//using Nop.Core.Domain.Catalog;
+//using Nop.Core.Domain.Common;
+//using Nop.Core.Domain.Customers;
+//using Nop.Core.Domain.Discounts;
+//using Nop.Core.Domain.Localization;
+//using Nop.Core.Domain.Orders;
+//using Nop.Core.Domain.Vendors;
+//using Nop.Data;
+//using Nop.Services.Catalog;
+//using Nop.Services.Common;
+//using Nop.Services.Configuration;
+//using Nop.Services.Custom;
+//using Nop.Services.Customers;
+//using Nop.Services.Directory;
+//using Nop.Services.Discounts;
+//using Nop.Services.Localization;
+//using Nop.Services.Logging;
+//using Nop.Services.Messages;
+//using Nop.Services.Orders;
+//using Nop.Services.Seo;
+//using Nop.Services.Tasks;
+//using Nop.Services.Vendors;
+//using System;
+//using System.Collections.Generic;
+//using System.IO;
+//using System.Linq;
+
+//namespace Nop.Services.ExportImport.CpImports
+//{
+//	public partial class CustomerImportTask : ITask
+//    {
+//        private readonly ICustomerService _customerService;
+//        private readonly ICountryService _countryService;
+//        private readonly IStateProvinceService _stateProvinceService;
+//        private readonly ILocalizationService _localizationService;
+//        private readonly IGenericAttributeService _genericAttributeService;
+//        private readonly ICustomerAttributeService _customerAttributeService;
+//        private readonly ICustomerAttributeParser _customerAttributeParser;
+//        private readonly ICustomerRegistrationService _customerRegistrationService;
+//        private readonly ICustomerActivityService _customerActivityService;
+//        private readonly CustomerSettings _customerSettings;
+
+
+//        public CustomerImportTask(ICustomerService customerService,
+//            ICountryService countryService,
+//            IStateProvinceService stateProvinceService,
+//            ILocalizationService localizationService,
+//            IGenericAttributeService genericAttributeService,
+//            ICustomerAttributeParser customerAttributeParser,
+//            ICustomerAttributeService customerAttributeService,
+//            ICustomerRegistrationService customerRegistrationService,
+//            ICustomerActivityService customerActivityService,
+//            CustomerSettings customerSettings)
+//        {
+//            this._customerService = customerService;
+//            this._countryService = countryService;
+//            this._stateProvinceService = stateProvinceService;
+//            this._localizationService = localizationService;
+//            this._genericAttributeService = genericAttributeService;
+//            this._customerAttributeService = customerAttributeService;
+//            this._customerAttributeParser = customerAttributeParser;
+//            this._customerRegistrationService = customerRegistrationService;
+//            this._customerActivityService = customerActivityService;
+//            this._customerSettings = customerSettings;
+//        }
+
+//        public void Execute()
+//        {
+//            this._customerService.RefreshRewards();
+//            //var file = File.OpenRead(@"C:\Users\Kyle\Documents\Testing\UncleBills\Customers_2018-04-19.csv");
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\Customers_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                IEnumerable<ImportCustomer> importCustomers = csvRdr.GetRecords<ImportCustomer>();
+
+//                // moved country lookup outside of loop so it occurs only once - performance enhancement
+//                var country = _countryService.GetCountryByThreeLetterIsoCode("USA"); // future will need this to be dynamic?
+
+//                foreach (ImportCustomer iCust in importCustomers)
+//                {
+//                    // Get list of members who should be blocked from website database
+//                    string[] blockedCustomers;
+//                    try
+//                    {
+//                        blockedCustomers = _localizationService.GetResource("customer.import.donotimport").Split(',');
+//                    }
+//                    catch { blockedCustomers = new string[] { "0" }; }
+
+//                    // customers verify identification during registration using last 4 of phone
+//                    // if no proper phone then don't import because they can never register anyways
+//                    if (!string.IsNullOrWhiteSpace(iCust.Phone)
+//                        && iCust.Phone.Length > 4
+//                        && !blockedCustomers.Contains(iCust.ExtraValueCardNumber.Trim()))
+//                    {
+//                        bool isNewCust = false;
+//                        Customer customer = _customerService.GetCustomerByRewardsCard(iCust.ExtraValueCardNumber);
+//                        if (customer == null)
+//                        {
+//                            isNewCust = true;
+//                            customer = new Customer
+//                            {
+//                                CustomerGuid = Guid.NewGuid(),
+//                                Username = iCust.ExtraValueCardNumber,
+//                                IsTaxExempt = false,
+//                                AffiliateId = 0,
+//                                VendorId = 0,
+//                                HasShoppingCartItems = false,
+//                                RequireReLogin = false,
+//                                FailedLoginAttempts = 0,
+//                                Active = true,
+//                                Deleted = false,
+//                                IsSystemAccount = false,
+//                                CreatedOnUtc = DateTime.UtcNow,
+//                                LastActivityDateUtc = DateTime.UtcNow,
+//                                RegisteredInStoreId = 1
+//                            };
+//                            _customerService.InsertCustomer(customer);
+//                        }
+
+//                        var stateProvince = _stateProvinceService.GetStateProvinceByAbbreviation(iCust.State); // all customers should be indiana residents
+//                        if (stateProvince == null) stateProvince = _stateProvinceService.GetStateProvinceById(21); // Indiana
+
+//                        //form fields
+//                        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.FirstName, iCust.FirstName.ToLower());
+//                        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.LastName, iCust.LastName.ToLower());
+//                        if (_customerSettings.StreetAddressEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress, iCust.Address1.ToLower());
+//                        if (_customerSettings.StreetAddress2Enabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress2, iCust.Address2.ToLower());
+//                        if (_customerSettings.ZipPostalCodeEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZipPostalCode, iCust.Zip);
+//                        if (_customerSettings.CityEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.City, iCust.City.ToLower());
+//                        if (_customerSettings.CountryEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CountryId, country.Id);
+//                        if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StateProvinceId, stateProvince.Id);
+//                        if (_customerSettings.PhoneEnabled)
+//                            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, iCust.Phone);
+
+//                        //custom customer attributes
+//                        string attributesXml = "";
+//                        var customerAttributes = _customerAttributeService.GetAllCustomerAttributes();
+//                        foreach (var attribute in customerAttributes)
+//                        {
+//                            string enteredText = "";
+//                            switch (attribute.Name)
+//                            {
+//                                case "cpExtraValueCardNumber":
+//                                    enteredText = iCust.ExtraValueCardNumber;
+//                                    break;
+//                                case "cpCustomerId":
+//                                    enteredText = iCust.CustomerId;
+//                                    break;
+//                                case "cpPreferredStoreId":
+//                                    enteredText = iCust.PreferredStoreId;
+//                                    break;
+//                                case "cpExtraValueCardRewardsPoints":
+//                                    enteredText = iCust.ExtraValueCardRewardsPoints;
+//                                    break;
+//                                default:
+//                                    break;
+//                            }
+//                            attributesXml = _customerAttributeParser.AddCustomerAttribute(attributesXml, attribute, enteredText);
+//                        }
+//                        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, attributesXml);
+
+//                        if (isNewCust)
+//                        {
+//                            // generate password
+//                            string password = iCust.Phone.Substring(iCust.Phone.Length - 4);
+//                            if (!String.IsNullOrWhiteSpace(password))
+//                            {
+//                                var changePassRequest = new ChangePasswordRequest(customer.Username, false, _customerSettings.DefaultPasswordFormat, password);
+//                                var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
+//                            }
+
+//                            // Add roles
+//                            CustomerRole defaultCustomer = _customerService.GetCustomerRoleBySystemName("Registered");
+//                            customer.CustomerRoles.Add(defaultCustomer);
+//                            _customerService.UpdateCustomer(customer);
+//                        }
+
+//                        // removed activity inserts to help performance - database inserts are killing processing time
+//                        ////activity log
+//                        //if (isNewCust)
+//                        //    _customerActivityService.InsertActivity("AddNewCustomer", _localizationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
+//                        //else
+//                        //    _customerActivityService.InsertActivity("EditCustomer", _localizationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class OrderImportTask : ITask
+//    {
+//        private readonly ICpOrderService _cpOrderService;
+
+//        public OrderImportTask(ICpOrderService cpOrderService)
+//        {
+//            this._cpOrderService = cpOrderService;
+//        }
+
+//        public void Execute()
+//        {
+//            //var file = File.OpenRead(@"C:\Users\Kyle\Documents\Testing\UncleBills\Orders_2018-04-19.csv");
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\Orders_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                IEnumerable<ImportCpOrder> importCpOrders = csvRdr.GetRecords<ImportCpOrder>();
+//                foreach (ImportCpOrder iCpOrder in importCpOrders)
+//                {
+//                    CpOrder cpOrder = _cpOrderService.GetCpOrderByOrderId(iCpOrder.OrderId);
+//                    if (cpOrder == null)
+//                    {
+//                        cpOrder = new CpOrder()
+//                        {
+//                            OrderId = iCpOrder.OrderId,
+//                            CustomerId = iCpOrder.CustomerId,
+//                            StoreId = iCpOrder.StoreId,
+//                            OrderTotal = double.Parse(iCpOrder.OrderTotal),
+//                            PurchaseDate = DateTime.Parse(iCpOrder.PurchaseDate)
+//                        };
+//                        _cpOrderService.InsertCpOrder(cpOrder);
+//                    }
+//                    else
+//                    {
+//                        cpOrder.CustomerId = iCpOrder.CustomerId;
+//                        cpOrder.StoreId = iCpOrder.StoreId;
+//                        cpOrder.OrderTotal = double.Parse(iCpOrder.OrderTotal);
+//                        cpOrder.PurchaseDate = DateTime.Parse(iCpOrder.PurchaseDate);
+//                        _cpOrderService.UpdateCpOrder(cpOrder);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class OrderLineImportTask : ITask
+//    {
+//        private readonly ICpOrderService _cpOrderService;
+//        public OrderLineImportTask(ICpOrderService cpOrderService)
+//        {
+//            this._cpOrderService = cpOrderService;
+//        }
+
+//        public void Execute()
+//        {
+//            //var file = File.OpenRead(@"C:\Users\Kyle\Documents\Testing\UncleBills\OrderLines_2018-04-19.csv");
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\OrderLines_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                IEnumerable<ImportCpOrderLine> importCpOrderLines = csvRdr.GetRecords<ImportCpOrderLine>();
+//                foreach (ImportCpOrderLine iCpOrderLine in importCpOrderLines)
+//                {
+//                    CpOrderLine cpOrderLine = _cpOrderService.GetCpOrderLine(iCpOrderLine.OrderId, iCpOrderLine.LineNumber);
+//                    if (cpOrderLine == null)
+//                    {
+//                        cpOrderLine = new CpOrderLine()
+//                        {
+//                            OrderId = iCpOrderLine.OrderId,
+//                            LineNumber = iCpOrderLine.LineNumber,
+//                            ProductId = iCpOrderLine.ProductId,
+//                            ProductDescription = iCpOrderLine.ProductDescription.ToLower(),
+//                            Quantity = iCpOrderLine.Quantity
+//                        };
+//                        _cpOrderService.InsertCpOrderLine(cpOrderLine);
+//                    }
+//                    else
+//                    {
+//                        cpOrderLine.ProductId = iCpOrderLine.ProductId;
+//                        cpOrderLine.ProductDescription = iCpOrderLine.ProductDescription.ToLower();
+//                        cpOrderLine.Quantity = iCpOrderLine.Quantity;
+//                        _cpOrderService.UpdateCpOrderLine(cpOrderLine);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class DiscountImportTask : ITask
+//    {
+//        private readonly ICpDiscountService _cpDiscountService;
+//        public DiscountImportTask(ICpDiscountService cpDiscountService)
+//        {
+//            this._cpDiscountService = cpDiscountService;
+//        }
+
+//        public void Execute()
+//        {
+//            //var file = File.OpenRead(@"C:\Users\Kyle\Documents\Testing\UncleBills\FreqBuyerDiscs_2018-04-19.csv");
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\FreqBuyerDiscs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                List<ImportDiscount> importDiscounts = csvRdr.GetRecords<ImportDiscount>().ToList();
+//                foreach (ImportDiscount iDiscount in importDiscounts)
+//                {
+//                    CpDiscount cpDiscount = _cpDiscountService.GetCpDiscount(iDiscount.CustomerId, iDiscount.LoyaltyCode);
+//                    if (cpDiscount == null)
+//                    {
+//                        cpDiscount = new CpDiscount()
+//                        {
+//                            CustomerId = iDiscount.CustomerId,
+//                            LoyaltyCode = iDiscount.LoyaltyCode,
+//                            LoyaltyName = iDiscount.LoyaltyName.ToLower(),
+//                            PurchaseGoal = iDiscount.PurchaseGoal,
+//                            PurchaseStatus = iDiscount.PurchaseStatus
+//                        };
+//                        _cpDiscountService.InsertCpDiscount(cpDiscount);
+//                    }
+//                    else
+//                    {
+//                        if (cpDiscount.LoyaltyName != iDiscount.LoyaltyName.ToLower() ||
+//                            cpDiscount.PurchaseGoal != iDiscount.PurchaseGoal ||
+//                            cpDiscount.PurchaseStatus != iDiscount.PurchaseStatus)
+//                        {
+//                            cpDiscount.LoyaltyName = iDiscount.LoyaltyName.ToLower();
+//                            cpDiscount.PurchaseGoal = iDiscount.PurchaseGoal;
+//                            cpDiscount.PurchaseStatus = iDiscount.PurchaseStatus;
+//                            _cpDiscountService.UpdateCpDiscount(cpDiscount);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class StoreImportTask : ITask
+//    {
+//        private readonly IVendorService _vendorService;
+//        private readonly ICustomerActivityService _customerActivityService;
+//        private readonly ILocalizationService _localizationService;
+//        private readonly IUrlRecordService _urlRecordService;
+//        private readonly ICountryService _countryService;
+//        private readonly IStateProvinceService _stateProvinceService;
+//        private readonly IAddressService _addressService;
+
+//        public StoreImportTask(IVendorService vendorService,
+//            ICustomerActivityService customerActivityService,
+//            ILocalizationService localizationService,
+//            IUrlRecordService urlRecordService,
+//            ICountryService countryService,
+//            IStateProvinceService stateProvinceService,
+//            IAddressService addressService)
+//        {
+//            this._vendorService = vendorService;
+//            this._customerActivityService = customerActivityService;
+//            this._localizationService = localizationService;
+//            this._urlRecordService = urlRecordService;
+//            this._countryService = countryService;
+//            this._stateProvinceService = stateProvinceService;
+//            this._addressService = addressService;
+//        }
+
+//        public void Execute()
+//        {
+//            //var file = File.OpenRead(@"C:\Users\Kyle\Documents\Testing\UncleBills\StoreLocations_2018-04-19.csv");
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\StoreLocations_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                IEnumerable<ImportStoreLocation> importLocations = csvRdr.GetRecords<ImportStoreLocation>();
+//                foreach (ImportStoreLocation iStore in importLocations)
+//                {
+//                    Vendor vendor = _vendorService.GetAllVendors().Where(x => x.AdminComment == iStore.StoreId).FirstOrDefault();
+//                    if (vendor == null)
+//                    {
+//                        vendor = new Vendor()
+//                        {
+//                            Name = iStore.StoreName,
+//                            Active = true,
+//                            Deleted = false,
+//                            DisplayOrder = 1,
+//                            PageSize = 0,
+//                            AllowCustomersToSelectPageSize = false,
+//                            PictureId = 0,
+//                            AddressId = 0,
+//                            AdminComment = iStore.StoreId
+//                        };
+//                        _vendorService.InsertVendor(vendor);
+
+//                        //activity log
+//                        _customerActivityService.InsertActivity("AddNewVendor", _localizationService.GetResource("ActivityLog.AddNewVendor"), vendor.Id);
+//                    }
+//                    else
+//                    {
+//                        vendor.Name = iStore.StoreName;
+//                        _vendorService.UpdateVendor(vendor);
+
+//                        //activity log
+//                        _customerActivityService.InsertActivity("EditVendor", _localizationService.GetResource("ActivityLog.EditVendor"), vendor.Id);
+//                    }
+
+//                    //search engine name
+//                    string seName = vendor.ValidateSeName(string.Empty, vendor.Name, true);
+//                    _urlRecordService.SaveSlug(vendor, seName, 0);
+
+//                    //address
+//                    var country = _countryService.GetCountryByThreeLetterIsoCode("USA"); // future will need this to be dynamic?
+//                    var stateProvince = _stateProvinceService.GetStateProvinceByAbbreviation(iStore.State); // all customers should be indiana residents
+//                    if (stateProvince == null) stateProvince = _stateProvinceService.GetStateProvinceById(21); // Indiana
+//                    Address address = _addressService.GetAddressById(vendor.AddressId);
+//                    if (address == null)
+//                    {
+//                        address = new Address()
+//                        {
+//                            Address1 = iStore.Address1.ToLower(),
+//                            Address2 = iStore.Address2.ToLower(),
+//                            City = iStore.City.ToLower(),
+//                            StateProvinceId = stateProvince.Id,
+//                            CountryId = country.Id,
+//                            ZipPostalCode = iStore.Zip,
+//                            PhoneNumber = iStore.Phone,
+//                            CreatedOnUtc = DateTime.UtcNow
+//                        };
+
+//                        _addressService.InsertAddress(address);
+//                        vendor.AddressId = address.Id;
+//                        _vendorService.UpdateVendor(vendor);
+//                    }
+//                    else
+//                    {
+//                        address.Address1 = iStore.Address1.ToLower();
+//                        address.Address2 = iStore.Address2.ToLower();
+//                        address.City = iStore.City.ToLower();
+//                        address.StateProvinceId = stateProvince.Id;
+//                        address.CountryId = country.Id;
+//                        address.ZipPostalCode = iStore.Zip;
+//                        address.PhoneNumber = iStore.Phone;
+
+//                        _addressService.UpdateAddress(address);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class ProductImportTask : ITask
+//    {
+//        private readonly IProductService _productService;
+//        private readonly ICategoryService _categoryService;
+//        private readonly IManufacturerService _manufacturerService;
+//        private readonly IUrlRecordService _urlRecordService;
+//        private readonly ISpecificationAttributeService _specificationAttributeService;
+
+//        public ProductImportTask(IProductService productService,
+//            ICategoryService categoryService,
+//            IManufacturerService manufacturerService,
+//            IUrlRecordService urlRecordService,
+//            ISpecificationAttributeService specificationAttributeService)
+//        {
+//            this._productService = productService;
+//            this._categoryService = categoryService;
+//            this._manufacturerService = manufacturerService;
+//            this._urlRecordService = urlRecordService;
+//            this._specificationAttributeService = specificationAttributeService;
+//        }
+
+//        public void Execute()
+//        {
+//			var file = File.OpenRead(@"D:\ftp.unclebills.com\Products_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//			//var file = File.OpenRead(@"E:\UBProductUpdates\combined-products.csv");
+//			using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                List<ImportProduct> csvImportProducts = csvRdr.GetRecords<ImportProduct>().ToList();
+
+//                // retrieve all existing products that will be updated during the import
+//                var allIncomingProductSkus = csvImportProducts.Select(p => p.Sku).ToArray();
+//                var allProductsBySku = _productService.GetProductsBySku(allIncomingProductSkus);
+
+//                // retrieve all categories IDs for all existing products
+//                var allProductsCategoryIds = _categoryService.GetProductCategoryIds(allProductsBySku.Select(p => p.Id).ToArray());
+
+//                var allCategories = _categoryService.GetAllCategories();
+//                var allProductCategories = _categoryService.GetAllProductCategory();
+
+//                // retrieve all manufacturers IDs for products
+//                var allProductsManufacturerIds = _manufacturerService.GetProductManufacturerIds(allProductsBySku.Select(p => p.Id).ToArray());
+
+//                foreach (ImportProduct csvImportProduct in csvImportProducts)
+//                {
+//                    try
+//                    {
+//                        // determine if product is 'new' or 'update'
+//                        var product = allProductsBySku.FirstOrDefault(p => p.Sku == csvImportProduct.Sku);
+//                        bool isNew = product == null;
+//                        if (isNew)
+//                        {
+//                            product = new Product();
+//                            product.CreatedOnUtc = DateTime.UtcNow;
+//                        }
+
+//                        // update all simple properties
+//                        product.ProductTypeId = 5; // Simple Product = 5; Grouped Product = 10
+//                        product.ParentGroupedProductId = 0;
+//                        product.VisibleIndividually = true;
+//                        product.Name = csvImportProduct.Name;
+//                        product.ShortDescription = csvImportProduct.Description;
+//                        product.FullDescription = csvImportProduct.Description;
+//                        product.VendorId = 0;
+//                        product.ProductTemplateId = 1;
+//                        product.ShowOnHomePage = false;
+//                        product.MetaKeywords = string.Empty;
+//                        product.MetaDescription = string.Empty;
+//                        product.MetaTitle = csvImportProduct.Name;
+//                        product.AllowCustomerReviews = false;
+//                        product.Published = true;
+//                        product.Sku = csvImportProduct.Sku;
+//                        product.ManufacturerPartNumber = string.Empty;
+//                        product.Gtin = csvImportProduct.UPC;
+//                        product.IsGiftCard = false;
+//                        product.GiftCardTypeId = 0;
+//                        product.OverriddenGiftCardAmount = 0;
+//                        product.RequireOtherProducts = false;
+//                        product.RequiredProductIds = string.Empty;
+//                        product.AutomaticallyAddRequiredProducts = false;
+//                        product.IsDownload = false;
+//                        product.DownloadId = 0;
+//                        product.UnlimitedDownloads = false;
+//                        product.MaxNumberOfDownloads = 0;
+//                        product.DownloadActivationTypeId = 0;
+//                        product.HasSampleDownload = false;
+//                        product.SampleDownloadId = 0;
+//                        product.HasUserAgreement = false;
+//                        product.UserAgreementText = string.Empty;
+//                        product.IsRecurring = false;
+//                        product.RecurringCycleLength = 0;
+//                        product.RecurringCyclePeriodId = 0;
+//                        product.RecurringTotalCycles = 0;
+//                        product.IsRental = false;
+//                        product.RentalPriceLength = 0;
+//                        product.RentalPricePeriodId = 0;
+//                        product.IsShipEnabled = true;
+//                        product.IsPickupOnly = csvImportProduct.IsPickupOnly;
+//						product.HasHiddenPrice = csvImportProduct.HasHiddenPrice;
+//						product.IsFreeShipping = false;
+//                        product.ShipSeparately = false;
+//                        product.AdditionalShippingCharge = 0;
+//                        product.DeliveryDateId = 0;
+//                        product.IsTaxExempt = false;
+//                        product.TaxCategoryId = 6; // 6 = Taxable Item
+//                        product.IsTelecommunicationsOrBroadcastingOrElectronicServices = false;
+//                        product.ManageInventoryMethodId = 1; // Don't manage stock = 0, manage stock = 1
+//                        product.UseMultipleWarehouses = true;
+//                        product.WarehouseId = 0;
+//                        product.StockQuantity = 0;
+//                        product.DisplayStockAvailability = false;
+//                        product.DisplayStockQuantity = false;
+//                        product.MinStockQuantity = 0;
+//                        product.LowStockActivityId = 0; // Nothing
+//                        product.NotifyAdminForQuantityBelow = 0;
+//                        product.BackorderModeId = 0; // No Backorders
+//                        product.AllowBackInStockSubscriptions = false;
+//                        product.OrderMinimumQuantity = 1;
+//                        product.OrderMaximumQuantity = 10000;
+//                        product.AllowedQuantities = string.Empty;
+//                        product.AllowAddingOnlyExistingAttributeCombinations = false;
+//                        product.DisableBuyButton = false;
+//                        product.DisableWishlistButton = false;
+//                        product.AvailableForPreOrder = false;
+//                        product.PreOrderAvailabilityStartDateTimeUtc = DateTime.UtcNow;
+//                        product.CallForPrice = false;
+//                        product.Price = isNew ? 0 : product.Price;
+//                        product.OldPrice = 0;
+//                        product.ProductCost = 0;
+//                        product.CustomerEntersPrice = false;
+//                        product.MinimumCustomerEnteredPrice = 0;
+//                        product.MaximumCustomerEnteredPrice = 0;
+//                        product.BasepriceEnabled = false;
+//                        product.BasepriceAmount = 0;
+//                        product.BasepriceUnitId = 0;
+//                        product.BasepriceBaseAmount = 0;
+//                        product.BasepriceBaseUnitId = 0;
+//                        product.MarkAsNew = false;
+//                        product.MarkAsNewStartDateTimeUtc = DateTime.UtcNow;
+//                        product.MarkAsNewEndDateTimeUtc = DateTime.UtcNow;
+//                        product.Weight = csvImportProduct.Weight;
+//                        product.Length = 0;
+//                        product.Width = 0;
+//                        product.Height = 0;
+
+//                        // save changes to database
+//                        product.UpdatedOnUtc = DateTime.UtcNow;
+//                        if (isNew)
+//                            _productService.InsertProduct(product);
+//                        else
+//                            _productService.UpdateProduct(product);
+
+//                        // update slug
+//                        if (isNew || string.IsNullOrWhiteSpace(product.GetSeName()))
+//                        {
+//                            string seName = SeoExtensions.GetSeName(product.Name);
+//                            _urlRecordService.SaveSlug(product, product.ValidateSeName(seName, product.Name, true), 0);
+//                        }
+
+//                        // Add to Category if it isn't already related
+//                        if (!String.IsNullOrWhiteSpace(csvImportProduct.Category))
+//                        {
+//                            var prodCategories = allCategories.Where(n => n.Name == csvImportProduct.Category);
+//                            foreach (var category in prodCategories)
+//                            {
+//                                var categoryCheck = allProductCategories.Where(n => n.ProductId == product.Id && n.CategoryId == category.Id);
+//                                if (!categoryCheck.Any())
+//                                {
+//                                    var productCategory = new ProductCategory
+//                                    {
+//                                        ProductId = product.Id,
+//                                        CategoryId = category.Id,
+//                                        IsFeaturedProduct = false,
+//                                        DisplayOrder = 1
+//                                    };
+//                                    _categoryService.InsertProductCategory(productCategory);
+//                                }
+//                            }
+//                        }
+
+//                        // Add to Manufacturer (Brand)
+//                        if (!String.IsNullOrWhiteSpace(csvImportProduct.Brand))
+//                        {
+//                            Manufacturer manBrand = _manufacturerService.GetAllManufacturers().FirstOrDefault(x => x.Name.ToLower() == csvImportProduct.Brand.ToLower());
+//                            if (manBrand != null)
+//                            {
+//                                List<int> existingProductManufacturers = new List<int>();
+//                                if (allProductsManufacturerIds.Any())
+//                                {
+//                                    if (allProductsManufacturerIds.Keys.Contains(product.Id))
+//                                    {
+//                                        existingProductManufacturers = allProductsManufacturerIds[product.Id].ToList();
+//                                    }
+//                                }
+
+//                                if (!existingProductManufacturers.Contains(manBrand.Id))
+//                                {
+//                                    var productManufacturer = new ProductManufacturer
+//                                    {
+//                                        ProductId = product.Id,
+//                                        ManufacturerId = manBrand.Id,
+//                                        IsFeaturedProduct = false,
+//                                        DisplayOrder = 1
+//                                    };
+//                                    _manufacturerService.InsertProductManufacturer(productManufacturer);
+//                                }
+//                            }
+//                        }
+
+//                        // Add Specification Attributes
+//                        var specAttrs = _specificationAttributeService.GetSpecificationAttributes();
+
+//                        // Base Sku
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.BaseSku))
+//                        {
+//                            SpecificationAttribute baseSku = specAttrs.FirstOrDefault(x => x.Name == "Base SKU");
+//                            SpecificationAttributeOption saOption = baseSku.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.BaseSku, (int)SpecificationAttributeType.CustomText, false);
+//                        }
+
+//                        // Main Ingredient
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.MainIngredient))
+//                        {
+//                            SpecificationAttribute mainIngredient = specAttrs.FirstOrDefault(x => x.Name == "Primary Ingredient");
+//                            SpecificationAttributeOption saOption = mainIngredient.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.MainIngredient, (int)SpecificationAttributeType.CustomText, false);
+//                        }
+
+//                        // Ingredients
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.Ingredients))
+//                        {
+//                            SpecificationAttribute ingredients = specAttrs.FirstOrDefault(x => x.Name == "Ingredients");
+//                            SpecificationAttributeOption saOption = ingredients.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.Ingredients, (int)SpecificationAttributeType.CustomHtmlText, false);
+//                        }
+
+//                        // Guaranteed Analysis
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.Analysis))
+//                        {
+//                            SpecificationAttribute guaranteedAnalysis = specAttrs.FirstOrDefault(x => x.Name == "Guaranteed Analysis");
+//                            SpecificationAttributeOption saOption = guaranteedAnalysis.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.Analysis, (int)SpecificationAttributeType.CustomHtmlText, false);
+//                        }
+
+//                        // Frequent Buyer Program
+//                        if (csvImportProduct.FBP)
+//                        {
+//                            SpecificationAttribute freqBuyerProg = specAttrs.FirstOrDefault(x => x.Name == "Frequent Buyer Program");
+//                            SpecificationAttributeOption saOption = freqBuyerProg.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, string.Empty, (int)SpecificationAttributeType.Option, false);
+//                        }
+
+//                        // Expands To
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.ExpandsTo))
+//                        {
+//                            SpecificationAttribute expandsTo = specAttrs.FirstOrDefault(x => x.Name == "Expands To");
+//                            SpecificationAttributeOption saOption = expandsTo.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.ExpandsTo, (int)SpecificationAttributeType.CustomText, false);
+//                        }
+
+//                        // Includes
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.Includes))
+//                        {
+//                            SpecificationAttribute includes = specAttrs.FirstOrDefault(x => x.Name == "Includes");
+//                            SpecificationAttributeOption saOption = includes.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.Includes, (int)SpecificationAttributeType.CustomHtmlText, false);
+//                        }
+
+//                        // Dimensions
+//                        if (!string.IsNullOrWhiteSpace(csvImportProduct.Dimensions))
+//                        {
+//                            SpecificationAttribute dimensions = specAttrs.FirstOrDefault(x => x.Name == "Dimensions");
+//                            SpecificationAttributeOption saOption = dimensions.SpecificationAttributeOptions.FirstOrDefault();
+//                            InsertSpecAttrOption(product.Id, saOption.Id, csvImportProduct.Dimensions, (int)SpecificationAttributeType.CustomHtmlText, false);
+//                        }
+
+//                        /*************************************/
+//                        // Characteristics/Filter Data
+//                        SpecificationAttribute characteristics = specAttrs.FirstOrDefault(x => x.Name == "Characteristics");
+//                        if (csvImportProduct.Puppy)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Puppy");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Kitten)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Kitten");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Adult)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Adult");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Senior)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Senior");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.SmallBreed)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Small Breed");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.LargeBreed)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Large Breed");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.GrainFree)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Grain Free");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Pellets)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Pellets");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Granule)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Granule");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Flakes)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Flakes");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Wafers)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Wafers");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Cubes)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Cubes");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Dehydrated)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dehydrated");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Frozen)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Frozen");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Goldfish)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Goldfish");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Betta)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Betta");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Parakeet)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Parakeet");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Cockatiel)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Cockatiel");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.CanaryFinch)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Canary & Finch");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Conure)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Conure");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ParrotHookbill)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Parrot & Hookbill");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Amphibian)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Amphibian");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Crustacean)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Crustacean");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.BeardedDragon)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Bearded Dragon");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gecko)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Gecko");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Turtle)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Turtle");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Tortoise)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Tortoise");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.HermitCrab)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hermit Crab");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Rabbit)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Rabbit");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Ferret)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Ferret");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.HamsterGerbil)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hamster & Gerbil");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Chinchilla)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Chinchilla");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.GuineaPig)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Guinea Pig");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.RatMouse)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Rat & Mouse");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Hedgehog)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hedgehog");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.SugarGlider)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Sugar Glider");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Clumping)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Clumping");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.NonClumping)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Non-Clumping");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.MultiCat)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Multi-Cat");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Snake)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Snake");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Lightweight)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Lightweight");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gallons10)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Up to 10 Gallons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gallons19)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "11 Gallons - 19 Gallons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gallons39)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "20 Gallons - 39 Gallons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gallons55)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "40 Gallons - 55 Gallons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Gallons75)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "56 Gallons - 75 Gallons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//						if (csvImportProduct.Gallons75Plus)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "75 Gallons or Larger");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//                        if (csvImportProduct.ReplacementFiltersMediaAccessories)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Replacement Filters and Media Accessories");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//						if (csvImportProduct.Balls)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Balls");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.RopeToys)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Rope Toys");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.PlushToys)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Plush Toys");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.FlyingToys)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Flying Toys");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.TreatDispensingToys)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Treat Dispensing");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.BallsChasers)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Balls & Chasers");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Catnip)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Catnip");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.HuntingStalkingToys)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hunting/Stalking Toys");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Teasers)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Teasers");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Electronic)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Electronic");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Mirrors)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Mirrors");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Ladders)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Ladders");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ChewForage)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Chew & Forage");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.PerchesSwings)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Perches & Swings");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Fluorescent)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Fluorescent");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.LED)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "LED");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.StickBarTreats)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Stick/Bar Treats");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Millet)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Millet");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ContainsFruit)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Contains Fruit");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Cuttlebone)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Cuttlebone");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Watts015)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Under 15 Watts");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Watts1525)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "15-25 Watts");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Watts2655)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "26-55 Watts");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Watts56100)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "56-100 Watts");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Watts101250)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "101-250 Watts");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Shampoos)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Shampoos");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ColognesSprays)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Colognes & Sprays");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.BrushesCombsDeshedders)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Brushes, Combs, Deshedders");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ClippersShearsAccessories)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Clippers, Shears, Accessories");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.NailCare)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Nail Care");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        //if (csvImportProduct.ShippingEnabled)
+//                        //{
+//                        //    SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Shipping Enabled");
+//                        //    InsertSpecAttrOption(product.Id, saOption.Id);
+//                        //}
+//                        if (csvImportProduct.DogBowl)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dog Bowl");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ElevatedFeeder)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Elevated Feeder");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.DogWaterBottles)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dog Water Bottles");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.DualBowls)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dual Bowls");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.DogFoodStorage)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dog Food Storage");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.DentalCare)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Dental Care");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.EarCare)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Ear Care");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.MedicatedSprayTopicals)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Medicated Spray / Topicals");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.MedicatedDropsChews)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Medicated Drops & Chews");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.HomeCleanersDeodorizers)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Home Cleaners & Deodorizers");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Calming)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Calming");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Digestive)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Digestive");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.CBD)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "CBD");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.HipJoint)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hip & Joint");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Freshwater)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Freshwater");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Saltwater)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Saltwater");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Pond)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Pond");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//						if (csvImportProduct.PillsAndChews)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Pills and Chews");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.TopicalsSpraysShampoos)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Topicals, Sprays, & Shampoos");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.HomeAndOutdoorSprays)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Home and Outdoor Sprays");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Collars)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Collars");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Decorations)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Decorations");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Hides)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Hides");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Thermometers)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Thermometers");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.ElectronicAccessory)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Electronic Accessory");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.CageAccessories)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Cage Accessories");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//                        if (csvImportProduct.VacuumsSiphons)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Vacuums & Siphons");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.ScrapersBladesScrubbers)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Scrapers, Blades, & Scrubbers");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//                        if (csvImportProduct.Magnets)
+//                        {
+//                            SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Magnets");
+//                            InsertSpecAttrOption(product.Id, saOption.Id);
+//                        }
+//						if (csvImportProduct.LiquidSupplement)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Liquid Supplement");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.PowderedSupplement)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Powdered Supplement");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Perch)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Perch");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.NestingSacks)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Nesting / Sacks");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.SeedDishCatcher)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Seed Dish / Catcher");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.ShampoosConditionersSprays)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Shampoos, Conditioners, & Sprays");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.NailTrimmers)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Nail Trimmers");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.Brushes)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Brushes");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.EarCleaner)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Ear Cleaner");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.DeodorizersStainRemovers)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Deodorizers & Stain Removers");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.BowlsWaterBottles)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Bowls & Water Bottles");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.BallsWheels)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Balls & Wheels");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.TubesTunnels)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Tubes & Tunnels");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.ChewsBonesBullySticks)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Chews, Bones, & Bully Sticks");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+//						if (csvImportProduct.EdibleChews)
+//						{
+//							SpecificationAttributeOption saOption = characteristics.SpecificationAttributeOptions.FirstOrDefault(x => x.Name == "Edible Chews");
+//							InsertSpecAttrOption(product.Id, saOption.Id);
+//						}
+
+//						// END Characteristics/Filter Data
+//						/*****************************************/
+//					}
+//                    catch (Exception)
+//                    {
+//                        // ignored
+//                    }
+//                }
+//            }
+//        }
+
+//        private ProductSpecificationAttribute GetSpecAttrOption(int productId, int specAttrOptionId)
+//        {
+//            return _specificationAttributeService.GetProductSpecificationAttributes(productId, specAttrOptionId).FirstOrDefault();
+//        }
+
+//        private void InsertSpecAttrOption(int productId, int specAttrOptionId)
+//        {
+//            InsertSpecAttrOption(productId, specAttrOptionId, string.Empty, (int)SpecificationAttributeType.Option, true);
+//        }
+
+//        private void InsertSpecAttrOption(int productId, int specAttrOptionId, string customValue, int attrTypeId, bool allowFilter)
+//        {
+//            ProductSpecificationAttribute updatePsa = GetSpecAttrOption(productId, specAttrOptionId);
+//            if (updatePsa != null)
+//            {
+//                updatePsa.CustomValue = customValue;
+//                updatePsa.AttributeTypeId = attrTypeId;
+//                updatePsa.AllowFiltering = allowFilter;
+//                _specificationAttributeService.UpdateProductSpecificationAttribute(updatePsa);
+//            }
+//            else
+//            {
+//                ProductSpecificationAttribute newPsa = new ProductSpecificationAttribute
+//                {
+//                    ProductId = productId,
+//                    SpecificationAttributeOptionId = specAttrOptionId,
+//                    AllowFiltering = allowFilter,
+//                    ShowOnProductPage = true,
+//                    DisplayOrder = 0,
+//                    AttributeTypeId = attrTypeId,
+//                    CustomValue = customValue
+//                };
+//                _specificationAttributeService.InsertProductSpecificationAttribute(newPsa);
+//            }
+//        }
+//    }
+
+//    public partial class PricingImportTask : ITask
+//    {
+//        private readonly IProductService _productService;
+
+//        public PricingImportTask(IProductService productService)
+//        {
+//            this._productService = productService;
+//        }
+
+//        public void Execute()
+//        {
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\ItemPrice_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                List<ImportItemPrice> csvItemPrices = csvRdr.GetRecords<ImportItemPrice>().ToList();
+
+//                foreach (ImportItemPrice csvItemPrice in csvItemPrices)
+//                {
+//                    Product p = _productService.GetProductBySku(csvItemPrice.Sku.Trim());
+//                    if (p != null)
+//                    {
+//                        if (Convert.ToDecimal(csvItemPrice.DiscPrice) == 0) continue;
+//						// Regular Price
+//						p.Price = Convert.ToDecimal(csvItemPrice.RegPrice);
+//                        _productService.UpdateProduct(p);
+
+//                        // Extra Value Card Price (Registered RoleId)
+//                        TierPrice tp = p.TierPrices.Where(x => x.CustomerRoleId == 3 && x.Quantity == 1).FirstOrDefault();
+//                        if (tp != null)
+//                        {
+//                            tp.Price = Convert.ToDecimal(csvItemPrice.DiscPrice);
+//                            _productService.UpdateTierPrice(tp);
+//                            _productService.UpdateHasTierPricesProperty(p);
+//                        }
+//                        else
+//                        {
+//                            tp = new TierPrice()
+//                            {
+//                                CustomerRoleId = 3,
+//                                ProductId = p.Id,
+//                                Quantity = 1,
+//                                Price = Convert.ToDecimal(csvItemPrice.DiscPrice),
+//                                StoreId = 0
+//                            };
+//                            _productService.InsertTierPrice(tp);
+//                            _productService.UpdateHasTierPricesProperty(p);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class InventoryImportFullTask : ITask
+//    {
+//        // this task can be run on demand to update inventory on all skus
+//        // the nightly and partial updates are only doing daily deltas
+//        // this file import will completely reset all levels to counter point levels
+//        // if for some reason the have gotten off course over time - missed nightly updates, or bad data in nightly updates
+//        private readonly IWarehouseInventoryImportService _warehouseInventoryImportService;
+
+//        public InventoryImportFullTask(IWarehouseInventoryImportService warehouseInventoryImportService)
+//        {
+//            this._warehouseInventoryImportService = warehouseInventoryImportService;
+//        }
+
+//        public void Execute()
+//        {
+//            string fileFullPath = @"D:\ftp.unclebills.com\Inventory_Full_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+//            string result = _warehouseInventoryImportService.Import(fileFullPath);
+//        }
+//    }
+
+//    public partial class InventoryImportNightlyTask : ITask
+//    {
+//        // this task runs nightly to keep inventory accurate from the full days changes
+//        // the expected import file contains all inventory deltas from the previous day
+//        // this overrides the partial daily updates that run every 15 minutes
+//        // this is not meant to be a full inventory update - if you try this you will likely crash/timeout
+//        // to run full inventory updates, you will need to break the file up into batches - less per batch = better performance
+//        private readonly IWarehouseInventoryImportService _warehouseInventoryImportService;
+
+//        public InventoryImportNightlyTask(IWarehouseInventoryImportService warehouseInventoryImportService)
+//        {
+//            this._warehouseInventoryImportService = warehouseInventoryImportService;
+//        }
+
+//        public void Execute()
+//        {
+//            string fileFullPath = @"D:\ftp.unclebills.com\Inventory_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+//            string result = _warehouseInventoryImportService.Import(fileFullPath);
+//        }
+//    }
+
+//    public partial class InventoryImportPartialDailyUpdatesTask : ITask
+//    {
+//        // this task runs from start of day every 15 minutes until end of day
+//        // this attempts to keep stock quantities "live" on the web during daily changes
+//        // the expected import file contains only deltas since the last import was run today
+//        private readonly IWarehouseInventoryImportService _warehouseInventoryImportService;
+
+//        public InventoryImportPartialDailyUpdatesTask(IWarehouseInventoryImportService warehouseInventoryImportService)
+//        {
+//            this._warehouseInventoryImportService = warehouseInventoryImportService;
+//        }
+
+//        public void Execute()
+//        {
+//            string fileFullPath = @"D:\ftp.unclebills.com\Inventory_LiveDeltas_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+//            string result = _warehouseInventoryImportService.Import(fileFullPath);
+//            // to prevent i/o write issues with the next update today, delete this file
+//            File.Delete(fileFullPath);
+//        }
+//    }
+
+//    public partial class RewardsCertificateImportTask : ITask
+//    {
+//        private readonly IGiftCardService _giftCardService;
+
+//        public RewardsCertificateImportTask(IGiftCardService giftCardService)
+//        {
+//            this._giftCardService = giftCardService;
+//        }
+
+//        public void Execute()
+//        {
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\RewardsCertificates_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                List<ImportRewardsCertificate> csvCertificates = csvRdr.GetRecords<ImportRewardsCertificate>().ToList();
+//                foreach (ImportRewardsCertificate csvCert in csvCertificates)
+//                {
+//                    try
+//                    {
+//                        bool update = true;
+//                        GiftCard giftCard = _giftCardService.GetGiftCardByCouponCode(csvCert.RewardCode);
+
+//                        // if gift card isn't in the system and has a balance remaining then import into system
+//                        if (giftCard == null && csvCert.AmountRemaining > 0)
+//                        {
+//                            update = false;
+//                            giftCard = new GiftCard();
+//                        }
+
+//                        // if gift card is in the system (update or create) then set properties
+//                        if (giftCard != null)
+//                        {
+//                            giftCard.GiftCardTypeId = 0; // 0 = Virtual, 1 = Physical
+//                            giftCard.Amount = (decimal)csvCert.AmountRemaining;
+//                            giftCard.GiftCardCouponCode = csvCert.RewardCode;
+//                            giftCard.IsGiftCardActivated = csvCert.ExpiresOn.Date > DateTime.Now.Date && csvCert.AmountRemaining > 0;
+//                            giftCard.IsRewardsCertificate = true;
+//                            giftCard.RewardsAccountId = csvCert.ExtraValueCardNumber;
+//                            giftCard.CreatedOnUtc = DateTime.UtcNow; // added to allow updates to be tracked for cleanup
+//                            if (update)
+//                                _giftCardService.UpdateGiftCard(giftCard);
+//                            else
+//                                _giftCardService.InsertGiftCard(giftCard);
+//                        }
+//                    }
+//                    catch { } // skip any fails
+//                }
+//            }
+
+//            // Remove any unnecessary or expired rewards certificates
+//            List<GiftCard> giftCards = _giftCardService.GetGiftCardsToRemove(DateTime.Now, true);
+//            foreach (GiftCard gc in giftCards)
+//            {
+//                try
+//                {
+//                    // only delete those without usage history
+//                    if (gc.GiftCardUsageHistory == null || gc.GiftCardUsageHistory.Count() == 0)
+//                        _giftCardService.DeleteGiftCard(gc);
+//                    else
+//                    {
+//                        gc.IsGiftCardActivated = false;
+//                        _giftCardService.UpdateGiftCard(gc);
+//                    }
+//                }
+//                catch { } // skip any fails
+//            }
+//        }
+//    }
+
+//    public partial class RewardsCertificateEmailTask : ITask
+//    {
+//		private readonly IGiftCardService _giftCardService;
+//        private readonly IWorkflowMessageService _workflowMessageService;
+//        private readonly LocalizationSettings _localizationSettings;
+
+//		public RewardsCertificateEmailTask(IGiftCardService giftCardService, IWorkflowMessageService workflowMessageService, LocalizationSettings localizationSettings)
+//		{
+//			this._giftCardService = giftCardService;
+//            this._workflowMessageService = workflowMessageService;
+//            this._localizationSettings = localizationSettings;
+//		}
+
+//		public void Execute()
+//        {
+//            var failedCerts = new List<ImportRewardsCertificate>();
+//            int count = 0;
+
+//			var file = File.OpenRead(@"D:\ftp.unclebills.com\RewardsCertificates_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//			using (TextReader txtRdr = new StreamReader(file))
+//			{
+//				CsvReader csvRdr = new CsvReader(txtRdr);
+//				List<ImportRewardsCertificate> csvCertificates = csvRdr.GetRecords<ImportRewardsCertificate>().ToList();
+//				foreach (ImportRewardsCertificate csvCert in csvCertificates)
+//				{
+//                    try
+//                    {
+//                        GiftCard giftCard = _giftCardService.GetGiftCardByCouponCode(csvCert.RewardCode);
+
+//                        if (giftCard == null || String.IsNullOrEmpty(csvCert.CustomerEmail))
+//                        {
+//                            //add log entry for null gift card/nonexistent email
+//                            failedCerts.Add(csvCert);
+//                            continue;
+//                        }
+
+//                        bool closeToExpiration = csvCert.ExpiresOn <= DateTime.Now.AddDays(14);
+
+//                        //generate the barcode image
+//                        string barcodeName = DateTime.Now.ToString("yyyyMMdd") + "_" + count + "_" + csvCert.RewardCode + ".png";
+//						string barcodePath = @"D:\barcodes\" + barcodeName;
+//						var b = new Barcode();
+//						b.IncludeLabel = true;
+//						var img = b.Encode(TYPE.CODE39, csvCert.RewardCode, 290, 120);
+//                        img.Save(barcodePath);
+
+//						_workflowMessageService.SendRewardCertificateNotification(barcodeName, barcodePath, csvCert, closeToExpiration, _localizationSettings.DefaultAdminLanguageId);
+//                        count++;
+//                    }
+//					catch 
+//                    {
+//                        // add log entry with error message?
+//                    } 
+//				}
+//			}
+
+//            if (failedCerts.Any())
+//            {
+//				//create the csv file
+//				string fileName = "FailedCertificates_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
+//				string filePath = @"D:\failedcerts\" + fileName;
+
+//				using (TextWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+//				{
+//					var csv = new CsvWriter(writer);
+//					csv.WriteRecords(failedCerts);
+//				}
+
+//				//send the failed certificates email
+//				_workflowMessageService.SendFailedCertsNotification(fileName, filePath, _localizationSettings.DefaultAdminLanguageId);
+//			}
+//		}
+//    }
+
+//	public partial class GiftCardImportTask : ITask
+//    {
+//        private readonly IGiftCardService _giftCardService;
+
+//        public GiftCardImportTask(IGiftCardService giftCardService)
+//        {
+//            this._giftCardService = giftCardService;
+//        }
+
+//        public void Execute()
+//        {
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\GiftCards_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+//                List<ImportGiftCard> csvCards = csvRdr.GetRecords<ImportGiftCard>().ToList();
+//                foreach (ImportGiftCard csvCard in csvCards)
+//                {
+//                    try
+//                    {
+//                        bool update = true;
+//                        GiftCard giftCard = _giftCardService.GetGiftCardByCouponCode(csvCard.GiftCardCode);
+//                        if (giftCard == null)
+//                        {
+//                            update = false;
+//                            giftCard = new GiftCard();
+//                        }
+
+//                        giftCard.GiftCardTypeId = 0; // 0 = Virtual, 1 = Physical
+//                        giftCard.Amount = (decimal)csvCard.AmountRemaining;
+//                        giftCard.GiftCardCouponCode = csvCard.GiftCardCode;
+//                        giftCard.IsGiftCardActivated = csvCard.AmountRemaining > 0;
+//                        giftCard.IsRewardsCertificate = false;
+//                        giftCard.CreatedOnUtc = DateTime.UtcNow; // added to allow updates to be tracked for cleanup
+//                        if (update)
+//                            _giftCardService.UpdateGiftCard(giftCard);
+//                        else
+//                            _giftCardService.InsertGiftCard(giftCard);
+//                    }
+//                    catch { } // skip any fails
+//                }
+//            }
+
+//            // Remove any unnecessary or expired gift cards
+//            List<GiftCard> giftCards = _giftCardService.GetGiftCardsToRemove(DateTime.Now, false);
+//            foreach (GiftCard gc in giftCards)
+//            {
+//                try
+//                {
+//                    // only delete those without usage history
+//                    if (gc.GiftCardUsageHistory == null || gc.GiftCardUsageHistory.Count() == 0)
+//                        _giftCardService.DeleteGiftCard(gc);
+//                    else
+//                    {
+//                        gc.IsGiftCardActivated = false;
+//                        _giftCardService.UpdateGiftCard(gc);
+//                    }
+//                }
+//                catch { } // skip any fails
+//            }
+//        }
+//    }
+
+//    public partial class PromoDiscountsImportTask : ITask
+//    {
+//        private readonly IDiscountService _discountService;
+//        private readonly IProductService _productService;
+//        private readonly ISettingService _settingService;
+//        private readonly ILocalizationService _localizationService;
+//        private readonly ICustomerService _customerService;
+
+//        public PromoDiscountsImportTask(IDiscountService discountService,
+//            IProductService productService,
+//            ISettingService settingService,
+//            ILocalizationService localizationService,
+//            ICustomerService customerService)
+//        {
+//            this._discountService = discountService;
+//            this._productService = productService;
+//            this._settingService = settingService;
+//            this._localizationService = localizationService;
+//            this._customerService = customerService;
+//        }
+
+//        public void Execute()
+//        {
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\PromoDiscounts_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                string jsonString = txtRdr.ReadToEnd();
+//                List<ImportPromoDiscount> jsonPromoDiscounts = JsonConvert.DeserializeObject<List<ImportPromoDiscount>>(jsonString);
+//                foreach (ImportPromoDiscount jsonDiscount in jsonPromoDiscounts)
+//                {
+//                    try
+//                    {
+//                        // determine if Skus even exist - no reason to create discount if the products are not in the online store
+//                        var trimmedSkus = jsonDiscount.DiscountedSkus.Select(s => s.Trim());
+//                        var discProducts = _productService.GetProductsBySku(trimmedSkus.ToArray());
+//                        if (discProducts == null || discProducts.Count() < 1)
+//                        {
+//                            // delete if already had been created before this rule to check if discounted skus are on the website
+//                            Discount d = _discountService.GetDiscountByCode(jsonDiscount.Title);
+//                            if (d != null)
+//                            {
+//                                _discountService.DeleteDiscount(d);
+//                            }
+//                        }
+//                        else
+//                        {
+
+//                            // Step 1 - The Discount Definition
+//                            bool update = true;
+//                            Discount discount = _discountService.GetDiscountByCode(jsonDiscount.Title);
+//                            if (discount == null)
+//                            {
+//                                update = false;
+//                                discount = new Discount();
+//                            }
+
+//                            discount.Name = jsonDiscount.Title;
+//                            discount.CouponCode = jsonDiscount.Title;
+//                            discount.DiscountTypeId = 2;
+//                            discount.DiscountType = DiscountType.AssignedToSkus;
+//                            discount.UsePercentage = true;
+//                            discount.DiscountPercentage = Convert.ToDecimal(jsonDiscount.DiscValue);
+//                            discount.MaximumDiscountedQuantity = jsonDiscount.DiscountedQty;
+//                            discount.StartDateUtc = jsonDiscount.StartDate;
+//                            discount.EndDateUtc = DateTime.UtcNow.AddDays(-2); // jsonDiscount.EndDate; // On 8-21-18, this change made every discount expired 
+//                                                                               // this was done as a temp fix for the discount bug reported
+//                                                                               // see active collab task #292
+//                            discount.RequiresCouponCode = false;
+//                            discount.DiscountLimitation = DiscountLimitationType.Unlimited;
+//                            discount.DiscountLimitationId = 0;
+
+//                            if (update)
+//                                _discountService.UpdateDiscount(discount);
+//                            else
+//                                _discountService.InsertDiscount(discount);
+
+//                            // Step 2 - Required Products
+//                            var defaultGroup = discount.DiscountRequirements.FirstOrDefault(requirement => !requirement.ParentId.HasValue && requirement.IsGroup);
+//                            if (defaultGroup == null)
+//                            {
+//                                //add default requirement group
+//                                defaultGroup = new DiscountRequirement()
+//                                {
+//                                    IsGroup = true,
+//                                    InteractionType = RequirementGroupInteractionType.And,
+//                                    DiscountRequirementRuleSystemName = _localizationService.GetResource("Admin.Promotions.Discounts.Requirements.DefaultRequirementGroup")
+//                                };
+//                                discount.DiscountRequirements.Add(defaultGroup);
+//                                _discountService.UpdateDiscount(discount);
+//                            }
+
+//                            // new requirement - has one of these products in cart
+//                            var discountRequirement = discount.DiscountRequirements.FirstOrDefault(requirement => requirement.DiscountRequirementRuleSystemName == "DiscountRequirement.HasOneProduct");
+//                            if (discountRequirement == null)
+//                            {
+//                                discountRequirement = new DiscountRequirement()
+//                                {
+//                                    IsGroup = false,
+//                                    DiscountRequirementRuleSystemName = "DiscountRequirement.HasOneProduct",
+//                                    ParentId = defaultGroup.Id
+//                                };
+//                                discount.DiscountRequirements.Add(discountRequirement);
+//                                _discountService.UpdateDiscount(discount);
+//                            }
+
+//                            // add required skus to setting service
+//                            string reqSkus = "";
+//                            foreach (string sku in jsonDiscount.RequiredSkus)
+//                            {
+//                                var product = _productService.GetProductBySku(sku);
+//                                if (product != null)
+//                                {
+//                                    if (reqSkus.Length > 0)
+//                                        reqSkus += ",";
+
+//                                    reqSkus += product.Id.ToString();
+
+//                                    int reqQty = jsonDiscount.RequiredQty;
+//                                    if (jsonDiscount.DiscountedSkus.Contains(sku))
+//                                        reqQty += 1;
+
+//                                    if (reqQty > 1)
+//                                        reqSkus += ":" + reqQty;
+//                                }
+//                            }
+//                            _settingService.SetSetting(string.Format("DiscountRequirement.RestrictedProductIds-{0}", discountRequirement.Id), reqSkus);
+
+//                            // must be in customer role registered
+//                            var discountRequirement2 = discount.DiscountRequirements.FirstOrDefault(requirement => requirement.DiscountRequirementRuleSystemName == "DiscountRequirement.MustBeAssignedToCustomerRole");
+//                            if (discountRequirement2 == null)
+//                            {
+//                                discountRequirement2 = new DiscountRequirement()
+//                                {
+//                                    IsGroup = false,
+//                                    DiscountRequirementRuleSystemName = "DiscountRequirement.MustBeAssignedToCustomerRole",
+//                                    ParentId = defaultGroup.Id
+//                                };
+//                                discount.DiscountRequirements.Add(discountRequirement2);
+//                                _discountService.UpdateDiscount(discount);
+//                            }
+
+//                            // add required role to setting service
+//                            var role = _customerService.GetAllCustomerRoles().FirstOrDefault(x => x.SystemName == "Registered");
+//                            if (role != null)
+//                            {
+//                                _settingService.SetSetting(string.Format("DiscountRequirement.MustBeAssignedToCustomerRole-{0}", discountRequirement2.Id), role.Id);
+//                            }
+
+//                            // Step 3 - Discounted Products
+//                            foreach (string sku in jsonDiscount.DiscountedSkus)
+//                            {
+//                                var product = _productService.GetProductBySku(sku);
+//                                if (product != null)
+//                                {
+//                                    if (product.AppliedDiscounts.Count(d => d.Id == discount.Id) == 0)
+//                                        product.AppliedDiscounts.Add(discount);
+
+//                                    _productService.UpdateProduct(product);
+//                                    _productService.UpdateHasDiscountsApplied(product);
+//                                }
+//                            }
+//                        }
+//                    }
+//                    catch
+//                    {
+//                        // ignored
+//                    } // skip any fails
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class FrequentBuyerImportTask : ITask
+//    {
+//        private readonly ICpDiscountService _cpDiscountService;
+
+//        public FrequentBuyerImportTask(ICpDiscountService cpDiscountService)
+//        {
+//            this._cpDiscountService = cpDiscountService;
+//        }
+
+//        public void Execute()
+//        {
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\FrequentBuyerPrograms_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                string jsonString = txtRdr.ReadToEnd();
+//                List<ImportFrequentBuyerProgram> jsonPrograms = JsonConvert.DeserializeObject<List<ImportFrequentBuyerProgram>>(jsonString);
+//                foreach (ImportFrequentBuyerProgram jsonFBP in jsonPrograms)
+//                {
+//                    try
+//                    {
+//                        // Get any existing database records for this program
+//                        List<CpDiscountProduct> existingFBPproducts = _cpDiscountService.GetCpDiscountProducts(jsonFBP.LoyaltyCode).ToList();
+//                        // Remove any skus in database that are not in the import
+//                        existingFBPproducts.ForEach(discProd =>
+//                        {
+//                            if (!jsonFBP.ProductSkus.Contains(discProd.ProductSku)) { _cpDiscountService.DeleteCpDiscountProduct(discProd); }
+//                        });
+//                        // Add each sku that doesn't already exist
+//                        jsonFBP.ProductSkus.ForEach(prodSku =>
+//                        {
+//                            CpDiscountProduct progProduct = _cpDiscountService.GetCpDiscountProduct(jsonFBP.LoyaltyCode, prodSku);
+//                            if (progProduct == null)
+//                            {
+//                                progProduct = new CpDiscountProduct() { LoyaltyCode = jsonFBP.LoyaltyCode, ProductSku = prodSku };
+//                                _cpDiscountService.InsertCpDiscountProduct(progProduct);
+//                            }
+//                        });
+//                    }
+//                    catch { } // skip any fails
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class MultilineDiscountImportTask : ITask
+//    {
+//        private readonly IProductService _productService;
+//        private readonly ISettingService _settingService;
+//        private readonly IUrlRecordService _urlRecordService;
+//        private readonly ICategoryService _categoryService;
+//        private readonly IProductAttributeService _productAttributeService;
+
+//        public MultilineDiscountImportTask(IProductService productService,
+//            ISettingService settingService,
+//            IUrlRecordService urlRecordService,
+//            ICategoryService categoryService,
+//            IProductAttributeService productAttributeService)
+//        {
+//            this._productService = productService;
+//            this._settingService = settingService;
+//            this._urlRecordService = urlRecordService;
+//            this._categoryService = categoryService;
+//        }
+
+//        public void Execute()
+//        {
+//            // Get kit category id
+//            int kitCategoryId = 0; // assume missing
+//            var pluginSettings = _settingService.LoadSetting<ProductKitsPluginSettings>();
+//            if (pluginSettings != null)
+//                kitCategoryId = pluginSettings.CategoryId;
+
+//            // Need categories to check if relationship already exists
+//            var allProductCategories = _categoryService.GetAllProductCategory().Where(x => x.CategoryId == kitCategoryId);
+
+//            var file = File.OpenRead(@"D:\ftp.unclebills.com\MultilineKits_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                string jsonString = txtRdr.ReadToEnd();
+//                List<ImportMultilineKit> jsonKitProducts = JsonConvert.DeserializeObject<List<ImportMultilineKit>>(jsonString);
+//                // flat file where multiple records should be tied together - therefore select distinct groups and loop through those
+//                List<string> kitCodes = jsonKitProducts.Select(x => x.KitCode).Distinct().ToList();
+//                foreach (string kitCode in kitCodes)
+//                {
+//                    try
+//                    {
+//                        bool deletedAny = false;
+//                        bool addedAny = false;
+
+//                        // get all import products related to this group
+//                        List<ImportMultilineKit> kitProducts = jsonKitProducts.Where(x => x.KitCode == kitCode).ToList();
+
+//                        bool update = true;
+//                        Product kitProduct = _productService.GetProductBySku(kitCode);
+//                        if (kitProduct == null)
+//                        {
+//                            update = false;
+//                            kitProduct = new Product();
+//                            kitProduct.CreatedOnUtc = DateTime.UtcNow;
+//                        }
+//                        // update all simple properties
+//                        kitProduct.ProductTypeId = 5; // Simple Product = 5; Grouped Product = 10
+//                        kitProduct.ParentGroupedProductId = 0;
+//                        kitProduct.VisibleIndividually = false;
+//                        kitProduct.Name = kitCode;
+//                        kitProduct.ShortDescription = kitProducts.First().KitDescription;
+//                        kitProduct.VendorId = 0;
+//                        kitProduct.ProductTemplateId = 1;
+//                        kitProduct.ShowOnHomePage = false;
+//                        kitProduct.MetaKeywords = string.Empty;
+//                        kitProduct.MetaDescription = string.Empty;
+//                        kitProduct.MetaTitle = string.Empty;
+//                        kitProduct.AllowCustomerReviews = false;
+//                        kitProduct.Published = true;
+//                        kitProduct.Sku = kitCode;
+//                        kitProduct.ManufacturerPartNumber = string.Empty;
+//                        kitProduct.Gtin = string.Empty;
+//                        kitProduct.IsGiftCard = false;
+//                        kitProduct.GiftCardTypeId = 0;
+//                        kitProduct.OverriddenGiftCardAmount = 0;
+//                        kitProduct.RequireOtherProducts = false;
+//                        kitProduct.RequiredProductIds = string.Empty;
+//                        kitProduct.AutomaticallyAddRequiredProducts = false;
+//                        kitProduct.IsDownload = false;
+//                        kitProduct.DownloadId = 0;
+//                        kitProduct.UnlimitedDownloads = false;
+//                        kitProduct.MaxNumberOfDownloads = 0;
+//                        kitProduct.DownloadActivationTypeId = 0;
+//                        kitProduct.HasSampleDownload = false;
+//                        kitProduct.SampleDownloadId = 0;
+//                        kitProduct.HasUserAgreement = false;
+//                        kitProduct.UserAgreementText = string.Empty;
+//                        kitProduct.IsRecurring = false;
+//                        kitProduct.RecurringCycleLength = 0;
+//                        kitProduct.RecurringCyclePeriodId = 0;
+//                        kitProduct.RecurringTotalCycles = 0;
+//                        kitProduct.IsRental = false;
+//                        kitProduct.RentalPriceLength = 0;
+//                        kitProduct.RentalPricePeriodId = 0;
+//                        kitProduct.IsShipEnabled = true;
+//                        kitProduct.IsPickupOnly = false;
+//						kitProduct.HasHiddenPrice = false;
+//						kitProduct.IsFreeShipping = false;
+//                        kitProduct.ShipSeparately = false;
+//                        kitProduct.AdditionalShippingCharge = 0;
+//                        kitProduct.DeliveryDateId = 0;
+//                        kitProduct.IsTaxExempt = false;
+//                        kitProduct.TaxCategoryId = 6; // 6 = Taxable Item
+//                        kitProduct.IsTelecommunicationsOrBroadcastingOrElectronicServices = false;
+//                        kitProduct.ManageInventoryMethodId = 0; // Don't manage stock = 0
+//                        kitProduct.UseMultipleWarehouses = false;
+//                        kitProduct.WarehouseId = 0;
+//                        kitProduct.StockQuantity = 0;
+//                        kitProduct.DisplayStockAvailability = false;
+//                        kitProduct.DisplayStockQuantity = false;
+//                        kitProduct.MinStockQuantity = 0;
+//                        kitProduct.LowStockActivityId = 0; // Nothing
+//                        kitProduct.NotifyAdminForQuantityBelow = 0;
+//                        kitProduct.BackorderModeId = 0; // No Backorders
+//                        kitProduct.AllowBackInStockSubscriptions = false;
+//                        kitProduct.OrderMinimumQuantity = 1;
+//                        kitProduct.OrderMaximumQuantity = 10000;
+//                        kitProduct.AllowedQuantities = string.Empty;
+//                        kitProduct.AllowAddingOnlyExistingAttributeCombinations = false;
+//                        kitProduct.DisableBuyButton = false;
+//                        kitProduct.DisableWishlistButton = false;
+//                        kitProduct.AvailableForPreOrder = false;
+//                        kitProduct.PreOrderAvailabilityStartDateTimeUtc = DateTime.UtcNow;
+//                        kitProduct.CallForPrice = false;
+//                        kitProduct.Price = Convert.ToDecimal(kitProducts.First().KitPrice);
+//                        kitProduct.OldPrice = 0;
+//                        kitProduct.ProductCost = 0;
+//                        kitProduct.CustomerEntersPrice = false;
+//                        kitProduct.MinimumCustomerEnteredPrice = 0;
+//                        kitProduct.MaximumCustomerEnteredPrice = 0;
+//                        kitProduct.BasepriceEnabled = false;
+//                        kitProduct.BasepriceAmount = 0;
+//                        kitProduct.BasepriceUnitId = 0;
+//                        kitProduct.BasepriceBaseAmount = 0;
+//                        kitProduct.BasepriceBaseUnitId = 0;
+//                        kitProduct.MarkAsNew = false;
+//                        kitProduct.MarkAsNewStartDateTimeUtc = DateTime.UtcNow;
+//                        kitProduct.MarkAsNewEndDateTimeUtc = DateTime.UtcNow;
+//                        kitProduct.Weight = 0;
+//                        kitProduct.Length = 0;
+//                        kitProduct.Width = 0;
+//                        kitProduct.Height = 0;
+
+//                        // save changes to database
+//                        kitProduct.UpdatedOnUtc = DateTime.UtcNow;
+//                        if (!update)
+//                            _productService.InsertProduct(kitProduct);
+//                        else
+//                            _productService.UpdateProduct(kitProduct);
+
+//                        // update slug
+//                        if (!update || string.IsNullOrWhiteSpace(kitProduct.GetSeName()))
+//                        {
+//                            string seName = SeoExtensions.GetSeName(kitProduct.Name);
+//                            _urlRecordService.SaveSlug(kitProduct, kitProduct.ValidateSeName(seName, kitProduct.Name, true), 0);
+//                        }
+
+//                        // ensure placement in kit category
+//                        if (!update || !allProductCategories.Any(x => x.ProductId == kitProduct.Id))
+//                        {
+//                            var productCategory = new ProductCategory
+//                            {
+//                                ProductId = kitProduct.Id,
+//                                CategoryId = kitCategoryId,
+//                                IsFeaturedProduct = false,
+//                                DisplayOrder = 1
+//                            };
+//                            _categoryService.InsertProductCategory(productCategory);
+//                        }
+
+//                        // manage kit products
+//                        // if update, then might need to remove products from the kit?
+//                        if (update)
+//                        {
+//                            // get the products that are already in the kit - if not in import list then delete
+//                            foreach (ProductAttributeMapping pam in kitProduct.ProductAttributeMappings)
+//                            {
+//                                foreach (ProductAttributeValue pav in pam.ProductAttributeValues)
+//                                {
+//                                    if (pav.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct)
+//                                    {
+//                                        // get this product
+//                                        var p = _productService.GetProductById(pav.AssociatedProductId);
+//                                        // if this product isn't in the import list, we must remove it from the kit
+//                                        if (p != null && !kitProducts.Exists(x => x.ProductSku == p.Sku))
+//                                        {
+//                                            // remove selected product from the kit
+//                                            var prodAttrMap = _productAttributeService.GetProductAttributeMappingsByProductId(kitProduct.Id).Where(x => x.ProductAttributeValues.Any(y => y.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct && y.AssociatedProductId == p.Id)).FirstOrDefault();
+//                                            if (prodAttrMap != null)
+//                                            {
+//                                                _productAttributeService.DeleteProductAttributeMapping(prodAttrMap);
+//                                                deletedAny = true;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+
+//                        // for all imports, we perform the add/exists check
+//                        foreach (ImportMultilineKit kProd in kitProducts)
+//                        {
+//                            Product p = _productService.GetProductBySku(kProd.ProductSku);
+//                            if (p != null)
+//                            {
+//                                foreach (ProductAttributeMapping pam in kitProduct.ProductAttributeMappings)
+//                                {
+//                                    if (pam.ProductAttributeValues.FirstOrDefault(x => x.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct && x.AssociatedProductId == p.Id) == null)
+//                                    {
+//                                        // add product to kit
+//                                        // Product Attribute
+//                                        var prodAttr = _productAttributeService.GetAllProductAttributes().Where(a => a.Name == "Multiline").FirstOrDefault();
+//                                        if (prodAttr == null)
+//                                        {
+//                                            // create new attribute
+//                                            prodAttr = new ProductAttribute();
+//                                            prodAttr.Name = "Multiline";
+//                                            _productAttributeService.InsertProductAttribute(prodAttr);
+//                                        }
+
+//                                        // Product Attribute Mapping
+//                                        var prodAttrMap = new ProductAttributeMapping();
+//                                        prodAttrMap.ProductId = kitProduct.Id;
+//                                        prodAttrMap.ProductAttributeId = prodAttr.Id;
+//                                        prodAttrMap.IsRequired = true;
+//                                        prodAttrMap.AttributeControlTypeId = (int)AttributeControlType.ReadonlyCheckboxes;
+//                                        prodAttrMap.TextPrompt = prodAttr.Name;
+//                                        prodAttrMap.DisplayOrder = 0;
+//                                        _productAttributeService.InsertProductAttributeMapping(prodAttrMap);
+
+//                                        // Product Attribute Value
+//                                        var prodAttrVal = new ProductAttributeValue();
+//                                        prodAttrVal.ProductAttributeMappingId = prodAttrMap.Id;
+//                                        prodAttrVal.Name = p.Name;
+//                                        prodAttrVal.AttributeValueTypeId = (int)AttributeValueType.AssociatedToProduct;
+//                                        prodAttrVal.AssociatedProductId = p.Id;
+//                                        prodAttrVal.Quantity = kProd.ProductQty;
+//                                        prodAttrVal.IsPreSelected = true;
+//                                        _productAttributeService.InsertProductAttributeValue(prodAttrVal);
+
+//                                        addedAny = true;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        // Clean up data if anything has been changed
+//                        if (deletedAny || addedAny)
+//                        {
+//                            // Remove Existing Product Attribute Combinations because they don't include the newly added PAV
+//                            var prodAttrCombos = _productAttributeService.GetAllProductAttributeCombinations(kitProduct.Id);
+//                            foreach (ProductAttributeCombination pac in prodAttrCombos)
+//                            {
+//                                _productAttributeService.DeleteProductAttributeCombination(pac);
+//                            }
+//                            // Create the Product Attribute Combination
+//                            var prodAttrCombo = new ProductAttributeCombination();
+//                            prodAttrCombo.ProductId = kitProduct.Id;
+//                            prodAttrCombo.StockQuantity = 10000;
+//                            prodAttrCombo.OverriddenPrice = kitProduct.Price;
+//                            prodAttrCombo.AllowOutOfStockOrders = false;
+//                            prodAttrCombo.NotifyAdminForQuantityBelow = 1;
+//                            var prodAttrMaps = _productAttributeService.GetProductAttributeMappingsByProductId(kitProduct.Id).Where(x => x.ProductAttributeValues.Any(y => y.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct));
+//                            var attrXml = "<Attributes>";
+//                            foreach (ProductAttributeMapping pam in prodAttrMaps)
+//                            {
+//                                attrXml += "<ProductAttribute ID=\"" + pam.Id + "\"><ProductAttributeValue><Value>" + pam.ProductAttributeValues.First().Id + "</Value></ProductAttributeValue></ProductAttribute>";
+//                            }
+//                            attrXml += "</Attributes>";
+//                            prodAttrCombo.AttributesXml = attrXml;
+//                            _productAttributeService.InsertProductAttributeCombination(prodAttrCombo);
+//                        }
+//                    }
+//                    catch { } // skip any fails
+//                }
+//            }
+//        }
+//    }
+
+//    public partial class ProductOutOfStockTask : ITask
+//    {
+//        private readonly IProductService _productService;
+
+//        public ProductOutOfStockTask(IProductService productService)
+//        {
+//            this._productService = productService;
+//        }
+
+//        public void Execute()
+//        {
+//            _productService.HideOutOfStockProducts();
+//        }
+//    }
+
+//    public partial class RelatedProductImportTask : ITask
+//    {
+//        private readonly IProductService _productService;
+//        private readonly ICategoryService _categoryService;
+//        private readonly IDbContext _dbContext;
+
+//        public RelatedProductImportTask(IProductService productService, ICategoryService categoryService, IDbContext dbContext)
+//        {
+//            this._productService = productService;
+//            this._categoryService = categoryService;
+//            this._dbContext = dbContext;
+//        }
+
+//        public void Execute()
+//        {
+//			var file = File.OpenRead(@"D:\ftp.unclebills.com\RelatedProducts_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+//            //var file = File.OpenRead(@"E:\UBProductUpdates\related-products.csv"); 
+
+//            List<RelatedProduct> newRelatedProducts = new List<RelatedProduct>();
+
+//            using (TextReader txtRdr = new StreamReader(file))
+//            {
+//                CsvReader csvRdr = new CsvReader(txtRdr);
+
+//                List<ImportRelatedProduct> csvRelatedProducts = csvRdr.GetRecords<ImportRelatedProduct>().ToList();
+
+//                var allCategories = _categoryService.GetAllCategories();
+//                var allProductCategories = _categoryService.GetAllProductCategory();
+
+//                foreach (ImportRelatedProduct rp in csvRelatedProducts)
+//                {
+//                    var category = allCategories.Where(a => a.Name == rp.Category);
+
+//                    IList<Product> rpsForCategory = new List<Product>();
+//                    rpsForCategory = _productService.GetProductsBySku(rp.Skus.Split(','));
+
+//                    var productsInCategory = allProductCategories.Where(c => c.Category.Name == rp.Category);
+
+//                    foreach (var prod in productsInCategory)
+//                    {
+//						foreach (var product in rpsForCategory)
+//                        {
+//                            RelatedProduct newRP = new RelatedProduct();
+//                            newRP.ProductId1 = prod.ProductId;
+//                            newRP.ProductId2 = product.Id;
+//                            newRP.DisplayOrder = 0;
+
+//                            newRelatedProducts.Add(newRP);
+//						}
+//                    }
+//                }
+//            }
+
+//            //delete all existing related products
+//            _dbContext.ExecuteSqlCommand("delete from dbo.RelatedProduct");
+
+//            // add all new related products
+//            foreach (var newRP in newRelatedProducts)
+//            {
+//                string query = $"insert into dbo.RelatedProduct values ({newRP.ProductId1}, {newRP.ProductId2}, 0)";
+//                _dbContext.ExecuteSqlCommand(query);
+//            }
+//        }
+//    }
+
+//    #region CSV Data Objects
+
+//    public class ImportCustomer
+//    {
+//        public string CustomerId { get; set; }
+//        public string ExtraValueCardNumber { get; set; }
+//        public string FirstName { get; set; }
+//        public string LastName { get; set; }
+//        public string Address1 { get; set; }
+//        public string Address2 { get; set; }
+//        public string City { get; set; }
+//        public string State { get; set; }
+//        public string Zip { get; set; }
+//        public string Phone { get; set; }
+//        public string Email { get; set; }
+//        public string PreferredStoreId { get; set; }
+//        public string ExtraValueCardRewardsPoints { get; set; }
+//    }
+
+//    public sealed class ImportCustomerMap : ClassMap<ImportCustomer>
+//    {
+//        public ImportCustomerMap()
+//        {
+//            Map(m => m.CustomerId).Name("CustomerId");
+//            Map(m => m.ExtraValueCardNumber).Name("ExtraValueCardNumber");
+//            Map(m => m.FirstName).Name("FirstName");
+//            Map(m => m.LastName).Name("LastName");
+//            Map(m => m.Address1).Name("Address1");
+//            Map(m => m.Address2).Name("Address2");
+//            Map(m => m.City).Name("City");
+//            Map(m => m.State).Name("State");
+//            Map(m => m.Zip).Name("Zip");
+//            Map(m => m.Phone).Name("Phone");
+//            Map(m => m.Email).Name("Email");
+//            Map(m => m.PreferredStoreId).Name("PreferredStoreId");
+//            Map(m => m.ExtraValueCardRewardsPoints).Name("ExtraValueCardRewardsPoints");
+//        }
+//    }
+
+//    public class ImportCpOrder
+//    {
+//        public string OrderId { get; set; }
+//        public string StoreId { get; set; }
+//        public string CustomerId { get; set; }
+//        public string PurchaseDate { get; set; }
+//        public string OrderTotal { get; set; }
+//    }
+
+//    public sealed class ImportCpOrderMap : ClassMap<ImportCpOrder>
+//    {
+//        public ImportCpOrderMap()
+//        {
+//            Map(m => m.OrderId).Name("OrderId");
+//            Map(m => m.StoreId).Name("StoreId");
+//            Map(m => m.CustomerId).Name("CustomerId");
+//            Map(m => m.PurchaseDate).Name("PurchaseDate");
+//            Map(m => m.OrderTotal).Name("OrderTotal");
+//        }
+//    }
+
+//    public class ImportCpOrderLine
+//    {
+//        public string OrderId { get; set; }
+//        public string LineNumber { get; set; }
+//        public string ProductId { get; set; }
+//        public string ProductDescription { get; set; }
+//        public string Quantity { get; set; }
+//    }
+
+//    public sealed class ImportCpOrderLineMap : ClassMap<ImportCpOrderLine>
+//    {
+//        public ImportCpOrderLineMap()
+//        {
+//            Map(m => m.OrderId).Name("OrderId");
+//            Map(m => m.LineNumber).Name("LineNumber");
+//            Map(m => m.ProductId).Name("ProductId");
+//            Map(m => m.ProductDescription).Name("ProductDescription");
+//            Map(m => m.Quantity).Name("Quantity");
+//        }
+//    }
+
+//    public class ImportDiscount
+//    {
+//        public string CustomerId { get; set; }
+//        public string LoyaltyCode { get; set; }
+//        public string LoyaltyName { get; set; }
+//        public string PurchaseGoal { get; set; }
+//        public string PurchaseStatus { get; set; }
+//    }
+
+//    public sealed class ImportDiscountMap : ClassMap<ImportDiscount>
+//    {
+//        public ImportDiscountMap()
+//        {
+//            Map(m => m.CustomerId).Name("CustomerId");
+//            Map(m => m.LoyaltyCode).Name("LoyaltyCode");
+//            Map(m => m.LoyaltyName).Name("LoyaltyName");
+//            Map(m => m.PurchaseGoal).Name("PurchaseGoal");
+//            Map(m => m.PurchaseStatus).Name("PurchaseStatus");
+//        }
+//    }
+
+//    public class ImportStoreLocation
+//    {
+//        public string StoreId { get; set; }
+//        public string StoreName { get; set; }
+//        public string Address1 { get; set; }
+//        public string Address2 { get; set; }
+//        public string City { get; set; }
+//        public string State { get; set; }
+//        public string Zip { get; set; }
+//        public string Phone { get; set; }
+//    }
+
+//    public sealed class ImportStoreLocationMap : ClassMap<ImportStoreLocation>
+//    {
+//        public ImportStoreLocationMap()
+//        {
+//            Map(m => m.StoreId).Name("StoreId");
+//            Map(m => m.StoreName).Name("StoreName");
+//            Map(m => m.Address1).Name("Address1");
+//            Map(m => m.Address2).Name("Address2");
+//            Map(m => m.City).Name("City");
+//            Map(m => m.State).Name("State");
+//            Map(m => m.Zip).Name("Zip");
+//            Map(m => m.Phone).Name("Phone");
+//        }
+//    }
+
+//    public class ImportProduct
+//    {
+//        public string Sku { get; set; }
+//        public string BaseSku { get; set; }
+//        public string Name { get; set; }
+//        public string UPC { get; set; }
+//        public string Description { get; set; }
+//        public string Ingredients { get; set; }
+//        public string Analysis { get; set; }
+//        public decimal Weight { get; set; }
+//        public string MainIngredient { get; set; }
+//        public string Brand { get; set; }
+//        public string Category { get; set; }
+//        public bool Puppy { get; set; }
+//        public bool Kitten { get; set; }
+//        public bool Adult { get; set; }
+//        public bool Senior { get; set; }
+//        public bool SmallBreed { get; set; }
+//        public bool LargeBreed { get; set; }
+//        public bool GrainFree { get; set; }
+//        public bool FBP { get; set; }
+//        public bool Pellets { get; set; }
+//        public bool Granule { get; set; }
+//        public bool Flakes { get; set; }
+//        public bool Wafers { get; set; }
+//        public bool Cubes { get; set; }
+//        public bool Dehydrated { get; set; }
+//        public bool Frozen { get; set; }
+//        public bool Goldfish { get; set; }
+//        public bool Betta { get; set; }
+//        public bool Parakeet { get; set; }
+//        public bool Cockatiel { get; set; }
+//        public bool CanaryFinch { get; set; }
+//        public bool Conure { get; set; }
+//        public bool ParrotHookbill { get; set; }
+//        public bool Amphibian { get; set; }
+//        public bool Crustacean { get; set; }
+//        public bool BeardedDragon { get; set; }
+//        public bool Gecko { get; set; }
+//        public bool Turtle { get; set; }
+//        public bool Tortoise { get; set; }
+//        public bool HermitCrab { get; set; }
+//        public bool Rabbit { get; set; }
+//        public bool Ferret { get; set; }
+//        public bool HamsterGerbil { get; set; }
+//        public bool Chinchilla { get; set; }
+//        public bool GuineaPig { get; set; }
+//        public bool RatMouse { get; set; }
+//        public bool Hedgehog { get; set; }
+//        public bool SugarGlider { get; set; }
+//        public bool Clumping { get; set; }
+//        public bool NonClumping { get; set; }
+//        public bool MultiCat { get; set; }
+//        public bool Lightweight { get; set; }
+//        public bool Snake { get; set; }
+//        public string ExpandsTo { get; set; }
+//        public string Includes { get; set; }
+//        public string Dimensions { get; set; }
+//        public bool Gallons10 { get; set; }
+//        public bool Gallons19 { get; set; }
+//        public bool Gallons39 { get; set; }
+//        public bool Gallons55 { get; set; }
+//        public bool Gallons75 { get; set; }
+//        public bool Gallons75Plus { get; set; }
+//		public bool ReplacementFiltersMediaAccessories { get; set; }
+//		public bool Balls { get; set; }
+//        public bool RopeToys { get; set; }
+//        public bool PlushToys { get; set; }
+//        public bool FlyingToys { get; set; }
+//        public bool TreatDispensingToys { get; set; }
+//        public bool BallsChasers { get; set; }
+//        public bool Catnip { get; set; }
+//        public bool HuntingStalkingToys { get; set; }
+//        public bool Teasers { get; set; }
+//        public bool Electronic { get; set; }
+//        public bool Ladders { get; set; }
+//        public bool Mirrors { get; set; }
+//        public bool PerchesSwings { get; set; }
+//        public bool ChewForage { get; set; }
+//        public bool Fluorescent { get; set; }
+//        public bool LED { get; set; }
+//        public bool StickBarTreats { get; set; }
+//        public bool Millet { get; set; }
+
+//        public bool ContainsFruit { get; set; }
+
+//        public bool Cuttlebone { get; set; }
+//        public bool Watts015 { get; set; }
+//        public bool Watts1525 { get; set; }
+//        public bool Watts2655 { get; set; }
+//        public bool Watts56100 { get; set; }
+//        public bool Watts101250 { get; set; }
+
+//        public bool Shampoos { get; set; }
+//        public bool ColognesSprays { get; set; }
+//        public bool BrushesCombsDeshedders { get; set; }
+//        public bool ClippersShearsAccessories { get; set; }
+//        public bool NailCare { get; set; }
+
+//        //public bool ShippingEnabled { get; set; }
+
+//        public bool DogBowl { get; set; }
+//        public bool ElevatedFeeder { get; set; }
+//        public bool DogWaterBottles { get; set; }
+//        public bool DualBowls { get; set; }
+//        public bool DogFoodStorage { get; set; }
+
+//        public bool DentalCare { get; set; }
+//        public bool EarCare { get; set; }
+//        public bool MedicatedSprayTopicals { get; set; }
+//        public bool MedicatedDropsChews { get; set; }
+//        public bool HomeCleanersDeodorizers { get; set; }
+//        public bool Calming { get; set; }
+//        public bool Digestive { get; set; }
+//        public bool CBD { get; set; }
+//        public bool HipJoint { get; set; }
+//        public bool Freshwater { get; set; }
+//        public bool Saltwater { get; set; }
+//        public bool Pond { get; set; }
+
+//		public bool HasHiddenPrice { get; set; }
+//        public bool IsPickupOnly { get; set; }
+
+//		public bool PillsAndChews { get; set; }
+//		public bool TopicalsSpraysShampoos { get; set; }
+//		public bool HomeAndOutdoorSprays { get; set; }
+//		public bool Collars { get; set; }
+
+//		public bool Decorations { get; set; }
+//		public bool Hides { get; set; }
+//		public bool Thermometers { get; set; }
+//		public bool ElectronicAccessory { get; set; }
+//		public bool CageAccessories { get; set; }
+
+//        public bool VacuumsSiphons { get; set; }
+//        public bool ScrapersBladesScrubbers { get; set; }
+//        public bool Magnets { get; set; }
+
+//		public bool LiquidSupplement { get; set; }
+//		public bool PowderedSupplement { get; set; }
+//		public bool Perch { get; set; }
+//		public bool NestingSacks { get; set; }
+//		public bool SeedDishCatcher { get; set; }
+
+//		public bool ShampoosConditionersSprays { get; set; }
+//		public bool NailTrimmers { get; set; }
+//		public bool Brushes { get; set; }
+//		public bool EarCleaner { get; set; }
+//		public bool DeodorizersStainRemovers { get; set; }
+
+//		public bool BowlsWaterBottles { get; set; }
+//		public bool BallsWheels { get; set; }
+//		public bool TubesTunnels { get; set; }
+
+//        public bool ChewsBonesBullySticks { get; set; }
+//		public bool EdibleChews { get; set; }
+//	}
+
+// //   public sealed class ImportProductMap : ClassMap<ImportProduct>
+// //   {
+// //       public ImportProductMap()
+// //       {
+// //           Map(m => m.Sku).Name("Sku");
+// //           Map(m => m.BaseSku).Name("BaseSku");
+// //           Map(m => m.Name).Name("Name");
+// //           Map(m => m.UPC).Name("UPC");
+// //           Map(m => m.Description).Name("Description");
+// //           Map(m => m.Ingredients).Name("Ingredients");
+// //           Map(m => m.Analysis).Name("Analysis");
+// //           Map(m => m.Weight).Name("Weight");
+// //           Map(m => m.MainIngredient).Name("MainIngredient");
+// //           Map(m => m.Brand).Name("Brand");
+// //           Map(m => m.Category).Name("Category");
+// //           Map(m => m.Puppy).Name("Puppy");
+// //           Map(m => m.Kitten).Name("Kitten");
+// //           Map(m => m.Adult).Name("Adult");
+// //           Map(m => m.Senior).Name("Senior");
+// //           Map(m => m.SmallBreed).Name("SmallBreed");
+// //           Map(m => m.LargeBreed).Name("LargeBreed");
+// //           Map(m => m.GrainFree).Name("GrainFree");
+// //           Map(m => m.FBP).Name("FBP");
+// //           Map(m => m.Pellets).Name("Pellets");
+// //           Map(m => m.Granule).Name("Granule");
+// //           Map(m => m.Flakes).Name("Flakes");
+// //           Map(m => m.Wafers).Name("Wafers");
+// //           Map(m => m.Cubes).Name("Cubes");
+// //           Map(m => m.Dehydrated).Name("Dehydrated");
+// //           Map(m => m.Frozen).Name("Frozen");
+// //           Map(m => m.Goldfish).Name("Goldfish");
+// //           Map(m => m.Betta).Name("Betta");
+// //           Map(m => m.Parakeet).Name("Parakeet");
+// //           Map(m => m.Cockatiel).Name("Cockatiel");
+// //           Map(m => m.CanaryFinch).Name("CanaryFinch");
+// //           Map(m => m.Conure).Name("Conure");
+// //           Map(m => m.ParrotHookbill).Name("ParrotHookbill");
+// //           Map(m => m.Amphibian).Name("Amphibian");
+// //           Map(m => m.Crustacean).Name("Crustacean");
+// //           Map(m => m.BeardedDragon).Name("BeardedDragon");
+// //           Map(m => m.Gecko).Name("Gecko");
+// //           Map(m => m.Turtle).Name("Turtle");
+// //           Map(m => m.Tortoise).Name("Tortoise");
+// //           Map(m => m.HermitCrab).Name("HermitCrab");
+// //           Map(m => m.Rabbit).Name("Rabbit");
+// //           Map(m => m.Ferret).Name("Ferret");
+// //           Map(m => m.HamsterGerbil).Name("HamsterGerbil");
+// //           Map(m => m.Chinchilla).Name("Chinchilla");
+// //           Map(m => m.GuineaPig).Name("GuineaPig");
+// //           Map(m => m.RatMouse).Name("RatMouse");
+// //           Map(m => m.Hedgehog).Name("Hedgehog");
+// //           Map(m => m.SugarGlider).Name("SugarGlider");
+// //           Map(m => m.Clumping).Name("Clumping");
+// //           Map(m => m.NonClumping).Name("NonClumping");
+// //           Map(m => m.MultiCat).Name("MultiCat");
+// //           Map(m => m.Lightweight).Name("Lightweight");
+// //           Map(m => m.Snake).Name("Snake");
+// //           Map(m => m.ExpandsTo).Name("ExpandsTo");
+// //           Map(m => m.Includes).Name("Includes");
+// //           Map(m => m.Dimensions).Name("Dimensions");
+// //           Map(m => m.Gallons10).Name("Gallons10");
+// //           Map(m => m.Gallons19).Name("Gallons19");
+// //           Map(m => m.Gallons39).Name("Gallons39");
+// //           Map(m => m.Gallons55).Name("Gallons55");
+// //           Map(m => m.Gallons75).Name("Gallons75");
+// //           Map(m => m.Gallons75Plus).Name("Gallons75Plus");
+// //           Map(m => m.ReplacementFiltersMediaAccessories).Name("ReplacementFiltersMediaAccessories");
+//	//		Map(m => m.Balls).Name("Balls");
+// //           Map(m => m.RopeToys).Name("Rope Toys");
+// //           Map(m => m.PlushToys).Name("Plush Toys");
+// //           Map(m => m.FlyingToys).Name("Flying Toys");
+// //           Map(m => m.TreatDispensingToys).Name("Treat Dispensing Toys");
+// //           Map(m => m.BallsChasers).Name("BallsChasers");
+// //           Map(m => m.Catnip).Name("Catnip");
+// //           Map(m => m.HuntingStalkingToys).Name("HuntingStalkingToys");
+// //           Map(m => m.Teasers).Name("Teasers");
+// //           Map(m => m.Electronic).Name("Electronic");
+// //           Map(m => m.Ladders).Name("Ladders");
+// //           Map(m => m.Mirrors).Name("Mirrors");
+// //           Map(m => m.PerchesSwings).Name("Perches & Swings");
+// //           Map(m => m.ChewForage).Name("Chew & Forage");
+// //           Map(m => m.Fluorescent).Name("Fluorescent");
+// //           Map(m => m.LED).Name("LED");
+// //           Map(m => m.StickBarTreats).Name("Stick/Bar Treats");
+// //           Map(m => m.Millet).Name("Millet");
+// //           Map(m => m.ContainsFruit).Name("Contains Fruit");
+// //           Map(m => m.Cuttlebone).Name("Cuttlebone");
+// //           Map(m => m.Watts015).Name("Under 15 Watts");
+// //           Map(m => m.Watts1525).Name("Watts 15-25");
+// //           Map(m => m.Watts2655).Name("Watts 26-55");
+// //           Map(m => m.Watts56100).Name("Watts 56-100");
+// //           Map(m => m.Watts101250).Name("Watts 101-250");
+// //           Map(m => m.Shampoos).Name("Shampoos");
+// //           Map(m => m.ColognesSprays).Name("Colognes & Sprays");
+// //           Map(m => m.BrushesCombsDeshedders).Name("Brushes, Combs, Deshedders");
+// //           Map(m => m.ClippersShearsAccessories).Name("Clippsers, Shears, Accessories");
+// //           Map(m => m.NailCare).Name("Nail Care");
+// //           //Map(m => m.ShippingEnabled).Name("Shipping Enabled");
+// //           Map(m => m.DogBowl).Name("Dog Bowl");
+// //           Map(m => m.ElevatedFeeder).Name("Elevated Feeder");
+// //           Map(m => m.DogWaterBottles).Name("Dog Water Bottles");
+// //           Map(m => m.DualBowls).Name("Dual Bowls");
+// //           Map(m => m.DogFoodStorage).Name("Dog Food Storage");
+// //           Map(m => m.DentalCare).Name("Dental Care");
+// //           Map(m => m.EarCare).Name("Ear Care");
+// //           Map(m => m.MedicatedSprayTopicals).Name("Medicated Spray / Topicals");
+// //           Map(m => m.MedicatedDropsChews).Name("Medicated Drops & Chews");
+// //           Map(m => m.HomeCleanersDeodorizers).Name("Home Cleaners & Deodorizers");
+// //           Map(m => m.Calming).Name("Calming");
+// //           Map(m => m.Digestive).Name("Digestive");
+// //           Map(m => m.CBD).Name("CBD");
+// //           Map(m => m.HipJoint).Name("Hip & Joint");
+// //           Map(m => m.Freshwater).Name("Freshwater");
+// //           Map(m => m.Saltwater).Name("Saltwater");
+// //           Map(m => m.Pond).Name("Pond");
+// //           Map(m => m.HasHiddenPrice).Name("Has Hidden Price");
+// //           Map(m => m.IsPickupOnly).Name("Is Pickup Only");
+//	//		Map(m => m.PillsAndChews).Name("Pills and Chews");
+//	//		Map(m => m.TopicalsSpraysShampoos).Name("Topicals, Sprays, & Shampoos");
+//	//		Map(m => m.HomeAndOutdoorSprays).Name("Home and Outdoor Sprays");
+//	//		Map(m => m.Collars).Name("Collars");
+//	//		Map(m => m.Decorations).Name("Decorations");
+//	//		Map(m => m.Hides).Name("Hides");
+//	//		Map(m => m.Thermometers).Name("Thermometers");
+//	//		Map(m => m.ElectronicAccessory).Name("Electronic Accessory");
+//	//		Map(m => m.CageAccessories).Name("Cage Accessories");
+// //           Map(m => m.VacuumsSiphons).Name("Vacuums & Siphons");
+// //           Map(m => m.ScrapersBladesScrubbers).Name("Scrapers, Blades, & Scrubbers");
+// //           Map(m => m.Magnets).Name("Magnets");
+// //           Map(m => m.LiquidSupplement).Name("Liquid Supplement");
+// //           Map(m => m.PowderedSupplement).Name("Powdered Supplement");
+// //           Map(m => m.Perch).Name("Perch");
+// //           Map(m => m.NestingSacks).Name("Nesting / Sacks");
+// //           Map(m => m.SeedDishCatcher).Name("Seed Dish / Catcher");
+// //           Map(m => m.ShampoosConditionersSprays).Name("Shampoos, Conditioners, & Sprays");
+// //           Map(m => m.NailTrimmers).Name("Nail Trimmers");
+// //           Map(m => m.Brushes).Name("Brushes");
+// //           Map(m => m.EarCleaner).Name("Ear Cleaner");
+// //           Map(m => m.DeodorizersStainRemovers).Name("Deodorizers & Stain Removers");
+// //           Map(m => m.BowlsWaterBottles).Name("Bowls & Water Bottles");
+// //           Map(m => m.BallsWheels).Name("Balls & Wheels");
+// //           Map(m => m.TubesTunnels).Name("Tubes & Tunnels");
+// //       }
+//	//}
+
+//    public class ImportItemPrice
+//    {
+//        public string Sku { get; set; }
+//        public string RegPrice { get; set; }
+//        public string DiscPrice { get; set; }
+//    }
+
+//    public sealed class ImportItemPriceMap : ClassMap<ImportItemPrice>
+//    {
+//        public ImportItemPriceMap()
+//        {
+//            Map(m => m.Sku).Name("Sku");
+//            Map(m => m.RegPrice).Name("RegPrice");
+//            Map(m => m.DiscPrice).Name("DiscPrice");
+//        }
+//    }
+
+//    public class ImportInventory
+//    {
+//        public string Sku { get; set; }
+//        public string StoreId { get; set; }
+//        public decimal MinQty { get; set; }
+//        public decimal MaxQty { get; set; }
+//        public decimal OnHand { get; set; }
+//    }
+
+//    public sealed class ImportInventoryMap : ClassMap<ImportInventory>
+//    {
+//        public ImportInventoryMap()
+//        {
+//            Map(m => m.Sku).Name("Sku");
+//            Map(m => m.StoreId).Name("StoreId");
+//            Map(m => m.MinQty).Name("MinQty");
+//            Map(m => m.MaxQty).Name("MaxQty");
+//            Map(m => m.OnHand).Name("OnHand");
+//        }
+//    }
+
+//    public class ImportRewardsCertificate
+//    {
+//        public string ExtraValueCardNumber { get; set; }
+//        public string RewardCode { get; set; }
+//        public double AmountRemaining { get; set; }
+//        public DateTime ExpiresOn { get; set; }
+//        public string CustomerEmail { get; set; }
+//    }
+
+//    public sealed class ImportRewardsCertificateMap : ClassMap<ImportRewardsCertificate>
+//    {
+//        public ImportRewardsCertificateMap()
+//        {
+//            Map(m => m.RewardCode).Name("RewardCode");
+//            Map(m => m.ExtraValueCardNumber).Name("ExtraValueCardNumber");
+//            Map(m => m.AmountRemaining).Name("AmountRemaining");
+//            Map(m => m.ExpiresOn).Name("ExpiresOn");
+//        }
+//    }
+
+//    public class ImportGiftCard
+//    {
+//        public string GiftCardCode { get; set; }
+//        public double AmountRemaining { get; set; }
+//    }
+
+//    public sealed class ImportGiftCardMap : ClassMap<ImportGiftCard>
+//    {
+//        public ImportGiftCardMap()
+//        {
+//            Map(m => m.GiftCardCode).Name("GiftCardCode");
+//            Map(m => m.AmountRemaining).Name("AmountRemaining");
+//        }
+//    }
+
+//    public class ImportRelatedProduct
+//    {
+//        public string Category { get; set; }
+//        public string Skus { get; set; }
+//    }
+
+//    #endregion
+
+//    #region Json Data Objects
+
+//    public class ImportPromoDiscount
+//    {
+//        public string Title { get; set; }
+//        public string DiscType { get; set; }
+//        public double DiscValue { get; set; }
+//        public DateTime StartDate { get; set; }
+//        public DateTime EndDate { get; set; }
+//        public List<string> DiscountedSkus { get; set; }
+//        public int DiscountedQty { get; set; }
+//        public List<string> RequiredSkus { get; set; }
+//        public int RequiredQty { get; set; }
+//    }
+
+//    public class ImportFrequentBuyerProgram
+//    {
+//        public string LoyaltyCode { get; set; }
+//        public List<string> ProductSkus { get; set; }
+//    }
+
+//    public class ImportMultilineKit
+//    {
+//        public string KitCode { get; set; }
+//        public string KitDescription { get; set; }
+//        public double KitPrice { get; set; }
+//        public string ProductSku { get; set; }
+//        public int ProductQty { get; set; }
+//    }
+
+//    public class ProductKitsPluginSettings : ISettings
+//    {
+//        public int CategoryId { get; set; }
+//    }
+
+//    #endregion
+//}

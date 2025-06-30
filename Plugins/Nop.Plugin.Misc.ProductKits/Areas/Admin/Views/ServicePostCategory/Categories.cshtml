@@ -1,0 +1,146 @@
+@model ServicePostCategorySearchModel
+@using NopValley.Plugins.Misc.Domain
+@{
+    //page title
+    ViewBag.PageTitle = string.Empty; //T(ResourceNames.HEADING_CONFIGURATION_BLOGCATEGORIES).Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("ServicePost categories");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "ServicePostPostsPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T(ResourceNames.HEADING_CONFIGURATION_SERVICEPOSTCATEGORIES)
+    </h1>
+    <div class="float-right">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+        </button>
+        <nop-action-confirmation asp-button-id="delete-selected" />
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="form-horizontal">
+                <div class="cards-group">
+
+                    @*hide the entire search block if no elements are displayed*@
+                    <div class="card card-default card-search">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                       
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="SearchServicePostCategoryName" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="SearchServicePostCategoryName" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-md-8 offset-md-4">
+                                        <button type="button" id="search-blogcategory" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default">
+                        <div class="card-body">
+                            
+                            @await Html.PartialAsync("Table", new DataTablesModel
+                            {
+                                Name = "blogcategories-grid",
+                                UrlRead = new DataUrl("Categories", "ServicePostCategory", null),
+                                SearchButtonId = "search-blogcategory",
+                                Length = Model.PageSize,
+                                LengthMenu = Model.AvailablePageSizes,
+                                Filters = new List<FilterParameter>
+                                {
+                                    new FilterParameter(nameof(Model.SearchServicePostCategoryName)),
+                                },
+                                ColumnCollection = new List<ColumnProperty>
+                                {
+                                      new ColumnProperty(nameof(ServicePostCategoryModel.Id))
+                                {
+                                    IsMasterCheckBox = true,
+                                    Render = new RenderCheckBox("checkbox_categories"),
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Width = "50"
+                                },
+                                    new ColumnProperty(nameof(ServicePostCategoryModel.Name))
+                                    {
+                                        Title = T(ResourceNames.FIELDNAME_SERVICEPOST_CATEGORYNAME).Text,
+                                        Width = "400"
+                                    },
+                                    new ColumnProperty(nameof(ServicePostCategoryModel.Id))
+                                    {
+                                        Title = T("Admin.Common.Edit").Text,
+                                        Width = "100",
+                                        ClassName = NopColumnClassDefaults.Button,
+                                        Render = new RenderButtonEdit(new DataUrl("Edit"))
+                                    }
+                                }
+                            })
+
+                            <script>
+                            $(document).ready(function () {
+                                $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                    var postData = {
+                                        selectedIds: selectedIds
+                                    };
+                                    addAntiForgeryToken(postData);
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                            url: "@(Url.Action("DeleteSelected", "ServicePostCategory"))",
+                                        data: postData,
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            $('#deleteSelectedFailed-info').text(errorThrown);
+                                            $('#deleteSelectedFailed').click();
+                                        },
+                                        complete: function (jqXHR, textStatus) {
+                                            updateTable('#blogcategories-grid');
+                                        }
+                                    });
+                                    $('#delete-selected-action-confirmation').modal('toggle');
+                                    return false;
+                                });
+                            });
+                            </script>
+                            <nop-alert asp-alert-id="deleteSelectedFailed" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

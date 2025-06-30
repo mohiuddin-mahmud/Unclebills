@@ -1,0 +1,930 @@
+﻿@model TopMenuModel
+
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Topics
+
+@functions {
+    async Task CategoryLine(TopMenuModel.CategoryLineModel lineModel)
+    {
+        <li class="dropdown nav-megalevel">
+            <a href="@(Url.RouteUrl<Category>(new { SeName = lineModel.Category.SeName }))">@lineModel.Category.Name
+                @if (lineModel.Category.NumberOfProducts.HasValue)
+                {
+                    <text> </text>@T("Categories.TotalProducts", lineModel.Category.NumberOfProducts.Value)
+                }
+            </a>
+            @{
+                //subcategories
+                var subCategories = lineModel.ResponsiveMobileMenu ?
+                    //responsive (all categories)
+                    lineModel.Category.SubCategories :
+                    //standard design (only categories with "IncludeInTopMenu")
+                    lineModel.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+
+                var levelClass = "";
+                if (lineModel.Level == 0)
+                {
+                    levelClass = "first-level";
+                }
+                if (subCategories.Count > 0)
+                {
+                    <div class="sublist-toggle"></div>
+                    <ul class="sublist @levelClass">
+                        @foreach (var subCategory in subCategories)
+                        {
+                            var categoryLineModel = new TopMenuModel.CategoryLineModel
+                            {
+                                Category = subCategory,
+                                Level = lineModel.Level + 1,
+                                ResponsiveMobileMenu = lineModel.ResponsiveMobileMenu
+                            };
+                            await CategoryLine(categoryLineModel);
+                        }
+                    </ul>
+                }
+            }
+        </li>
+    }
+}
+<div class="popup-box d-none">
+    <a class="close-btn" onclick="$('.popup-box').addClass( 'd-none' );">X</a>
+    <div class="popup-header row">
+        <div class="col-4"><img src="/Themes/Unclebills/Content/images/logo-black-clear.png" /></div>
+        <div class="col-8"><h2>Welcome!</h2></div>
+    </div>
+    <div class="popup-body">
+        <p><strong>Uncle Bill's <span style="color: #e24a14;">NEW</span> Online Store</strong><br />is now offering our customers<br /><em>online ordering <span style="text-decoration: underline;">for in-store pickup!</span></em></p>
+    </div>
+    <div class="popup-notice">
+        <p>Orders are typically ready for pickup at one of our store locations <strong>within 3 hours</strong> after purchase.</p>
+        <p style="text-align: right;"><em><super>*</super>Item availability varies by location.</em></p>
+    </div>
+    <div class="popup-footer">
+        <a onclick="$('.popup-box').addClass( 'd-none' );">Continue Shopping</a>
+    </div>
+</div>
+<div class="top-menu notmobile">
+    <ul class="">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMenuBefore, additionalData = Model })
+        @if (Model.DisplayHomepageMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("Homepage")">@T("Homepage")</a></li>
+        }
+
+        <li class="dropdown nav-megalevel">
+            <a href="/"><span>Pet Supplies</span></a>
+            <ul>
+                <li class="dogs">
+                    <a href="/dogs"><span>Dogs</span></a>
+                    <ul>
+                        <li>
+                            <a href="/dry-dog-food"><span>Dry Dog Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/wet-dog-food"><span>Wet Dog Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-treats"><span>Dog Treats</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-toys"><span>Dog Toys</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-grooming-items"><span>Dog Grooming Items</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-bowls-waterers-and-feeders"><span>Dog Bowls, Waterers and Feeders</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-health-maintenance"><span>Dog Health & Maintenance</span></a>
+                        </li>
+                        <li>
+                            <a href="/dog-flea-and-tick-treatments"><span>Dog Flea and Tick Treatments</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="cats">
+                    <a href="/cats"><span>Cats</span></a>
+                    <ul>
+                        <li>
+                            <a href="/dry-cat-food"><span>Dry Cat Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/wet-cat-food"><span>Wet Cat Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-treats"><span>Cat Treats</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-litter"><span>Cat Litter</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-toys"><span>Cat Toys</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-flea-and-tick-treatments"><span>Cat Flea and Tick Treatments</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-furniture"><span>Cat Furniture</span></a>
+                        </li>
+                        <li>
+                            <a href="/cat-health-maintenance"><span>Cat Health & Maintenance</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="aquatics">
+                    <a href="/aquatics"><span>Aquatics</span></a>
+                    <ul>
+                        <li>
+                            <a href="/fish-food"><span>Fish Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/aquariums-kits"><span>Aquariums &amp; Kits</span></a>
+                        </li>
+                        <li>
+                            <a href="/aquarium-lights"><span>Aquarium Lights</span></a>
+                        </li>
+                        <li>
+                            <a href="/aquarium-water-care-conditioners"><span>Aquarium Water Care & Conditioners</span></a>
+                        </li>
+                        <li>
+                            <a href="/aquarium-filters-and-refills"><span>Aquarium Filters and Refills</span></a>
+                        </li>
+                        <li>
+                            <a href="/aquarium-maintenance-cleaning"><span>Aquarium Maintenance and Cleaning</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="birds">
+                    <a href="/birds"><span>Birds</span></a>
+                    <ul>
+                        <li>
+                            <a href="/bird-food"><span>Bird Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/bird-cages"><span>Bird Cages</span></a>
+                        </li>
+                        <li>
+                            <a href="/bird-toys"><span>Bird Toys</span></a>
+                        </li>
+                        <li>
+                            <a href="/bird-treats"><span>Bird Treats</span></a>
+                        </li>
+                        <li>
+                            <a href="/bird-accessories-supplements"><span>Bird Accessories & Supplements</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="small-animals">
+                    <a href="/small-animals"><span>Small Animals</span></a>
+                    <ul>
+                        <li>
+                            <a href="/small-animal-food"><span>Small Animal Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/small-animal-bedding-and-litter"><span>Small Animal Bedding and Litter</span></a>
+                        </li>
+                        <li>
+                            <a href="/small-animal-kits-cages"><span>Small Animal Kits &amp; Cages</span></a>
+                        </li>
+                        <li>
+                            <a href="/small-animal-treats-hay-and-chews"><span>Small Animal Treats, Hay, and Chews</span></a>
+                        </li>
+                        <li>
+                            <a href="/small-animal-and-cage-accessories"><span>Small Animal and Cage Accessories</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="reptiles-amphibians">
+                    <a href="/reptiles-amphibians"><span>Reptiles &amp; Amphibians</span></a>
+                    <ul>
+                        <li>
+                            <a href="/reptile-food"><span>Reptile Food</span></a>
+                        </li>
+                        <li>
+                            <a href="/reptile-substrate"><span>Reptile Substrate</span></a>
+                        </li>
+                        <li>
+                            <a href="/reptile-terrariums-and-kits"><span>Reptile Terrariums and Kits</span></a>
+                        </li>
+                        <li>
+                            <a href="/reptile-amphibian-light-bulbs-fixtures"><span>Reptile & Amphibian Light Bulbs & Fixtures</span></a>
+                        </li>
+                        <li>
+                            <a href="/reptile-heaters"><span>Reptile Heaters</span></a>
+                        </li>
+                        <li>
+                            <a href="/reptile-accessories"><span>Reptile Accessories</span></a>
+                        </li>
+                    </ul>
+                </li>
+                @*<li class="gift-cards">
+					<a href="/25-gift-card"><span>Gift Cards</span></a>
+					<ul>
+						<li>
+							<a href="/25-gift-card"><span>$25</span></a>
+						</li>
+						<li>
+							<a href="/50-gift-card"><span>$50</span></a>
+						</li>
+						<li>
+							<a href="/100-gift-card"><span>$100</span></a>
+						</li>
+						<li>
+							<a href="/250-gift-card"><span>$250</span></a>
+						</li>
+					</ul>
+				</li>*@
+            </ul>
+        </li>
+        <li class="dropdown nav-megalevel">
+            <a href="https://www.unclebills.com/pets-and-pet-supplies">Pets</a>
+            <ul>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs"><span>Dogs</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/puppies-for-sale-directory"><span>Puppies for Sale</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/why-buy-a-puppy-from-uncle-bill's"><span>Why Buy a Puppy from Uncle Bill's</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/dog-food"><span>Dog Food</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/breeders"><span>Breeders</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/which-dog-breed-is-right-for-me"><span>Which Dog Breed is Right For Me?</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/before-you-adopt"><span>Before You Adopt</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/dog-training-class"><span>Dog Training Class</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats"><span>Cats</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/cat-food"><span>Cat Food</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/bengal-cats"><span>Bengal Cats</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/himalayan-cats"><span>Himalayan Cats</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/persian-cats"><span>Persian Cats</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/siamese-cats"><span>Siamese Cats</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/kitten-gallery"><span>Kitten Gallery</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics"><span>Aquatics</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/aquatics-blog"><span>Aquatics Blog</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/popular-freshwater-fish"><span>Popular Freshwater Fish</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/popular-saltwater-fish"><span>Popular Saltwater Fish</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds"><span>Birds</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/canaries"><span>Canaries</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/cockatiels"><span>Cockatiels</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/conures"><span>Conures</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/finches"><span>Finches</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/parakeets"><span>Parakeets</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/parrots"><span>Parrots</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/bird-coloring-pages"><span>Bird Coloring Pages</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals"><span>Small Animals</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/gerbils"><span>Gerbils</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/guinea-pigs"><span>Guinea Pigs</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/ferrets"><span>Ferrets</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/hamsters"><span>Hamsters</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/rabbits"><span>Rabbits</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/critter-coloring-pages"><span>Critter Coloring Pages</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians"><span>Reptiles & Amphibians</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/frogs-toads"><span>Frogs & Toads</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/lizards-geckos-salamanders"><span>Lizards, Geckos, & Salamanders</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/snakes"><span>Snakes</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/tortoises-turtles"><span>Tortoises & Turtles</span></a>
+                        </li>
+
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets"><span>Unusual & Exotic Pets</span></a>
+                    <ul>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/chinchillas"><span>Chinchillas</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/emperor-scorpions"><span>Emperor Scorpions</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/hedgehogs"><span>Hedgehogs</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/land-hermit-crabs"><span>Land Hermit Crabs</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/madagascar-hissing-cockroaches"><span>Madagascar Hissing Cockroaches</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/sugar-gliders"><span>Sugar Gliders</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/tarantulas"><span>Tarantulas</span></a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="https://www.unclebills.com/rewards-deals">Rewards &amp; Deals</a>
+            <ul>
+                @*<li>
+                    <a href="https://www.unclebills.com/rewards-deals/black-friday-small-business-saturday-weekend-sale"><span>Black Friday &amp; Small Business Saturday Weekend Sale</span></a>
+                </li>*@
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals/product-specials"><span>Current Specials</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals/extra-value-card"><span>Extra Value Card</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals/frequent-buyer-program"><span>Frequent Buyer Program</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals/birthday-club"><span>Birthday Club</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals/free-goldfish"><span>Free Goldfish</span></a>
+                </li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="https://www.unclebills.com/community">Community</a>
+            <ul>
+                <li>
+                    <a href="https://www.unclebills.com/community/employment"><span>Employment</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community/community-events"><span>Community Events</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community/rescue-and-rehoming-programs"><span>Rescue and Rehoming Programs</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community/activities"><span>Activities</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community/questions-comments"><span>Questions & Comments</span></a>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community/facts-about-pet-stores"><span>Facts About Pet Stores</span></a>
+                </li>
+            </ul>
+        </li>
+        <li><a href="https://www.unclebills.com/which-pet-is-right-for-me">Which Pet is Right for Me?</a></li>
+        
+        
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMenuAfter, additionalData = Model })
+    </ul>
+</div>
+
+@{
+    var rootCategoriesResponsive = Model.Categories.ToList();
+    //name it "Categories" if we have only categories. Otherwise, "Menu"
+    var responsiveMenuTitle = Model.HasOnlyCategories ? T("Categories") : T("Menu");
+
+    <div class="mobile-menu">
+        <div class="header-toogle"><a href="#menu"><span></span></a></div>
+        <nav id="menu">
+            <ul>
+                <li class="Spacer"><a href="#body"><span class="mm-close thick"></span></a></li>
+                
+                @*<li style="background-color: black;"><a href="/25-gift-card">Buy a Gift Card</a></li>*@
+                <li style="background-color: black;">
+                    <a href="@Url.RouteUrl("ShoppingCart")" class="ico-cart">
+                        <span class="cart-label">@T("ShoppingCart")</span>
+                    </a>
+                </li>
+                <li style="background-color: black;"><a href="@Url.RouteUrl("CustomerInfo")" class="ico-account">@T("Account.MyAccount")</a></li>
+                <li style="background-color: black;"><a href="https://www.unclebills.com/about">About</a></li>
+                <li style="background-color: black;"><a href="https://www.unclebills.com/locations-and-contact">Locations and Contact</a></li>
+                <li>
+                    <a href="/"><span>Pet Supplies</span></a>
+                    <ul>
+                        <li class="Spacer"><a href="#body"><span class="mm-close thick"></span></a></li>
+                        <li class="dogs">
+                            <a href="/dogs"><span>Dogs</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/dry-dog-food"><span>Dry Dog Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/wet-dog-food"><span>Wet Dog Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-treats"><span>Dog Treats</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-toys"><span>Dog Toys</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-grooming-items"><span>Dog Grooming Items</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-bowls-waterers-and-feeders"><span>Dog Bowls, Waterers and Feeders</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-health-maintenance"><span>Dog Health & Maintenance</span></a>
+                                </li>
+                                <li>
+                                    <a href="/dog-flea-and-tick-treatments"><span>Dog Flea and Tick Treatments</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="cats">
+                            <a href="/cats"><span>Cats</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/dry-cat-food"><span>Dry Cat Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/wet-cat-food"><span>Wet Cat Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-treats"><span>Cat Treats</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-litter"><span>Cat Litter</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-toys"><span>Cat Toys</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-flea-and-tick-treatments"><span>Cat Flea and Tick Treatments</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-furniture"><span>Cat Furniture</span></a>
+                                </li>
+                                <li>
+                                    <a href="/cat-health-maintenance"><span>Cat Health & Maintenance</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="aquatics">
+                            <a href="/aquatics"><span>Aquatics</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/fish-food"><span>Fish Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/aquariums-kits"><span>Aquariums &amp; Kits</span></a>
+                                </li>
+                                <li>
+                                    <a href="/aquarium-lights"><span>Aquarium Lights</span></a>
+                                </li>
+                                <li>
+                                    <a href="/aquarium-water-care-conditioners"><span>Aquarium Water Care & Conditioners</span></a>
+                                </li>
+                                <li>
+                                    <a href="/aquarium-filters-and-refills"><span>Aquarium Filters and Refills</span></a>
+                                </li>
+                                <li>
+                                    <a href="/aquarium-maintenance-cleaning"><span>Aquarium Maintenance and Cleaning</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="birds">
+                            <a href="/birds"><span>Birds</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/bird-food"><span>Bird Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/bird-cages"><span>Bird Cages</span></a>
+                                </li>
+                                <li>
+                                    <a href="/bird-toys"><span>Bird Toys</span></a>
+                                </li>
+                                <li>
+                                    <a href="/bird-treats"><span>Bird Treats</span></a>
+                                </li>
+                                <li>
+                                    <a href="/bird-accessories-supplements"><span>Bird Accessories & Supplements</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="small-animals">
+                            <a href="/small-animals"><span>Small Animals</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/small-animal-food"><span>Small Animal Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/small-animal-bedding-and-litter"><span>Small Animal Bedding and Litter</span></a>
+                                </li>
+                                <li>
+                                    <a href="/small-animal-kits-cages"><span>Small Animal Kits &amp; Cages</span></a>
+                                </li>
+                                <li>
+                                    <a href="/small-animal-treats-hay-and-chews"><span>Small Animal Treats, Hay, and Chews</span></a>
+                                </li>
+                                <li>
+                                    <a href="/small-animal-and-cage-accessories"><span>Small Animal and Cage Accessories</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="reptiles-amphibians">
+                            <a href="/reptiles-amphibians"><span>Reptiles &amp; Amphibians</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/reptile-food"><span>Reptile Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="/reptile-substrate"><span>Reptile Substrate</span></a>
+                                </li>
+                                <li>
+                                    <a href="/reptile-terrariums-and-kits"><span>Reptile Terrariums and Kits</span></a>
+                                </li>
+                                <li>
+                                    <a href="/reptile-amphibian-light-bulbs-fixtures"><span>Reptile & Amphibian Light Bulbs & Fixtures</span></a>
+                                </li>
+                                <li>
+                                    <a href="/reptile-heaters"><span>Reptile Heaters</span></a>
+                                </li>
+                                <li>
+                                    <a href="/reptile-accessories"><span>Reptile Accessories</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        @*<li class="gift-cards">
+                            <a href="/25-gift-card"><span>Gift Cards</span></a>
+                            <ul>
+                                <li>
+                                    <a href="/25-gift-card"><span>$25</span></a>
+                                </li>
+                                <li>
+                                    <a href="/50-gift-card"><span>$50</span></a>
+                                </li>
+                                <li>
+                                    <a href="/100-gift-card"><span>$100</span></a>
+                                </li>
+                                <li>
+                                    <a href="/250-gift-card"><span>$250</span></a>
+                                </li>
+                            </ul>
+                        </li>*@
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/pets-and-pet-supplies">Pets</a>
+                    <ul>
+                        <li class="Spacer"><a href="#body"><span class="mm-close thick"></span></a></li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs"><span>Dogs</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/puppies-for-sale-directory"><span>Puppies for Sale</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/why-buy-a-puppy-from-uncle-bill's"><span>Why Buy a Puppy from Uncle Bill's</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/dog-food"><span>Dog Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/breeders"><span>Breeders</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/which-dog-breed-is-right-for-me"><span>Which Dog Breed is Right For Me?</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/before-you-adopt"><span>Before You Adopt</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/dogs/dog-training-class"><span>Dog Training Class</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/cats"><span>Cats</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/cat-food"><span>Cat Food</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/bengal-cats"><span>Bengal Cats</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/himalayan-cats"><span>Himalayan Cats</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/persian-cats"><span>Persian Cats</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/siamese-cats"><span>Siamese Cats</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/cats/kitten-gallery"><span>Kitten Gallery</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics"><span>Aquatics</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/aquatics-blog"><span>Aquatics Blog</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/popular-freshwater-fish"><span>Popular Freshwater Fish</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/aquatics/popular-saltwater-fish"><span>Popular Saltwater Fish</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/birds"><span>Birds</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/canaries"><span>Canaries</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/cockatiels"><span>Cockatiels</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/conures"><span>Conures</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/finches"><span>Finches</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/parakeets"><span>Parakeets</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/parrots"><span>Parrots</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/birds/bird-coloring-pages"><span>Bird Coloring Pages</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals"><span>Small Animals</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/gerbils"><span>Gerbils</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/guinea-pigs"><span>Guinea Pigs</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/ferrets"><span>Ferrets</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/hamsters"><span>Hamsters</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/rabbits"><span>Rabbits</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/small-animals/critter-coloring-pages"><span>Critter Coloring Pages</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians"><span>Reptiles & Amphibians</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/frogs-toads"><span>Frogs & Toads</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/lizards-geckos-salamanders"><span>Lizards, Geckos, & Salamanders</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/snakes"><span>Snakes</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/reptiles-amphibians/tortoises-turtles"><span>Tortoises & Turtles</span></a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets"><span>Unusual & Exotic Pets</span></a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/chinchillas"><span>Chinchillas</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/emperor-scorpions"><span>Emperor Scorpions</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/hedgehogs"><span>Hedgehogs</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/land-hermit-crabs"><span>Land Hermit Crabs</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/madagascar-hissing-cockroaches"><span>Madagascar Hissing Cockroaches</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/sugar-gliders"><span>Sugar Gliders</span></a>
+                                </li>
+                                <li>
+                                    <a href="https://www.unclebills.com/pets-and-pet-supplies/unusual-pets/tarantulas"><span>Tarantulas</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/rewards-deals">Rewards &amp; Deals</a>
+                    <ul>
+                        <li class="Spacer"><a href="#body"><span class="mm-close thick"></span></a></li>
+                        @*<li>
+                            <a href="https://www.unclebills.com/rewards-deals/black-friday-small-business-saturday-weekend-sale"><span>Black Friday &amp; Small Business Saturday Weekend Sale</span></a>
+                        </li>*@
+                        <li>
+                            <a href="https://www.unclebills.com/rewards-deals/product-specials"><span>Current Specials</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/rewards-deals/extra-value-card"><span>Extra Value Card</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/rewards-deals/frequent-buyer-program"><span>Frequent Buyer Program</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/rewards-deals/birthday-club"><span>Birthday Club</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/rewards-deals/free-goldfish"><span>Free Goldfish</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://www.unclebills.com/community">Community</a>
+                    <ul>
+                        <li class="Spacer"><a href="#body"><span class="mm-close thick"></span></a></li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/employment"><span>Employment</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/community-events"><span>Community Events</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/rescue-and-rehoming-programs"><span>Rescue and Rehoming Programs</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/activities"><span>Activities</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/questions-comments"><span>Questions & Comments</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.unclebills.com/community/facts-about-pet-stores"><span>Facts About Pet Stores</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="https://www.unclebills.com/which-pet-is-right-for-me">Which Pet is Right for Me?</a></li>
+
+                @*@if (Model.DisplayHomePageMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("HomePage")">@T("HomePage")</a></li>
+        }
+        @foreach (var category in rootCategoriesResponsive)
+        {
+            @RenderCategoryLine(category, 0, true)
+        }
+        @foreach (var topic in Model.Topics)
+        {
+            <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+        }
+        @if (Model.NewProductsEnabled && Model.DisplayNewProductsMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("NewProducts")">@T("Products.NewProducts")</a></li>
+        }
+        @if (Model.DisplayProductSearchMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("ProductSearch")">@T("Search")</a></li>
+        }
+        @if (Model.DisplayCustomerInfoMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("CustomerInfo")">@T("Account.MyAccount")</a></li>
+        }
+        @if (Model.BlogEnabled && Model.DisplayBlogMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("Blog")">@T("Blog")</a></li>
+        }
+        @if (Model.ForumEnabled && Model.DisplayForumsMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("Boards")">@T("Forum.Forums")</a></li>
+        }
+        @if (Model.DisplayContactUsMenuItem)
+        {
+            <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
+        }*@
+                
+            </ul>
+        </nav>
+    </div>
+
+
+    @*<script type="text/javascript">
+            $(document).ready(function () {
+                $('.menu-toggle').click(function () {
+                    $(this).siblings('.top-menu.mobile').slideToggle('slow');
+                });
+                $('.top-menu.mobile .sublist-toggle').click(function () {
+                    $(this).siblings('.sublist').slideToggle('slow');
+                });
+            });
+        </script>*@
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            $("nav#menu").mmenu({
+                extensions: ["fullscreen"],
+                navbar: {
+                    title: "@responsiveMenuTitle"
+                }
+            });
+            var levelName = ["dogs", "cats", "aquatics", "birds", "small-animals", "reptiles-amphibians", "unusual-pets"];
+            $.each(levelName, function (index, value) {
+                $(".nav-megalevel > ul > li > a[href$='" + value + "']").parent().addClass(value);
+            });
+
+            $(function () {
+                if (localStorage.getItem('seen') != (new Date()).getDate()) {
+                    //setTimeout(showpopup, 2000);
+                }
+            });
+
+            function showpopup() {
+                $('.popup-box').removeClass( 'd-none' );
+                localStorage.setItem('seen', (new Date()).getDate());
+            }
+        });
+    </script>
+}

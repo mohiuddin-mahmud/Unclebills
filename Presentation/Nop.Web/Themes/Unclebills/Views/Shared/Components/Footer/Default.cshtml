@@ -1,0 +1,54 @@
+﻿@model FooterModel
+
+@using Nop.Core
+@using Nop.Core.Domain.Tax
+@using Nop.Core.Domain.Topics
+
+@inject IWorkContext workContext
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="footer-logo"></div>
+                @await Component.InvokeAsync(typeof(SocialButtonsViewComponent))
+            </div>
+            <div class="col-sm-5">
+                <div class="footer-links">
+                    Site Links<br><hr>
+                </div>
+                <div class="footer-nav">
+                    <ul class="list">
+                        @if (Model.SitemapEnabled && Model.DisplaySitemapFooterItem)
+                        {
+                            <li><a href="@Url.RouteUrl("Sitemap")">@T("Sitemap")</a></li>
+                        }
+                        @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
+                        {
+                            <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
+                        }
+                        @if (Model.DisplayContactUsFooterItem)
+                        {
+                            <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="copyright">
+                    © 2015-2022 Uncle Bills.  All Rights Reserved
+                </div>
+                <div class="boxcrush">
+                    <a href="https://www.boxcrush.com/" target="_blank">Indianapolis Web Design</a>&nbsp;by BoxCrush<br>
+                </div>
+                <!-- (c) 2005, 2018. Authorize.Net is a registered trademark of CyberSource Corporation -->
+                <div class="AuthorizeNetSeal">
+                    <script type="text/javascript" language="javascript">var ANS_customer_id = "83be6b80-7c7b-4dea-9295-aec04dcc2591";</script>
+                    <script type="text/javascript" language="javascript" src="https://verify.authorize.net:443/anetseal/seal.js"></script>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.Footer, additionalData = Model })
+</footer>

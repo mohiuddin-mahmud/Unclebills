@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "";
+}
+
+@model Nop.Plugin.Shipping.CourierNow.Models.CourierNowShippingModel
+@using Nop.Web.Framework;
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @*<div class="form-group">
+            <div class="col-md-3">
+                @Html.NopLabelFor(model => model.Radius)
+            </div>
+            <div class="col-md-9">
+                @Html.NopEditorFor(model => model.Radius)
+                @Html.ValidationMessageFor(model => model.Radius)
+            </div>
+        </div>*@
+
+                @*<div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.FeePerShipment)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.FeePerShipment)
+                        @Html.ValidationMessageFor(model => model.FeePerShipment)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.MaxWeightPerShipment)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.MaxWeightPerShipment)
+                        @Html.ValidationMessageFor(model => model.MaxWeightPerShipment)
+                    </div>
+                </div>*@
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label" for="PassDimensions" title="">Allow Shipping</label>
+                            <div class="ico-help" title="Check if you want to pass package dimensions when requesting rates."><i class="fa fa-question-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        @foreach (var csd in Model.Warehouses)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="Warehouse" value="@(csd.Value)" checked="@csd.Selected" />
+                                    @csd.Text
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.SupportedZipCodes)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.SupportedZipCodes)
+                        @Html.ValidationMessageFor(model => model.SupportedZipCodes)
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.OrderSubtotalEvalLine) <span style="color:red;">(DEPRECATED)</span>
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.OrderSubtotalEvalLine)
+                        @Html.ValidationMessageFor(model => model.OrderSubtotalEvalLine)
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.OrderWeightEvalLine) <span style="color:red;">(DEPRECATED)</span>
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.OrderWeightEvalLine)
+                        @Html.ValidationMessageFor(model => model.OrderWeightEvalLine)
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+					<div class="col-md-3">
+						@Html.NopLabelFor(model => model.UnderSubtotalEvalShippingFee) <span style="color:red;">(DEPRECATED)</span>
+					</div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.UnderSubtotalEvalShippingFee)
+                        @Html.ValidationMessageFor(model => model.UnderSubtotalEvalShippingFee)
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+					<div class="col-md-3">
+						@Html.NopLabelFor(model => model.OverSubtotalEvalShippingFee) <span style="color:red;">(DEPRECATED)</span>
+					</div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.OverSubtotalEvalShippingFee)
+                        @Html.ValidationMessageFor(model => model.OverSubtotalEvalShippingFee)
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+					<div class="col-md-3">
+						@Html.NopLabelFor(model => model.UnderWeightEvalShippingDiscount) <span style="color:red;">(DEPRECATED)</span>
+					</div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.UnderWeightEvalShippingDiscount)
+                        @Html.ValidationMessageFor(model => model.UnderWeightEvalShippingDiscount)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-9">
+                        <input type="submit" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,156 @@
+﻿.homecategory-filter-container {
+  max-width: 1060px;
+  margin: -50px auto 0;
+  background: #fff;
+  border-radius: 5px;
+  border: 1px solid #F9F9F9;
+  padding-bottom: 30px;
+}
+
+  .homecategory-filter-container h1 {
+    font-size: 32px;
+    font-weight: 900;
+    color: #0069FF;
+    text-align: center;
+    padding: 25px 0;
+  }
+
+.category-container {
+  border: 1px solid #0069FF;
+  margin: 0 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  border-radius: 5px;
+}
+
+  .category-container select {
+    border: 0px;
+    height: 40px;
+    border-right: 1px solid #C4C4C4;
+  }
+
+    .category-container select:focus,
+    .category-container select:focus-visible {
+      border: 0px;
+    }
+
+
+#btn-search {
+  height: 50px;
+  color: #fff;
+  border: 0px;
+  background: #0069FF;
+  width: 108px;
+  margin-top:0px;
+}
+
+.common-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #c4c4c4;
+  padding-right: 20px;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  z-index: 999999;
+}
+.btn-search-container {
+    width:100%;
+    display:flex;
+}
+/*.common-container:after {
+  display: flex;
+  content: "";
+  height: 40px;
+  border-right: 1px solid #C4C4C4;
+  width:1px;
+  padding-right:30px;
+}*/
+.category-filter-name {
+  color: #1D2B39;
+  font-size: 12px;
+  font-weight: 400;
+  background: url("../Images/downarrow.png") no-repeat right;
+  padding: 12px 10px;
+  width: 100%;
+}
+
+.category-wrapper {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  justify-content: stretch;
+  z-index:9;
+}
+
+  .category-wrapper .common-container:last-child::after {
+    content: unset;
+  }
+
+
+.dropdown-categories {
+  display: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  position: absolute;
+  width: 100%;
+  height: auto;
+  min-height: 50px;
+  top: 44px;
+  left: 3px;
+  flex-direction: column;
+}
+
+  .dropdown-categories .options {
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    color: #000;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    height:50px;
+  }
+
+    .dropdown-categories .options:hover {
+      color: #0069ff;
+    }
+
+    .dropdown-categories .options:last-child {
+      border: 0px;
+    }
+
+
+@media (max-width: 1000px) {
+  /* For mobile phones: */
+  
+  .category-filter-name {
+    width: 100%;
+    text-align: left;
+    padding: 12px 22px;
+  }
+
+  .common-container {
+    border-bottom: 1px solid #0069FF;
+    padding-right: 12px;
+  }
+
+  .dropdown-categories {
+    min-height: 50px;
+    top: 38px;
+    left: 0px;
+    z-index: 999999;
+  }
+
+  .sub-categories {
+    z-index: 99;
+  }
+
+  .dropdown-categories .options {
+    text-align: left;
+    padding: 12px 20px;
+  }
+ 
+}

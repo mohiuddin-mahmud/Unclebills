@@ -1,0 +1,34 @@
+﻿{
+  "InstalledPluginNames": [
+    "Obsolete field, using only for compatibility"
+  ],
+  "InstalledPlugins": [
+    {
+      "SystemName": "DiscountRequirement.MustBeAssignedToCustomerRole",
+      "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Payments.CheckMoneyOrder",
+      "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Payments.Manual",
+      "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Pickup.PickupInStore",
+      "Version": "4.80.5"
+    },
+    {
+      "SystemName": "Shipping.FixedByWeightByTotal",
+      "Version": "4.80.4"
+    },
+    {
+      "SystemName": "Tax.FixedOrByCountryStateZip",
+      "Version": "4.80.3"
+    }
+  ],
+  "PluginNamesToUninstall": [],
+  "PluginNamesToDelete": [],
+  "PluginNamesToInstall": []
+}

@@ -1,0 +1,62 @@
+﻿@model NopValley.Plugins.Misc.Models.Catalog.ProductDetailsModel.AddToCartModel
+@using Nop.Core.Domain.Orders;
+@if (!Model.DisableBuyButton || Model.CustomerEntersPrice)
+{
+    if (!Model.DisableBuyButton)
+    {
+
+        @Html.LabelFor(model => model.EnteredQuantity, new { @class = "qty-label" }, ":")
+        if (Model.AllowedQuantities.Count > 0)
+        {
+            @Html.DropDownListFor(model => model.EnteredQuantity, Model.AllowedQuantities, new { @class = "qty-dropdown" })
+        }
+        else
+        {
+            <div class="cart-quantity-wrapper">
+                <div class="cart-quantity">
+                    <a href="#" id="quantity-minus" class="inline"><i class="fa fa-minus"></i></a>
+                    @Html.TextBoxFor(model => model.EnteredQuantity, new { @class = "qty-input" })
+                    <a href="#" id="quantity-plus" class="inline"><i class="fa fa-plus"></i></a>
+
+                    <script asp-location="Footer">
+                        //when a customer clicks 'Enter' button we submit the "add to cart" button (if visible)
+                        $(function() {
+                            $("#@Html.IdFor(model => model.EnteredQuantity)").on("keydown", function(event) {
+                                if (event.keyCode == 13) {
+                                    $("#add-to-cart-button-@Model.ProductId").trigger("click");
+                                    return false;
+                                }
+                            });
+
+                            $("#product_enteredQuantity_@Model.ProductId").on("input propertychange paste", function () {
+                                var data = {
+                                    productId: @Model.ProductId,
+                                    quantity: $('#product_enteredQuantity_@Model.ProductId').val()
+                                };
+                                $(document).trigger({ type: "product_quantity_changed", changedData: data });
+                            });
+
+
+                             var quantitiy = 0;
+                            $('#quantity-plus').click(function (e) {
+                                e.preventDefault();
+                                var quantity = parseInt($("#@Html.IdFor(model => model.EnteredQuantity)").val());
+                                $("#@Html.IdFor(model => model.EnteredQuantity)").val(quantity + 1);
+                            });
+
+                            $('#quantity-minus').click(function (e) {
+                                e.preventDefault();
+                                var quantity = parseInt($("#@Html.IdFor(model => model.EnteredQuantity)").val());
+                                if (quantity > 1) {
+                                    $("#@Html.IdFor(model => model.EnteredQuantity)").val(quantity - 1);
+                                }
+                            });
+                        });
+                    </script>
+
+
+                </div>
+            </div>
+        }
+    }
+}

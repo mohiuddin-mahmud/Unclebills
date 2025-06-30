@@ -1,0 +1,165 @@
+﻿@model CategoryNavigationModel
+
+@* @using Nop.Core.Domain.Catalog *@
+
+@using Nop.Web.Models.Catalog;
+
+@functions {
+    bool BreadCrumbContainsCurrentCategoryId(CategorySimpleModel category)
+    {
+        if (Model.CurrentCategoryId == 0)
+            return false;
+
+        if (category.Id == Model.CurrentCategoryId)
+            return true;
+
+        foreach (var subCategory in category.SubCategories)
+        {
+            if (BreadCrumbContainsCurrentCategoryId(subCategory))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    async Task CategoryLine(CategoryNavigationModel.CategoryLineModel lineModel)
+    {
+        var active = lineModel.Category.Id == lineModel.CurrentCategoryId || lineModel.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
+        var last = lineModel.Category.Id == lineModel.CurrentCategoryId;
+        var liClass = active ? "active" : "inactive";
+        if (last)
+        {
+            liClass += " last";
+        }
+
+        <li class="@liClass">
+            <a href="@(Url.RouteUrl<Nop.Core.Domain.Catalog.Category>(new { SeName = lineModel.Category.SeName }))">
+                @lineModel.Category.Name
+                @if (lineModel.Category.NumberOfProducts.HasValue)
+                {
+                    <text> </text>@T("Categories.TotalProducts", lineModel.Category.NumberOfProducts.Value)
+                }
+            </a>
+            @{
+                if (lineModel.Category.Id == lineModel.CurrentCategoryId ||
+                    lineModel.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0)
+                {
+                    if (lineModel.Category.SubCategories.Count > 0)
+                    {
+                        <ul class="sublist">
+                            @foreach (var subCategory in lineModel.Category.SubCategories)
+                            {
+                                var categoryLineModel = new CategoryNavigationModel.CategoryLineModel
+                                {
+                                    CurrentCategoryId = lineModel.CurrentCategoryId,
+                                    Category = subCategory
+                                };
+                                await CategoryLine(categoryLineModel);
+                            }
+                        </ul>
+                    }
+                }
+            }
+        </li>
+    }
+
+    async Task RenderCategoryLineNew(CategorySimpleModel category)
+    {
+        bool active = category.Id == Model.CurrentCategoryId || category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
+        bool last = category.Id == Model.CurrentCategoryId;
+        string liClass = active ? "active" : "inactive";
+        if (last)
+        {
+            liClass += " last";
+        }
+
+        <a class="@liClass dropdown-item @(category.NumberOfProducts.Value == 0 ? "disable" : "")" href="@Url.RouteUrl("Category", new { SeName = category.SeName })">
+            @category.Name
+            @*@if (category.NumberOfProducts.HasValue)
+            {
+                <text> </text>@T("Categories.TotalProducts", category.NumberOfProducts.Value)
+            }*@
+
+        </a>
+        {
+            if (category.Id == Model.CurrentCategoryId ||
+                category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0)
+            {
+                if (category.SubCategories.Count > 0)
+                {
+                    <ul class="sublist">
+                        @foreach (var subCategory in category.SubCategories)
+                        {
+                            @RenderCategoryLineNew(subCategory)
+                        }
+                    </ul>
+                }
+            }
+        }
+
+    }
+}
+
+
+@if (Model.Categories.Count > 0)
+{
+    <div class="block block-category-navigation">
+
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" data-flip="false" aria-expanded="false">
+                @T("Category")
+            </button>
+
+
+            @foreach (var category in Model.Categories)
+            {
+
+                if (category.Id == Model.CurrentCategoryId ||
+                category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0)
+                {
+                    if (category.SubCategories.Count > 0)
+                    {
+                        <div class="dropdown-menu">
+                            @foreach (var subCategory in category.SubCategories)
+                            {
+                                @RenderCategoryLineNew(subCategory)
+                            }
+                        </div>
+
+                    }
+                }
+                if (category.Id == Model.CurrentCategoryId ||
+                category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0)
+                {
+                    if (category.SubCategories.Count > 0)
+                    {
+                        foreach (var subCategory in category.SubCategories)
+                        {
+                            if (subCategory.Id == Model.CurrentCategoryId || subCategory.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0)
+                            {
+                                <div class="dropdown-choise">
+                                    <div class="dropdown-choise-item">
+                                        @subCategory.Name <a href="@Url.RouteUrl("Category", new { SeName = category.SeName })"><span class="close-check"></span></a>
+                                    </div>
+                                </div>
+                                @*var url = string.Format("/Themes/Unclebills/Content/images/{0}.jpg", subCategory.SeName);
+                                    <style>
+                                        .section-withimg {
+                                            background-image: url('@url');
+                                        }
+                                    </style>*@
+                            }
+                        }
+
+                    }
+                }
+
+
+
+            }
+        </div>
+        
+    </div>
+}

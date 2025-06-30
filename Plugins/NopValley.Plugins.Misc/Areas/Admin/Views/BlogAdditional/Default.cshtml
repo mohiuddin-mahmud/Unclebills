@@ -1,0 +1,51 @@
+@model BlogAdditionalModel
+
+<nop-card>
+    <div class="card card-secondary card-outline advanced-setting">
+        <div class="card-header with-border clearfix">
+            <div class="card-title"><i class="fas fa-search-plus"></i>Blog Post Additional</div>
+            <div class="card-tools float-right"><button class="btn btn-tool" data-card-widget="collapse" type="button" fdprocessedid="51ee33"><i class="fa toggle-icon fa-minus"></i></button></div>
+        </div>
+        <div class="card-body">
+
+            <div class="form-group advanced-setting row">
+                <div class="col-md-3">
+                    <nop-label asp-for="PictureId" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="PictureId" />
+                    <span asp-validation-for="PictureId"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input type="button" id="SaveBlogPostAdditions" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")" />
+                </div>
+            </div>
+        </div>
+    </div>
+</nop-card>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#SaveBlogPostAdditions').click(function () {
+            var postData = {
+                BlogPostId: @Model.BlogPostId,
+                PictureId: $('#@Html.IdFor(model => model.PictureId)').val()
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: "@(Url.Action("SaveBlogPostAdditions", "BlogAdmin"))",
+                data: postData,
+                success: function (data) {
+                    alert(data.message);
+                }
+            });
+        });
+    });
+</script>

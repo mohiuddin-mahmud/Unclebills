@@ -1,0 +1,27 @@
+﻿@model ConfigurationModel
+
+
+@{
+    //page title
+    ViewBag.PageTitle = T("NopValley.Plugins.Misc.CaseStudy.EditReferenceConfiguration").Text;
+    //tour step
+
+    var customer = await workContext.GetCurrentCustomerAsync();
+
+    const string hideInfoBlockAttributeName = "CaseStudyDetailsPage.HideInfoBlock";
+    //active menu item (system name)
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+       
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">            
+            <nop-cards id="reference-configuration-cards">
+                <nop-card asp-name="reference-configuration" asp-icon="fas fa-info" asp-title="@T("NopValley.Plugins.Misc.Reference.Configuration")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Configuration.cshtml", Model)</nop-card>
+                
+            </nop-cards>
+        </div>
+    </div>
+</section>
+

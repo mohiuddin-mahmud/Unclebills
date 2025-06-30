@@ -1,0 +1,194 @@
+﻿
+.testimonial-slider {
+  display: flex;
+  max-width: 600px;
+}
+
+.testimonial-container .title {
+  font-size: 42px;
+  font-weight: 900;
+  color: #181d20;
+  margin-bottom: 20px;
+}
+
+.testimonial-container {
+  max-width: 1198px;
+  margin: 50px auto 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+  .testimonial-container .slick-slide {
+    padding: 15px;
+    position: relative;
+  }
+
+  .testimonial-container .card {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    padding: 20px;
+    box-shadow: 0px 3px 20px 0px #0000001A;
+  }
+
+.card-img-top {
+  width: 75px;
+  height: 75px;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: 2px solid #fff;
+  margin-right: 20px;
+}
+
+img {
+  vertical-align: middle;
+  border-style: none;
+}
+
+.testimonial-container .card-body {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+  .testimonial-container .card-body p {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+.testimonial-container .card-title {
+  margin-bottom: 0.75rem;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: "Roboto", sans-serif;
+}
+
+.card-text {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+  .card-text > p {
+    line-height: 24px;
+  }
+
+.card-top {
+  display: flex;
+  align-items: center;
+  padding: 20px 20px 0;
+}
+
+.list-inline-item {
+  display: inline-block;
+}
+
+.star-rating li {
+  padding: 0 2px;
+}
+
+.list-inline-item:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.star-rating i {
+  font-size: 14px;
+}
+
+.star-rating i {
+  font-size: 14px;
+  color: #ffdc12;
+}
+
+.card:before {
+  content: "";
+  display: flex;
+  width: 40px;
+  height: 32px;
+  background: url("../images/quote-top.png") no-repeat;
+  top: 0px;
+  position: absolute;
+  z-index: 999999 !important;
+  left: 40px;
+}
+
+.card:after {
+  content: "";
+  display: flex;
+  width: 40px;
+  height: 32px;
+  background: url("../images/quote-bottom.png") no-repeat;
+  bottom: 0px;
+  position: absolute;
+  z-index: 999999 !important;
+  right: 40px;
+}
+
+@media (max-width: 1000px) {
+  .testimonial-container .title {
+    font-size: 18px;
+  }
+
+  .testimonial-container .card {
+    text-align: left;
+    max-width: unset !important;
+    width: 100% !important;
+  }
+
+  .testimonial-container .card-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .star-rating li {
+    padding: 0 0px;
+  }
+
+  .testimonial-container .card-body {
+    padding: 0 22px;
+  }
+
+  .card-img-top {
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .list-inline-item:not(:last-child) {
+    margin-right: 2px;
+  }
+
+  .card:before {
+    left: 85px;
+  }
+
+  .card:after {
+    right: 85px;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  .card:before {
+    left: 45px;
+  }
+
+  .card:after {
+    right: 45px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .card:before {
+    left: 35px;
+  }
+
+  .card:after {
+    right: 35px;
+  }
+}

@@ -1,0 +1,524 @@
+﻿@using Nop.Core
+@using Nop.Core.Infrastructure
+@model CustomerInfoModel
+@inject Nop.Core.IWebHelper webHelper
+@{
+    Layout = "_ProfileTemplate";
+
+    var themeName = EngineContext.Current.Resolve<IThemeContext>().GetWorkingThemeNameAsync().Result;
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-account-page");
+    NopHtml.AppendPageCssClassParts("html-customer-info-page");
+}
+
+
+<style>
+    .section-withimg {
+        background-image: url('/Themes/Unclebills/Content/images/bg-account.jpg');
+    }
+</style>
+<div class="page profile-page">
+    
+    <div class="page-body">
+        <div class="top-profile">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="profile-name"><strong>@Model.FirstName @Model.LastName</strong>  |  #@Model.RewardsNumber</div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="GaugeMeter" id="PreviewGaugeMeter_2" data-used="@Model.RewardsPointsEarned" data-total="@Model.RewardsPointsGoal" data-append="@Model.RewardsPointsEarned/@Model.RewardsPointsGoal" data-size="215" data-theme="White" data-back="#79021D" data-animate_gauge_colors="1" data-animate_text_colors="1" data-width="15" data-label="<span class='simple-logo'></div>" data-style="Arch" data-label_color="#FFF"></div>
+                                <div class="gm-info">
+                                    <div class="gm-strong">Points Earned</div>
+                                    @*<div class="gm-oblique">33 Points Pending <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i></div>*@
+                                </div>
+                                <script>
+                                    $(".GaugeMeter").gaugeMeter();
+                                    $(function () {
+                                        $('[data-toggle="tooltip"]').tooltip();
+                                    });
+                                </script>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="gm-points-until">@Model.RewardsPointsToGo</div>
+                                <div class="gm-strong mb-4">
+                                    Points until<br />
+                                    Next Reward
+                                </div>
+                                <div class="gm-oblique">Next Reward: $5 Coupon</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        @if (Model.CpDiscounts.Count == 0)
+                        {
+                            <div class="slider-top">Frequent Buyer Discounts</div>
+                        }
+                        else
+                        {
+                            <div class="slider-top">You have Frequent Buyer discounts ready soon!</div>
+                        }
+                        <div class="profile-carousel">
+                            @if (Model.CpDiscounts.Count == 0)
+                            {
+                                <div>
+                                    <div class="carousel-points">
+                                        @T("account.discounts.none")
+                                    </div>
+                                </div>
+                            }
+                            @foreach (var disc in Model.CpDiscounts)
+                            {
+                                <div>
+                                    @*<img src="@string.Format("/Themes/{0}/Content/images/no-image.jpg", themeName)" />*@
+                                    <img src="@string.Format("https://s3.amazonaws.com/store.unclebills.com/{0}.png", disc.LoyaltyCode)" />
+                                    <div class="carousel-title">
+                                        @disc.LoyaltyName
+                                    </div>
+                                    <div class="carousel-points">@Convert.ToInt32(Convert.ToDouble(@disc.PurchaseStatus)).ToString() / @Convert.ToInt32(Convert.ToDouble(@disc.PurchaseGoal)).ToString()</div>
+                                </div>
+                            }
+                        </div>
+                        <script>
+                            $('.profile-carousel').slick({
+                                infinite: false,
+                                slidesToShow: 3,
+                                slidesToScroll: 1
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="main-profile">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="profile-tabs-wrapper">
+							<ul class="nav profile-tabs" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link active" id="profile-home-tab" data-toggle="pill" href="#profile-home" role="tab" aria-controls="profile-home" aria-selected="true">Profile</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="profile-pet-tab" data-toggle="pill" href="#profile-pet" role="tab" aria-controls="profile-pet" aria-selected="false">Pet Profile</a>
+								</li>
+								@if (Model.RecurringOrders.RecurringOrders.Any())
+								{
+									<li class="nav-item">
+										<a class="nav-link" id="profile-recurring-tab" data-toggle="pill" href="#profile-recurring" role="tab" aria-controls="profile-recurring" aria-selected="false">Recurring Orders</a>
+									</li>
+								}
+								<li class="nav-item float-right">
+									<a class="nav-link" id="order-history-tab" data-toggle="pill" href="#order-history" role="tab" aria-controls="order-history" aria-selected="false">Order History</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane fade show active" id="profile-home" role="tabpanel" aria-labelledby="profile-home-tab">
+									<div class="ph-block">
+										<div class="row">
+											<div class="col-sm-6">
+												<div class="form-group">
+													<label>Name</label>
+													@Model.FirstName @Model.LastName
+												</div>
+												<div class="form-group">
+													<label>Phone Number</label>
+													@Model.FormattedPhoneNumber
+												</div>
+												<div class="form-group">
+													<label>Address</label>
+													@Model.StreetAddress, @Model.StreetAddress2<br />
+													@Model.City, @Model.StateProvinceText @Model.ZipPostalCode
+												</div>
+											</div>
+											<div class="col-sm-6">
+												<div class="form-group">
+													<label>Email Address</label>
+													<a href="mailto:@Model.Email">@Model.Email</a>
+												</div>
+												<div class="form-group">
+													<label>Password</label>
+													******
+												</div>
+												<div class="form-group">
+													@*<label>Receive Rewards Certificates via:</label>*@
+													<label>Preferred Mode of Contact:</label>
+													@Model.ReceiveRewardsMethod
+												</div>
+												<div class="text-right">
+													<a class="edit-link" href="javascript:void(0)">edit profile</a>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="ph-edit-block">
+										@using (Html.BeginForm("EditProfile", "Customer", FormMethod.Post))
+										{
+											@Html.AntiForgeryToken();
+											var receiveMail = Model.ReceiveRewardsMethod == "Mail" ? "checked" : "";
+											var receiveEmail = Model.ReceiveRewardsMethod == "Email" ? "checked" : "";
+											<input type="hidden" name="rewards-number" value="@Model.RewardsNumber" />
+											<div class="row">
+												<div class="col-sm-6">
+													<div class="form-group">
+														<div class="row row-sp">
+															<div class="col-sm-6 col-sp">
+																<label>First Name</label>
+																<input type="text" name="first-name" value="@Model.FirstName" />
+															</div>
+															<div class="col-sm-6 col-sp">
+																<label>Last Name</label>
+																<input type="text" name="last-name" value="@Model.LastName" />
+															</div>
+														</div>
+
+													</div>
+													<div class="form-group">
+														<label>Phone Number</label>
+														<input type="text" name="address-phone" value="@Model.Phone" />
+													</div>
+													<div class="form-group">
+														<label>Address</label>
+														<input type="text" name="address-1" value="@Model.StreetAddress" />
+													</div>
+													<div class="form-group">
+														<label>Address (line 2)</label>
+														<input type="text" name="address-2" value="@Model.StreetAddress2" />
+													</div>
+													<div class="form-group">
+														<label>City</label>
+														<input type="text" name="address-city" value="@Model.City" />
+													</div>
+													<div class="form-group">
+														<div class="row">
+															<div class="col-sm-6">
+																<label>State</label>
+																@Html.DropDownList("StateProvinceId", Model.AvailableStates)
+																@*<input type="text" name="address-state" value="@Model.StateProvinceId" />*@
+															</div>
+															<div class="col-sm-6">
+																<label>Zip code</label>
+																<input type="text" name="address-zip" value="@Model.ZipPostalCode" />
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="col-sm-6">
+													<div class="form-group">
+														<label>Email Address</label>
+														<input type="email" name="email-address" value="@Model.Email" />
+													</div>
+													<div class="form-group">
+														<label>Current Password</label>
+														<input type="password" name="current-password" value="" />
+													</div>
+													<div class="form-group">
+														<label>New Password</label>
+														<input type="password" name="new-password" value="" />
+													</div>
+													<div class="form-group">
+														<label>Confirm Password</label>
+														<input type="password" name="confirm-password" value="" />
+													</div>
+													<div class="form-group">
+														<label>Preferred Mode of Contact:</label>
+														<ul class="radio-inline">
+															<li>
+																<input type="radio" id="r-mail" name="mail-group" value="Mail" class="radio" @receiveMail />
+																<label for="r-mail">Mail</label>
+															</li>
+															<li>
+																<input type="radio" id="r-email" name="mail-group" value="Email" class="radio" @receiveEmail />
+																<label for="r-email">Email</label>
+															</li>
+														</ul>
+													</div>
+													<div class="text-right">
+														<input type="submit" class="btn" value="Save changes" name="save-button">
+													</div>
+												</div>
+											</div>
+										}
+									</div>
+									<div class="member-deals">
+										<div class="member-deals-top">Your Member Deals!</div>
+										<a href="https://www.unclebills.com/rewards-deals/product-specials">View our monthy deals!</a>
+									</div>
+								</div>
+								<div class="tab-pane fade" id="profile-pet" role="tabpanel" aria-labelledby="profile-pet-tab">
+									@foreach (var petProfile in Model.PetProfiles)
+									{
+										<div class="pp-item">
+											<div class="pp-block">
+												<div class="row">
+													@*<div class="col-sm-4">
+								<img src="@string.Format("/Themes/{0}/Content/images/no-image-profile.png", themeName)" />
+							</div>*@
+													<div class="col-sm-3">
+														<div class="form-group">
+															<label>Name</label>
+															@petProfile.Name
+														</div>
+														<div class="form-group">
+															<label>Species</label>
+															@petProfile.Species
+														</div>
+														<div class="form-group">
+															<label>Breed</label>
+															@petProfile.Breed
+														</div>
+													</div>
+													<div class="col-sm-5">
+														<div class="form-group">
+															<label>Birthday (or Adoption Day)</label>
+															@petProfile.Birthday.ToString("MM/dd/yyyy")
+														</div>
+														<div class="form-group">
+															<label>Gender</label>
+															@petProfile.Gender
+														</div>
+													</div>
+												</div>
+												<div class="text-right">
+													<a class="edit-link" href="javascript:void(0)">edit profile</a>
+												</div>
+											</div>
+											<div class="pp-edit-block">
+												@using (Html.BeginForm("EditPetProfile", "Customer", FormMethod.Post))
+												{
+													@Html.AntiForgeryToken();
+													<div class="row">
+														<div class="col-sm-4">
+															<img src="@string.Format("/Themes/{0}/Content/images/no-image-profile.png", themeName)" />
+															<input type="hidden" id="edit-pet-profile-id-@petProfile.Id" value="@petProfile.Id" name="edit-pet-profile-id" />
+														</div>
+														<div class="col-sm-3">
+															<div class="form-group">
+																<label>Name</label>
+																<input id="edit-pet-name-@petProfile.Id" name="edit-pet-name" type="text" value="@petProfile.Name" />
+															</div>
+															<div class="form-group">
+																<label>Species</label>
+																<input id="edit-pet-species-@petProfile.Id" name="edit-pet-species" type="text" value="@petProfile.Species" />
+															</div>
+															<div class="form-group">
+																<label>Breed</label>
+																<input id="edit-pet-breed-@petProfile.Id" name="edit-pet-breed" type="text" value="@petProfile.Breed" />
+															</div>
+														</div>
+														<div class="col-sm-5">
+															<div class="form-group">
+																<label>Birthday (or Adoption Day)</label>
+																<input id="edit-pet-bday-@petProfile.Id" name="edit-pet-bday" type="text" value="@petProfile.Birthday.ToString("MM/dd/yyyy")" />
+															</div>
+															<div class="form-group">
+																<label>Gender</label>
+																<input id="edit-pet-gender-@petProfile.Id" name="edit-pet-gender" type="text" value="@petProfile.Gender" />
+															</div>
+														</div>
+													</div>
+													<div class="text-right">
+														<input type="submit" class="btn" value="Save changes" name="save-button">
+													</div>
+												}
+											</div>
+										</div>
+									}
+									<div class="pp-item">
+										<div class="pp-block">
+											<div class="row">
+												<div class="col-sm-4">
+													<h4>Add another pet?</h4>
+												</div>
+												<div class="col-sm-3">
+													&nbsp;
+												</div>
+												<div class="col-sm-5">
+													&nbsp;
+												</div>
+											</div>
+											<div class="text-right">
+												<a class="add-link edit-link" href="javascript:void(0)">add a pet</a>
+											</div>
+										</div>
+										<div class="pp-edit-block">
+											<div class="row">
+												<h4>Add a pet</h4>
+											</div>
+											@using (Html.BeginForm("AddPetProfile", "Customer", FormMethod.Post))
+											{
+												@Html.AntiForgeryToken();
+												<div class="row">
+													<div class="col-sm-4">
+														<input type="hidden" id="add-rewards-number" name="add-rewards-number" value="@Model.RewardsNumber" />
+													</div>
+													<div class="col-sm-3">
+														<div class="form-group">
+															<label>Name</label>
+															<input id="add-pet-name" name="add-pet-name" type="text" value="" />
+														</div>
+														<div class="form-group">
+															<label>Species</label>
+															<input id="add-pet-species" name="add-pet-species" type="text" value="" />
+														</div>
+														<div class="form-group">
+															<label>Breed</label>
+															<input id="add-pet-breed" name="add-pet-breed" type="text" value="" />
+														</div>
+													</div>
+													<div class="col-sm-5">
+														<div class="form-group">
+															<label>Birthday (or Adoption Day)</label>
+															<input id="add-pet-bday" name="add-pet-bday" type="text" value="MM/DD/YYYY" />
+														</div>
+														<div class="form-group">
+															<label>Gender</label>
+															<input id="add-pet-gender" name="add-pet-gender" type="text" value="" />
+														</div>
+													</div>
+												</div>
+												<div class="text-right">
+													<input type="submit" class="btn" value="Add my pet" name="save-button">
+												</div>
+											}
+										</div>
+									</div>
+								</div>
+								@if (Model.RecurringOrders.RecurringOrders.Any())
+								{
+									<div id="profile-recurring" class="tab-pane fade">
+										<div class="recurring-orders">
+											<ul>
+												@foreach (var ro in Model.RecurringOrders.RecurringOrders)
+												{
+													<li>@Html.ActionLink(ro.Name + " (View)", "RecurringOrder", "ShoppingCart", new { recurringOrderId = ro.Id }, null)</li>
+												}
+											</ul>
+										</div>
+									</div>
+								}
+								<div class="tab-pane fade" id="order-history" role="tabpanel" aria-labelledby="order-history-tab">
+									
+																
+                                </div>
+							</div>
+
+                        </div>
+
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="store-wrapper">
+                            <div class="preferred-store">
+                                <h4>Preferred Store</h4>
+                                <div class="store">
+                                   
+                                    <a class="edit-link" href="javascript:void(0)">edit</a>
+                                </div>
+                                <div class="edit-store">
+                                    @using (Html.BeginForm("EditPreferredStore", "Customer", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken();
+                                        <ul class="radio-inline">
+                                            @foreach (var vendor in Model.Vendors)
+                                            {
+                                                <li>
+                                                    <input type="radio" id="store-@vendor.Id" name="store-group" value="@vendor.Id" class="radio" @vendor.Description>
+                                                    <label for="store-@vendor.Id">@vendor.Name</label>
+                                                </li>
+                                            }
+                                        </ul>
+                                        <input type="submit" class="btn" value="Save changes" name="save-button">
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="interested">
+                                <h4>Interested in:</h4>
+                                <div class="interested-list">
+                                    <ul>
+                                        @if (Model.InterestedIn != null)
+                                        {
+                                            int count = 0;
+                                            foreach(var attributeValue in Model.InterestedIn.Values)
+                                            {
+                                                if (attributeValue.IsPreSelected)
+                                                {
+                                                    count++;
+                                                    <li>@attributeValue.Name</li>
+                                                }
+                                            }
+                                            if(count == 0)
+                                            {
+                                                <li>No interests indicated. Please click Edit on the right.</li>
+                                            }
+                                        }
+                                    </ul>
+                                    <a class="edit-link" href="javascript:void(0)">edit</a>
+                                </div>
+                                <div class="edit-interested">
+                                    @using (Html.BeginForm("EditInterestedIn", "Customer", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <ul class="radio-inline">
+                                            @if (Model.InterestedIn != null)
+                                            {
+                                                foreach (var attributeValue in Model.InterestedIn.Values)
+                                                {
+                                                    <li>
+                                                        <input id="interest-@(attributeValue.Id)" type="checkbox" name="interested-group" class="checkbox" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected" />
+                                                        <label for="interest-@(attributeValue.Id)">@attributeValue.Name</label>
+                                                    </li>
+                                                }
+                                            }
+                                        </ul>
+                                        <input type="submit" class="btn" value="Save changes" name="save-button">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        </div>
+</div>
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+
+        $(".ph-edit-block").hide();
+        $(".ph-block").show();
+
+        $(".ph-block .edit-link").click(function () {
+            $(".ph-block").hide();
+            $(".ph-edit-block").show();
+        });
+        $(".ph-edit-block input[type='submit']").click(function () {
+            $(".ph-edit-block").hide();
+            $(".ph-block").show();
+        });
+        $(".store-wrapper .edit-link").click(function () {
+            $(this).parent().parent().addClass("editing");
+        });
+        $(".store-wrapper input[type='submit']").click(function () {
+            $(this).parent().parent().removeClass("editing");
+        });
+        $(".pp-item .edit-link").click(function () {
+            $(this).parent().parent().parent().addClass("editing");
+        });
+        $(".pp-item .add-link").click(function () {
+            $(this).parent().parent().parent().addClass("editing");
+        });
+        $(".pp-item input[type='submit']").click(function () {
+            $(this).parent().parent().parent().removeClass("editing");
+        });
+    });
+</script>
+
+

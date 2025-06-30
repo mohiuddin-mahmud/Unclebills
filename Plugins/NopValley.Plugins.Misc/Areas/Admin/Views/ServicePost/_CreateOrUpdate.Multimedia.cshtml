@@ -1,0 +1,19 @@
+﻿@model NopValley.Plugins.Misc.Areas.Admin.Models.ServicePost.ServicePostModel
+
+<div class="card-body">
+    @if (Model.Id > 0)
+    {
+		<nop-tabs id="productmultimedia-edit" asp-tab-name-to-select="tab-pictures" asp-render-selected-tab-input="false">
+            <nop-tab asp-name="tab-pictures" asp-title="@T("Admin.Catalog.Products.Multimedia.Pictures")" asp-default="true">@await Html.PartialAsync("~/Plugins/NopValley.Misc/Areas/Admin/Views/ServicePost/_CreateOrUpdate.Multimedia.Pictures.cshtml", Model)</nop-tab>
+			
+		</nop-tabs>
+    }
+    else
+    {
+        <div class="card card-default">
+            <div class="card-body">
+                @T("Admin.Catalog.Products.Multimedia.SaveBeforeEdit")
+            </div>
+        </div>
+    }    
+</div>

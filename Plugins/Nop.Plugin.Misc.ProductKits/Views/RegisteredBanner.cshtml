@@ -1,0 +1,36 @@
+@model IList<NopValley.Plugins.Misc.Models.HtmlWidgetPublicModel>
+@using Nop.Core.Domain.Catalog
+@using Nop.Web.Framework.Mvc.Routing
+@{
+    if (Model.Count() > 0)
+    {
+        <div class="banner-wrapper">
+            <div class="banner-container">
+                <div class="title">
+                    @T("HIZMET.ALANLARI")
+                </div>
+                <div class="home-page-banner-grid">
+                    <div class="item-grid banner-slider">
+                        @foreach (var banner in Model)
+                        {
+                            <div class="item-box" onclick=gotoLink("@banner.Link")>
+                                <div>
+                                    <img alt="@banner.PictureModel.AlternateText" src="@banner.PictureModel.ImageUrl" title="@banner.Title" />
+                                </div>
+                                <div class="category-details">
+                                    <div class="banner-title">
+                                        @banner.Title
+                                    </div>                                  
+                                </div>
+                                <a class="banner-button" href="@banner.Link">@T("NopValley.Plugins.Misc.HtmlWidget.RegisteredButtonName")</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+}
+
+<link rel="stylesheet" href="~/Plugins/NopValley.Misc/Content/css/styles.css" type="text/css" />
