@@ -287,7 +287,7 @@ namespace Nop.Services.Orders
 
 				if (success)
 				{
-					_workflowMessageService.SendRecurringOrderStoreNotification(ro, _localizationSettings.DefaultAdminLanguageId, items, initialOrder);
+					await _workflowMessageService.SendRecurringOrderStoreNotification(ro, _localizationSettings.DefaultAdminLanguageId, items, initialOrder);
 				}
 				else
 				{
@@ -303,10 +303,10 @@ namespace Nop.Services.Orders
 			ordersToUpdate = query.ToList();
 			foreach (var ro in ordersToUpdate)
 			{
-				UpdateSubscriptionTotal(ro.Id);
+				await UpdateSubscriptionTotal(ro.Id);
 				var items = GetRecurringOrderShoppingCartItems(ro.Id);
 				var initialOrder = GetInitialOrderByRecurringOrderId(ro.Id);
-				_workflowMessageService.SendRecurringOrderCustomerNotification(ro, _localizationSettings.DefaultAdminLanguageId, items, initialOrder);
+				await _workflowMessageService.SendRecurringOrderCustomerNotification(ro, _localizationSettings.DefaultAdminLanguageId, items, initialOrder);
 			}
 		}
 

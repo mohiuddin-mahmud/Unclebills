@@ -1,9 +1,11 @@
-﻿using System.Xml;
+﻿using System.Data;
+using System.Xml;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
+using Nop.Core.Domain.Configuration;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Forums;
 using Nop.Core.Domain.News;
@@ -16,6 +18,7 @@ using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Services.Common;
 using Nop.Services.Localization;
+using static Nop.Services.Security.StandardPermission;
 
 namespace Nop.Services.Customers;
 
@@ -52,6 +55,10 @@ public partial class CustomerService : ICustomerService
     protected readonly ShoppingCartSettings _shoppingCartSettings;
     protected readonly TaxSettings _taxSettings;
 
+    private readonly IRepository<RewardsCardLookupFlat> _rewardsCardLookupFlatRepository;
+    protected readonly IRepository<GenericAttribute> _genericAttributeRepository;
+
+
     #endregion
 
     #region Ctor
@@ -80,7 +87,9 @@ public partial class CustomerService : ICustomerService
         IStaticCacheManager staticCacheManager,
         IStoreContext storeContext,
         ShoppingCartSettings shoppingCartSettings,
-        TaxSettings taxSettings)
+        TaxSettings taxSettings,
+        IRepository<RewardsCardLookupFlat> rewardsCardLookupFlatRepository,
+        IRepository<GenericAttribute> genericAttributeRepository)
     {
         _customerSettings = customerSettings;
         _eventPublisher = eventPublisher;
@@ -107,6 +116,8 @@ public partial class CustomerService : ICustomerService
         _storeContext = storeContext;
         _shoppingCartSettings = shoppingCartSettings;
         _taxSettings = taxSettings;
+        _rewardsCardLookupFlatRepository = rewardsCardLookupFlatRepository;
+        _genericAttributeRepository = genericAttributeRepository;
     }
 
     #endregion
@@ -1676,5 +1687,93 @@ public partial class CustomerService : ICustomerService
 
     #endregion
 
+
+    //public async Task RefreshRewardsAsync()
+    //{
+    //    // Get the underlying DbContext
+    //    var context = _customerRepository.
+
+    //    // Get the database connection
+    //    var connection = context.Database.GetDbConnection();
+
+    //    try
+    //    {
+    //        // Open connection
+    //        if (connection.State != ConnectionState.Open)
+    //            await connection.OpenAsync();
+
+    //        // Create command
+    //        using (var command = connection.CreateCommand())
+    //        {
+    //            command.CommandText = "FillRewardsCardLookupFlat";
+    //            command.CommandType = CommandType.StoredProcedure;
+    //            command.CommandTimeout = 999999; // Set timeout
+
+    //            // Execute command
+    //            await command.ExecuteNonQueryAsync();
+    //        }
+    //    }
+    //    finally
+    //    {
+    //        // Close connection if we opened it
+    //        if (connection.State == ConnectionState.Open)
+    //            await connection.CloseAsync();
+    //    }
+    //}
+
+    /// <summary>
+    /// Gets a customer
+    /// </summary>
+    /// <param name="rewardsNumber">Extra Value Card Rewards Number</param>
+    /// <param name="phoneLast4">Last 4 digits of Customer Phone Number</param>
+    /// <returns>A customer</returns>
+
+
+    public async Task<Customer> GetCustomerByRewardsCardAsync(string rewardsNumber, string phoneLast4)
+    {
+        if (string.IsNullOrWhiteSpace(rewardsNumber) || string.IsNullOrWhiteSpace(phoneLast4))
+            return null;
+
+        // Step 1: Find customer IDs with matching rewards number
+        var rewardsNumberPattern =
+            $"%<CustomerAttribute ID=\"2\"><CustomerAttributeValue><Value>{rewardsNumber.Trim()}</Value></CustomerAttributeValue>%";
+
+        var customerIds = await _genericAttributeRepository.Table
+            .Where(ga => ga.KeyGroup == "Customer" &&
+                         ga.Key == "CustomCustomerAttributes" &&
+                         ga.Value != null &&
+                         ga.Value.Contains(rewardsNumberPattern))
+            .Select(ga => ga.EntityId)
+            .ToListAsync();
+
+        if (!customerIds.Any())
+            return null;
+
+        // Step 2: Find customers with matching phone last 4 digits
+        var query = from ga in _genericAttributeRepository.Table
+                    join c in _customerRepository.Table on ga.EntityId equals c.Id
+                    where ga.KeyGroup == "Customer" &&
+                          ga.Key == "Phone" &&
+                          ga.Value != null &&
+                          ga.Value.EndsWith(phoneLast4) &&
+                          customerIds.Contains(ga.EntityId) &&
+                          !c.Deleted
+                    select c;
+
+        return await query.FirstOrDefaultAsync();
+    }
+
+
+    public virtual async Task<Customer> GetCustomerByRewardsCardAsync(string rewardsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(rewardsNumber))
+            return null;
+
+        var query = _rewardsCardLookupFlatRepository.Table;
+        var rewardsCardLookupFlat = query.Where(r => r.RewardsCard == rewardsNumber).FirstOrDefault();
+
+        return rewardsCardLookupFlat == null ? null : await _customerRepository.GetByIdAsync(rewardsCardLookupFlat.CustomerId);
+
+    }
     #endregion
 }

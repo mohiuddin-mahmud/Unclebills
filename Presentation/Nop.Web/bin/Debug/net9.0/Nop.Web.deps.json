@@ -592,6 +592,17 @@
           "lib/netstandard2.1/ClosedXML.Parser.dll": {}
         }
       },
+      "CsvHelper/33.1.0": {
+        "runtime": {
+          "lib/net9.0/CsvHelper.dll": {
+            "assemblyVersion": "33.0.0.0",
+            "fileVersion": "33.1.0.26"
+          }
+        },
+        "compile": {
+          "lib/net9.0/CsvHelper.dll": {}
+        }
+      },
       "DocumentFormat.OpenXml/3.1.1": {
         "dependencies": {
           "DocumentFormat.OpenXml.Framework": "3.1.1"
@@ -3217,6 +3228,7 @@
           "Azure.Storage.Blobs": "12.23.0",
           "BarcodeLib": "3.1.5",
           "ClosedXML": "0.104.2",
+          "CsvHelper": "33.1.0",
           "Google.Apis.Auth": "1.68.0",
           "HarfBuzzSharp.NativeAssets.Linux": "2.8.2.5",
           "MailKit": "4.5.0",
@@ -5192,6 +5204,13 @@
       "sha512": "sha512-w+/0tsxABS3lkSH8EUlA7IGme+mq5T/Puf3DbOiTckmSuUpAUO2LK29oXYByCcWkBv6wcRHxgWlQb1lxkwI0Tw==",
       "path": "closedxml.parser/1.2.0",
       "hashPath": "closedxml.parser.1.2.0.nupkg.sha512"
+    },
+    "CsvHelper/33.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kqfTOZGrn7NarNeXgjh86JcpTHUoeQDMB8t9NVa/ZtlSYiV1rxfRnQ49WaJsob4AiGrbK0XDzpyKkBwai4F8eg==",
+      "path": "csvhelper/33.1.0",
+      "hashPath": "csvhelper.33.1.0.nupkg.sha512"
     },
     "DocumentFormat.OpenXml/3.1.1": {
       "type": "package",

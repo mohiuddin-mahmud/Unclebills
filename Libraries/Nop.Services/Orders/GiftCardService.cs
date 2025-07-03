@@ -309,5 +309,33 @@ public partial class GiftCardService : IGiftCardService
         return false;
     }
 
+    public virtual async Task<GiftCard> GetGiftCardByCouponCode(string couponCode)
+    {
+        if (string.IsNullOrWhiteSpace(couponCode))
+            return null;
+
+        var query = _giftCardRepository.Table;
+        await Task.Yield();
+        return query.Where(x => x.GiftCardCouponCode == couponCode).FirstOrDefault();
+    }
+
+
+    /// <summary>
+    /// Get gift cards that are candidates for removal
+    /// </summary>
+    /// <param name="date">date</param>
+    /// <param name="isRewardsCertificate">isRewardsCertificate</param>
+    /// <returns>gift cards</returns>
+    public virtual async Task<List<GiftCard>> GetGiftCardsToRemoveAsync(DateTime date, bool isRewardsCertificate)
+    {
+
+        var query = _giftCardRepository.Table;
+
+        await Task.Yield();
+        return query.Where(x => x.IsRewardsCertificate == isRewardsCertificate &&
+                              (x.Amount == 0 || !x.IsGiftCardActivated ||
+                               x.CreatedOnUtc.Date < date.Date))
+                   .ToList();       
+    }
     #endregion
 }

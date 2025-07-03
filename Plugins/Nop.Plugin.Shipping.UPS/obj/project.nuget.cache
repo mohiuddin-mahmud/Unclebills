@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "80fUC9/mG7s=",
+  "dgSpecHash": "V96GHtmEnQ8=",
   "success": true,
-  "projectFilePath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Shipping.UPS\\Nop.Plugin.Shipping.UPS.csproj",
+  "projectFilePath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Shipping.UPS\\Nop.Plugin.Shipping.UPS.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Asus\\.nuget\\packages\\advancedstringbuilder\\0.1.1\\advancedstringbuilder.0.1.1.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\authorizenet\\2.0.4\\authorizenet.2.0.4.nupkg.sha512",
@@ -16,10 +16,10 @@
     "C:\\Users\\Asus\\.nuget\\packages\\azure.security.keyvault.keys\\4.6.0\\azure.security.keyvault.keys.4.6.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\azure.storage.blobs\\12.23.0\\azure.storage.blobs.12.23.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\azure.storage.common\\12.22.0\\azure.storage.common.12.22.0.nupkg.sha512",
-    "C:\\Users\\Asus\\.nuget\\packages\\barcodelib\\3.1.5\\barcodelib.3.1.5.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\bouncycastle.cryptography\\2.3.0\\bouncycastle.cryptography.2.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\closedxml\\0.104.2\\closedxml.0.104.2.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\closedxml.parser\\1.2.0\\closedxml.parser.1.2.0.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\documentformat.openxml\\3.1.1\\documentformat.openxml.3.1.1.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\documentformat.openxml.framework\\3.1.1\\documentformat.openxml.framework.3.1.1.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\excelnumberformat\\1.1.0\\excelnumberformat.1.1.0.nupkg.sha512",
@@ -203,7 +203,6 @@
     "C:\\Users\\Asus\\.nuget\\packages\\system.reflection\\4.3.0\\system.reflection.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.reflection.metadata\\5.0.0\\system.reflection.metadata.5.0.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.reflection.primitives\\4.3.0\\system.reflection.primitives.4.3.0.nupkg.sha512",
-    "C:\\Users\\Asus\\.nuget\\packages\\system.resources.extensions\\8.0.0\\system.resources.extensions.8.0.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.resources.resourcemanager\\4.3.0\\system.resources.resourcemanager.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.runtime\\4.3.0\\system.runtime.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.runtime.caching\\8.0.0\\system.runtime.caching.8.0.0.nupkg.sha512",
@@ -222,7 +221,7 @@
     "C:\\Users\\Asus\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.text.encoding.codepages\\4.5.1\\system.text.encoding.codepages.4.5.1.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",
-    "C:\\Users\\Asus\\.nuget\\packages\\system.text.json\\8.0.5\\system.text.json.8.0.5.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\system.text.json\\6.0.10\\system.text.json.6.0.10.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
@@ -230,7 +229,8 @@
     "C:\\Users\\Asus\\.nuget\\packages\\webmarkupmin.aspnet.common\\2.18.0\\webmarkupmin.aspnet.common.2.18.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\webmarkupmin.aspnetcorelatest\\2.18.0\\webmarkupmin.aspnetcorelatest.2.18.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\webmarkupmin.core\\2.17.0\\webmarkupmin.core.2.17.0.nupkg.sha512",
-    "C:\\Users\\Asus\\.nuget\\packages\\webmarkupmin.nuglify\\2.18.0\\webmarkupmin.nuglify.2.18.0.nupkg.sha512"
+    "C:\\Users\\Asus\\.nuget\\packages\\webmarkupmin.nuglify\\2.18.0\\webmarkupmin.nuglify.2.18.0.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\zxing.net\\0.16.10\\zxing.net.0.16.10.nupkg.sha512"
   ],
   "logs": [
     {

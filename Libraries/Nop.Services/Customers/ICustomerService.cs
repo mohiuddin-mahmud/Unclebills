@@ -648,4 +648,7 @@ public partial interface ICustomerService
     Task InsertCustomerAddressAsync(Customer customer, Address address);
 
     #endregion
+
+    Task<Customer> GetCustomerByRewardsCardAsync(string rewardsNumber, string phoneLast4);
+    Task<Customer> GetCustomerByRewardsCardAsync(string rewardsNumber);
 }

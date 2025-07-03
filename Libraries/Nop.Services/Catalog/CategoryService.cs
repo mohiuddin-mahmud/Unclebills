@@ -828,5 +828,17 @@ public partial class CategoryService : ICategoryService
         });
     }
 
+    /// <summary>
+    /// Get all Product Categories
+    /// </summary>
+    /// <param name="productCategories">Products Categories</param>
+    /// <returns>Gets all product categories</returns>
+    /// 
+    public virtual async Task<IEnumerable<ProductCategory>> GetAllProductCategoryAsync()
+    {
+        await Task.Yield();
+        return _productCategoryRepository.Table.Select(n => n).AsEnumerable();
+    }
+
     #endregion
 }

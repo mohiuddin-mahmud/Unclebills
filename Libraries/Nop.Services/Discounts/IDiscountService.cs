@@ -215,4 +215,6 @@ public partial interface IDiscountService
     Task DeleteDiscountUsageHistoryAsync(DiscountUsageHistory discountUsageHistory);
 
     #endregion
+
+    Task<Discount> GetDiscountByCode(string discountCode);
 }

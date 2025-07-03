@@ -692,5 +692,15 @@ public partial class DiscountService : IDiscountService
 
     #endregion
 
+
+    public virtual async Task<Discount> GetDiscountByCode(string discountCode)
+    {
+        if (string.IsNullOrWhiteSpace(discountCode))
+            return null;
+
+        var query = _discountRepository.Table;
+        return query.Where(x => x.CouponCode == discountCode).FirstOrDefault();
+    }
+
     #endregion
 }

@@ -7,6 +7,7 @@ using Nop.Core.Domain.News;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Vendors;
+using Nop.Services.ExportImport.CpImports;
 //using Nop.Services.ExportImport.CpImports;
 
 namespace Nop.Services.Messages;
@@ -721,8 +722,8 @@ public partial interface IWorkflowMessageService
 
     #region Rewards certificates
 
-    //Task<IList<int>> SendRewardCertificateNotification(string barcodeName, string barcodePath, ImportRewardsCertificate cert, bool closeToExpiration, int languageId);
+    Task<IList<int>> SendRewardCertificateNotification(string barcodeName, string barcodePath, ImportRewardsCertificate cert, bool closeToExpiration, int languageId);
     Task<IList<int>> SendFailedCertsNotification(string fileName, string filePath, int languageId);
 
     #endregion
-}
+

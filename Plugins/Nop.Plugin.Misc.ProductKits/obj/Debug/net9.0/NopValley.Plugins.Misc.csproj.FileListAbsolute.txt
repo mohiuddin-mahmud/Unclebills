@@ -1,5 +1,0 @@
-D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.6\src\Plugins\NopValley.Plugins.Misc\obj\Debug\net9.0\NopValley.Plugins.Misc.csproj.AssemblyReference.cache
-D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.6\src\Plugins\NopValley.Plugins.Misc\obj\Debug\net9.0\NopValley.Plugins.Misc.GeneratedMSBuildEditorConfig.editorconfig
-D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.6\src\Plugins\NopValley.Plugins.Misc\obj\Debug\net9.0\NopValley.Plugins.Misc.AssemblyInfoInputs.cache
-D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.6\src\Plugins\NopValley.Plugins.Misc\obj\Debug\net9.0\NopValley.Plugins.Misc.AssemblyInfo.cs
-D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.6\src\Plugins\NopValley.Plugins.Misc\obj\Debug\net9.0\NopValley.Plugins.Misc.csproj.CoreCompileInputs.cache

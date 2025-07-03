@@ -141,4 +141,7 @@ public partial interface IGiftCardService
     /// The task result contains the result
     /// </returns>
     Task<bool> IsGiftCardValidAsync(GiftCard giftCard);
+
+    Task<GiftCard> GetGiftCardByCouponCode(string couponCode);
+    Task<List<GiftCard>> GetGiftCardsToRemoveAsync(DateTime date, bool isRewardsCertificate);
 }

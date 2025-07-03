@@ -8061,11 +8061,11 @@
   "project": {
     "version": "4.80.0",
     "restore": {
-      "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj",
+      "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj",
       "projectName": "Nop.Data",
-      "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj",
+      "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj",
       "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-      "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\obj\\",
+      "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -8088,8 +8088,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj": {
-              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj"
+            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj": {
+              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj"
             }
           }
         }

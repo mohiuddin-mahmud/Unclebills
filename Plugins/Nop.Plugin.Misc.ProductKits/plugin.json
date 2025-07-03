@@ -1,11 +1,11 @@
 ﻿{
-  "Group": "Widgets",
-  "FriendlyName": "NopValley Misc",
-  "SystemName": "NopValleyMisc",
+  "Group": "Misc",
+  "FriendlyName": "Product Kits",
+  "SystemName": "Misc.ProductKits",
   "Version": "1.00",
-  "SupportedVersions": [ "4.80" ],
-  "Author": "NopValley team",
+  "SupportedVersions": [ "4.80.8" ],
+  "Author": "BoxCrush, Inc",
   "DisplayOrder": 1,
-  "FileName": "NopValley.Plugins.Misc.dll",
-  "Description": "This plugin enables Html Widgets."
+  "FileName": "Nop.Plugin.Misc.ProductKits.dll",
+  "Description": "This plugin enables easy management of Product Kits."
 }

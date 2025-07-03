@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj": {}
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj": {}
   },
   "projects": {
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj": {
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj": {
       "version": "4.80.0",
       "restore": {
-        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj",
+        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj",
         "projectName": "Nop.Core",
-        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj",
+        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\obj\\",
+        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -131,14 +131,14 @@
         }
       }
     },
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj": {
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj": {
       "version": "4.80.0",
       "restore": {
-        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj",
+        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj",
         "projectName": "Nop.Data",
-        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj",
+        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\obj\\",
+        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -161,8 +161,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj"
               }
             }
           }
@@ -242,14 +242,14 @@
         }
       }
     },
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\Nop.Services.csproj": {
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\Nop.Services.csproj": {
       "version": "4.80.0",
       "restore": {
-        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\Nop.Services.csproj",
+        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\Nop.Services.csproj",
         "projectName": "Nop.Services",
-        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\Nop.Services.csproj",
+        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\Nop.Services.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\obj\\",
+        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -272,11 +272,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj"
               },
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj"
               }
             }
           }
@@ -311,13 +311,13 @@
               "target": "Package",
               "version": "[12.23.0, )"
             },
-            "BarcodeLib": {
-              "target": "Package",
-              "version": "[3.1.5, )"
-            },
             "ClosedXML": {
               "target": "Package",
               "version": "[0.104.2, )"
+            },
+            "CsvHelper": {
+              "target": "Package",
+              "version": "[33.1.0, )"
             },
             "Google.Apis.Auth": {
               "target": "Package",
@@ -362,6 +362,10 @@
             "System.ServiceModel.Http": {
               "target": "Package",
               "version": "[8.1.0, )"
+            },
+            "ZXing.Net": {
+              "target": "Package",
+              "version": "[0.16.10, )"
             }
           },
           "imports": [
@@ -384,14 +388,14 @@
         }
       }
     },
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj": {
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj",
+        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj",
         "projectName": "Nop.Plugin.Pickup.PickupInStore",
-        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj",
+        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\Nop.Plugin.Pickup.PickupInStore.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\obj\\",
+        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Pickup.PickupInStore\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -414,8 +418,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj"
               }
             }
           }
@@ -461,14 +465,14 @@
         }
       }
     },
-    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
+    "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
       "version": "4.80.0",
       "restore": {
-        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj",
+        "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj",
         "projectName": "Nop.Web.Framework",
-        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj",
+        "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\obj\\",
+        "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -491,14 +495,14 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj"
               },
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Data\\Nop.Data.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Data\\Nop.Data.csproj"
               },
-              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\Nop.Services.csproj": {
-                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Services\\Nop.Services.csproj"
+              "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\Nop.Services.csproj": {
+                "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Services\\Nop.Services.csproj"
               }
             }
           }

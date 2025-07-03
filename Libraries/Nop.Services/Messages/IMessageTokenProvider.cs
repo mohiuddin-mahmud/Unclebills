@@ -8,6 +8,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Vendors;
+using Nop.Services.ExportImport.CpImports;
 //using Nop.Services.ExportImport.CpImports;
 
 namespace Nop.Services.Messages;
@@ -235,6 +236,6 @@ public partial interface IMessageTokenProvider
 
     Task AddRecurringOrderTokens(IList<Token> tokens, RecurringOrder recurringOrder, List<ShoppingCartItem> items, Order initialOrder);
 
-    //Task AddRewardCertificateTokens(IList<Token> tokens, ImportRewardsCertificate cert);
+    Task AddRewardCertificateTokens(IList<Token> tokens, ImportRewardsCertificate cert);
 
 }

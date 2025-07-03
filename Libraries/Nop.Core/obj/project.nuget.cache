@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "6cI1pe6CvQY=",
+  "dgSpecHash": "7ndQQCfJmUo=",
   "success": true,
-  "projectFilePath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Libraries\\Nop.Core\\Nop.Core.csproj",
+  "projectFilePath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Libraries\\Nop.Core\\Nop.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Asus\\.nuget\\packages\\autofac\\8.1.0\\autofac.8.1.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\autofac.extensions.dependencyinjection\\10.0.0\\autofac.extensions.dependencyinjection.10.0.0.nupkg.sha512",

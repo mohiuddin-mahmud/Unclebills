@@ -15,6 +15,15 @@
           }
         }
       },
+      "AuthorizeNet/2.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/AuthorizeNet.dll": {}
+        },
+        "runtime": {
+          "lib/AuthorizeNet.dll": {}
+        }
+      },
       "Autofac/8.1.0": {
         "type": "package",
         "dependencies": {
@@ -195,6 +204,21 @@
           "lib/net6.0/Azure.Storage.Common.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "BarcodeLib/3.1.5": {
+        "type": "package",
+        "dependencies": {
+          "SkiaSharp": "2.88.8",
+          "SkiaSharp.NativeAssets.Linux.NoDependencies": "2.88.8",
+          "System.Resources.Extensions": "8.0.0",
+          "System.Text.Json": "8.0.5"
+        },
+        "compile": {
+          "lib/netstandard2.0/BarcodeStandard.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/BarcodeStandard.dll": {}
         }
       },
       "BouncyCastle.Cryptography/2.3.0": {
@@ -3310,6 +3334,22 @@
           }
         }
       },
+      "System.Resources.Extensions/8.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/System.Resources.Extensions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/System.Resources.Extensions.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net6.0/_._": {}
+        }
+      },
       "System.Resources.ResourceManager/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3895,7 +3935,9 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v9.0",
         "dependencies": {
+          "AuthorizeNet": "2.0.4",
           "Azure.Storage.Blobs": "12.23.0",
+          "BarcodeLib": "3.1.5",
           "ClosedXML": "0.104.2",
           "Google.Apis.Auth": "1.68.0",
           "HarfBuzzSharp.NativeAssets.Linux": "2.8.2.5",
@@ -3979,6 +4021,19 @@
         "lib/netstandard2.0/AdvancedStringBuilder.dll",
         "lib/netstandard2.0/AdvancedStringBuilder.xml",
         "readme.txt"
+      ]
+    },
+    "AuthorizeNet/2.0.4": {
+      "sha512": "p5BNjSuLgDn7+7h4XanDL7WuqXJnEXYtB2IUqApAwnMfOgQ+d3FYI8GYbP3j7P2wc9Ulb+dhXHrd8Vc1F23weA==",
+      "type": "package",
+      "path": "authorizenet/2.0.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "authorizenet.2.0.4.nupkg.sha512",
+        "authorizenet.nuspec",
+        "lib/AuthorizeNet.dll",
+        "lib/AuthorizeNet.xml"
       ]
     },
     "Autofac/8.1.0": {
@@ -4164,6 +4219,21 @@
         "lib/net6.0/Azure.Storage.Common.xml",
         "lib/netstandard2.0/Azure.Storage.Common.dll",
         "lib/netstandard2.0/Azure.Storage.Common.xml"
+      ]
+    },
+    "BarcodeLib/3.1.5": {
+      "sha512": "NfyAhCzQuQ4HPcPWsn0Gr8+mlW5RN1ifL6tkyj8Gqj8F+95MWahtmTxU7hvE6zqCOmJJJJz5AuEQJyEO1/2QNA==",
+      "type": "package",
+      "path": "barcodelib/3.1.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "barcodelib.3.1.5.nupkg.sha512",
+        "barcodelib.nuspec",
+        "lib/netstandard2.0/BarcodeStandard.dll",
+        "upca.jpg"
       ]
     },
     "BouncyCastle.Cryptography/2.3.0": {
@@ -9048,6 +9118,35 @@
         "system.reflection.primitives.nuspec"
       ]
     },
+    "System.Resources.Extensions/8.0.0": {
+      "sha512": "psnQ6GRQOvt+evda5C4nD5EuV49mz2Tv0DD2JDVDEbE/TKoMukxSkGJcsBJ0pajpPuFRr67syFYlkJ4Wj6A5Zw==",
+      "type": "package",
+      "path": "system.resources.extensions/8.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/System.Resources.Extensions.targets",
+        "buildTransitive/net462/System.Resources.Extensions.targets",
+        "buildTransitive/net6.0/_._",
+        "buildTransitive/netcoreapp2.0/System.Resources.Extensions.targets",
+        "lib/net462/System.Resources.Extensions.dll",
+        "lib/net462/System.Resources.Extensions.xml",
+        "lib/net6.0/System.Resources.Extensions.dll",
+        "lib/net6.0/System.Resources.Extensions.xml",
+        "lib/net7.0/System.Resources.Extensions.dll",
+        "lib/net7.0/System.Resources.Extensions.xml",
+        "lib/net8.0/System.Resources.Extensions.dll",
+        "lib/net8.0/System.Resources.Extensions.xml",
+        "lib/netstandard2.0/System.Resources.Extensions.dll",
+        "lib/netstandard2.0/System.Resources.Extensions.xml",
+        "system.resources.extensions.8.0.0.nupkg.sha512",
+        "system.resources.extensions.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
+    },
     "System.Resources.ResourceManager/4.3.0": {
       "sha512": "/zrcPkkWdZmI4F92gL/TPumP98AVDu/Wxr3CSJGQQ+XN6wbRZcyfSKVoPo17ilb3iOr0cCRqJInGwNMolqhS8A==",
       "type": "package",
@@ -10397,11 +10496,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Shipping.CourierNow\\Nop.Plugin.Shipping.CourierNow.csproj",
+      "projectUniqueName": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Shipping.CourierNow\\Nop.Plugin.Shipping.CourierNow.csproj",
       "projectName": "Nop.Plugin.Shipping.CourierNow",
-      "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Shipping.CourierNow\\Nop.Plugin.Shipping.CourierNow.csproj",
+      "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Shipping.CourierNow\\Nop.Plugin.Shipping.CourierNow.csproj",
       "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-      "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Plugins\\Nop.Plugin.Shipping.CourierNow\\obj\\",
+      "outputPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Plugins\\Nop.Plugin.Shipping.CourierNow\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -10424,11 +10523,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
-              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj"
+            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj": {
+              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web.Framework\\Nop.Web.Framework.csproj"
             },
-            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web\\Nop.Web.csproj": {
-              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\src\\Presentation\\Nop.Web\\Nop.Web.csproj"
+            "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web\\Nop.Web.csproj": {
+              "projectPath": "D:\\Fiverr Pro Clients\\BoxCrush\\unclebills_4.80.8\\Unclebills\\Presentation\\Nop.Web\\Nop.Web.csproj"
             }
           }
         }
@@ -10486,6 +10585,16 @@
       "level": "Warning",
       "warningLevel": 1,
       "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://nuget.telerik.com/v3/index.json."
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'AuthorizeNet 2.0.4' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net9.0'. This package may not be fully compatible with your project.",
+      "libraryId": "AuthorizeNet",
+      "targetGraphs": [
+        "net9.0"
+      ]
     }
   ]
 }

@@ -298,4 +298,5 @@ public partial interface ICategoryService
     /// The task result contains the category breadcrumb 
     /// </returns>
     Task<IList<Category>> GetCategoryBreadCrumbAsync(Category category, IList<Category> allCategories = null, bool showHidden = false);
+    Task<IEnumerable<ProductCategory>> GetAllProductCategoryAsync();
 }

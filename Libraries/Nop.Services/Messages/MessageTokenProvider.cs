@@ -30,6 +30,8 @@ using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
+using Nop.Services.ExportImport.CpImports;
+
 //using Nop.Services.ExportImport.CpImports;
 using Nop.Services.Forums;
 using Nop.Services.Helpers;
@@ -1742,23 +1744,23 @@ public partial class MessageTokenProvider : IMessageTokenProvider
         await _eventPublisher.EntityTokensAddedAsync(recurringOrder, tokens);
     }
 
-    //public virtual async Task AddRewardCertificateTokens(IList<Token> tokens, ImportRewardsCertificate cert)
-    //{
-    //    string amountRemaining = await _priceFormatter.FormatPriceAsync((decimal)cert.AmountRemaining, true, false);
-    //    var certEntity = new Nop.Core.Domain.RewardsCertificates.RewardsCertificate
-    //    {
-    //        ExtraValueCardNumber = cert.ExtraValueCardNumber,
-    //        RewardCode = cert.RewardCode,
-    //        AmountRemaining = cert.AmountRemaining,
-    //        ExpiresOn = cert.ExpiresOn,
-    //        CustomerEmail = cert.CustomerEmail
-    //    };
+    public virtual async Task AddRewardCertificateTokens(IList<Token> tokens, ImportRewardsCertificate cert)
+    {
+        string amountRemaining = await _priceFormatter.FormatPriceAsync((decimal)cert.AmountRemaining, true, false);
+        var certEntity = new Nop.Core.Domain.RewardsCertificates.RewardsCertificate
+        {
+            ExtraValueCardNumber = cert.ExtraValueCardNumber,
+            RewardCode = cert.RewardCode,
+            AmountRemaining = cert.AmountRemaining,
+            ExpiresOn = cert.ExpiresOn,
+            CustomerEmail = cert.CustomerEmail
+        };
 
-    //    tokens.Add(new Token("RewardsCertificate.ExtraValueCardNumber", cert.ExtraValueCardNumber));
-    //    tokens.Add(new Token("RewardsCertificate.RewardCode", cert.RewardCode));
-    //    tokens.Add(new Token("RewardsCertificate.AmountRemaining", amountRemaining));
-    //    tokens.Add(new Token("RewardsCertificate.ExpiresOn", cert.ExpiresOn.ToString("MMMM d, yyyy")));
+        tokens.Add(new Token("RewardsCertificate.ExtraValueCardNumber", cert.ExtraValueCardNumber));
+        tokens.Add(new Token("RewardsCertificate.RewardCode", cert.RewardCode));
+        tokens.Add(new Token("RewardsCertificate.AmountRemaining", amountRemaining));
+        tokens.Add(new Token("RewardsCertificate.ExpiresOn", cert.ExpiresOn.ToString("MMMM d, yyyy")));
 
-    //    await _eventPublisher.EntityTokensAddedAsync(certEntity, tokens);
-    //}
+        await _eventPublisher.EntityTokensAddedAsync(certEntity, tokens);
+    }
 }

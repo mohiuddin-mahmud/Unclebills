@@ -254,6 +254,10 @@ public partial class Product : BaseEntity, ILocalizedEntity, ISlugSupported, IAc
     /// </summary>
     public bool IsPickupOnly { get; set; }
 
+    /// Does the product have a hidden price
+    /// </summary>
+    public bool HasHiddenPrice { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether the entity is free shipping
     /// </summary>
@@ -282,7 +286,12 @@ public partial class Product : BaseEntity, ILocalizedEntity, ISlugSupported, IAc
     /// <summary>
     /// Gets or sets the tax category identifier
     /// </summary>
-    public int TaxCategoryId { get; set; }        
+    public int TaxCategoryId { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the product is telecommunications or broadcasting or electronic services
+    /// </summary>
+    public bool IsTelecommunicationsOrBroadcastingOrElectronicServices { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating how to manage inventory

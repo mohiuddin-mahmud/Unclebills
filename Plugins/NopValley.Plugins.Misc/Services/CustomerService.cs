@@ -53,6 +53,7 @@ public partial class CustomerService : ICustomerService
     protected readonly ShoppingCartSettings _shoppingCartSettings;
     protected readonly TaxSettings _taxSettings;
 
+
     #endregion
 
     #region Ctor
@@ -154,29 +155,43 @@ public partial class CustomerService : ICustomerService
     /// </summary>
     /// <param name="evcNumber">Extra Value Card Number</param>
     /// <returns>Customer Id</returns>
-    //public virtual Customer GetCustomerByRewardsCard(string rewardsNumber)
+    //public virtual async Task<Customer> GetCustomerByRewardsCardAsync(string rewardsNumber)
     //{
     //    if (string.IsNullOrWhiteSpace(rewardsNumber))
     //        return null;
 
-    //    // prepare parameters
-    //    var pRewardsNumber = _dataProvider.GetParameter();
-    //    pRewardsNumber.ParameterName = "RewardsNumber";
-    //    pRewardsNumber.Value = rewardsNumber;
-    //    pRewardsNumber.DbType = DbType.String;
+    //    var command = _dbContext.Database.GetDbConnection().CreateCommand();
+    //    command.CommandText = "RewardsCardLookup2";
+    //    command.CommandType = CommandType.StoredProcedure;
 
-    //    var pCustomerId = _dataProvider.GetParameter();
-    //    pCustomerId.ParameterName = "CustomerId";
-    //    pCustomerId.Value = 0;
-    //    pCustomerId.Direction = ParameterDirection.InputOutput;
-    //    pCustomerId.DbType = DbType.Int32;
+    //    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter
+    //    {
+    //        ParameterName = "RewardsNumber",
+    //        Value = rewardsNumber,
+    //        SqlDbType = SqlDbType.NVarChar
+    //    });
 
-    //    var spResult = _dbContext.ExecuteStoredProcedureList<Customer>("RewardsCardLookup2", pRewardsNumber, pCustomerId);
-    //    int customerId = Convert.ToInt32(pCustomerId.Value);
-    //    if (customerId == 0)
-    //        return null;
-    //    else
-    //        return _customerRepository.GetById(customerId);
+    //    var outputParam = new Microsoft.Data.SqlClient.SqlParameter
+    //    {
+    //        ParameterName = "CustomerId",
+    //        SqlDbType = SqlDbType.Int,
+    //        Direction = ParameterDirection.InputOutput,
+    //        Value = 0
+    //    };
+    //    command.Parameters.Add(outputParam);
+
+    //    await _dbContext.Database.OpenConnectionAsync();
+
+    //    try
+    //    {
+    //        await command.ExecuteNonQueryAsync();
+    //        int customerId = (int)outputParam.Value;
+    //        return customerId == 0 ? null : await _customerRepository.GetByIdAsync(customerId);
+    //    }
+    //    finally
+    //    {
+    //        await _dbContext.Database.CloseConnectionAsync();
+    //    }
     //}
 
 }

@@ -15,6 +15,8 @@ using Nop.Services.Affiliates;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
+using Nop.Services.ExportImport.CpImports;
+
 //using Nop.Services.ExportImport.CpImports;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
@@ -2987,42 +2989,42 @@ public partial class WorkflowMessageService : IWorkflowMessageService
         }).ToListAsync();
     }
 
-    //public virtual async Task<IList<int>> SendRewardCertificateNotification(string barcodeName, string barcodePath, ImportRewardsCertificate cert, bool closeToExpiration, int languageId)
-    //{
+    public virtual async Task<IList<int>> SendRewardCertificateNotification(string barcodeName, string barcodePath, ImportRewardsCertificate cert, bool closeToExpiration, int languageId)
+    {
 
-    //    var store = await _storeContext.GetCurrentStoreAsync();
-    //    languageId = await EnsureLanguageIsActiveAsync(languageId, store.Id);
+        var store = await _storeContext.GetCurrentStoreAsync();
+        languageId = await EnsureLanguageIsActiveAsync(languageId, store.Id);
 
-    //    string messageTemplateName = closeToExpiration ? MessageTemplateSystemNames.RewardsCertificateCloseToExpirationNotification : MessageTemplateSystemNames.RewardsCertificateNotification;
+        string messageTemplateName = closeToExpiration ? MessageTemplateSystemNames.RewardsCertificateCloseToExpirationNotification : MessageTemplateSystemNames.RewardsCertificateNotification;
 
-    //    var messageTemplates = await GetActiveMessageTemplatesAsync(MessageTemplateSystemNames.RewardsCertificateCloseToExpirationNotification, store.Id);
-    //    if (!messageTemplates.Any())
-    //        return new List<int>();
+        var messageTemplates = await GetActiveMessageTemplatesAsync(MessageTemplateSystemNames.RewardsCertificateCloseToExpirationNotification, store.Id);
+        if (!messageTemplates.Any())
+            return new List<int>();
 
 
-    //    //tokens
-    //    var commonTokens = new List<Token>();
-    //    return await messageTemplates.SelectAwait(async messageTemplate =>
-    //    {
-    //        //email account
-    //        var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
+        //tokens
+        var commonTokens = new List<Token>();
+        return await messageTemplates.SelectAwait(async messageTemplate =>
+        {
+            //email account
+            var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
 
-    //        var tokens = new List<Token>(commonTokens);
+            var tokens = new List<Token>(commonTokens);
 
-    //        await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount, languageId);
-    //        await _messageTokenProvider.AddRewardCertificateTokens(tokens, cert);
+            await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount, languageId);
+            await _messageTokenProvider.AddRewardCertificateTokens(tokens, cert);
 
-    //        //event notification
-    //        await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
+            //event notification
+            await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
 
-    //        var toEmail = emailAccount.Email;
-    //        var toName = emailAccount.DisplayName;
+            var toEmail = emailAccount.Email;
+            var toName = emailAccount.DisplayName;
 
-    //        //toEmail = "max@boxcrush.com"; // TEMPORARY FOR TESTING
+            //toEmail = "max@boxcrush.com"; // TEMPORARY FOR TESTING
 
-    //        return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, cert.CustomerEmail, "Uncle Bill's customer", barcodePath, barcodeName);
-    //    }).ToListAsync();
-    //}
+            return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, cert.CustomerEmail, "Uncle Bill's customer", barcodePath, barcodeName);
+        }).ToListAsync();
+    }
 
     public virtual async Task<IList<int>> SendFailedCertsNotification(string fileName, string filePath, int languageId)
     {

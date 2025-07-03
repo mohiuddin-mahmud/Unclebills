@@ -6,7 +6,7 @@
     <Company>NopValley</Company>
     <Authors>NopValley</Authors>
     <Version>1.00</Version>
-    <OutputPath>..\..\Presentation\Nop.Web\Plugins\NopValley.Misc</OutputPath>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Misc.ProductKits</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
     <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
     You need to set this parameter to true if your plugin has a nuget package 
@@ -18,42 +18,33 @@
     <Compile Remove="Areas\**" />
     <Compile Remove="Components\**" />
     <Compile Remove="Content\**" />
-    <Compile Remove="Controllers\**" />
     <Compile Remove="Data\**" />
     <Compile Remove="Domain\**" />
     <Compile Remove="Factories\**" />
     <Compile Remove="Infrastructure\**" />
-    <Compile Remove="Models\**" />
     <Compile Remove="Scripts\**" />
     <Compile Remove="Services\**" />
     <Compile Remove="Validators\**" />
-    <Compile Remove="Views\**" />
     <EmbeddedResource Remove="Areas\**" />
     <EmbeddedResource Remove="Components\**" />
     <EmbeddedResource Remove="Content\**" />
-    <EmbeddedResource Remove="Controllers\**" />
     <EmbeddedResource Remove="Data\**" />
     <EmbeddedResource Remove="Domain\**" />
     <EmbeddedResource Remove="Factories\**" />
     <EmbeddedResource Remove="Infrastructure\**" />
-    <EmbeddedResource Remove="Models\**" />
     <EmbeddedResource Remove="Scripts\**" />
     <EmbeddedResource Remove="Services\**" />
     <EmbeddedResource Remove="Validators\**" />
-    <EmbeddedResource Remove="Views\**" />
     <None Remove="Areas\**" />
     <None Remove="Components\**" />
     <None Remove="Content\**" />
-    <None Remove="Controllers\**" />
     <None Remove="Data\**" />
     <None Remove="Domain\**" />
     <None Remove="Factories\**" />
     <None Remove="Infrastructure\**" />
-    <None Remove="Models\**" />
     <None Remove="Scripts\**" />
     <None Remove="Services\**" />
     <None Remove="Validators\**" />
-    <None Remove="Views\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -74,6 +65,18 @@
     <Content Include="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\ProductKits\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Views\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Views\_ViewStart.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -90,7 +93,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web\Nop.Web.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 

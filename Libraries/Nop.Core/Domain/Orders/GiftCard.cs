@@ -7,10 +7,16 @@ namespace Nop.Core.Domain.Orders;
 /// </summary>
 public partial class GiftCard : BaseEntity
 {
+    private ICollection<GiftCardUsageHistory> _giftCardUsageHistory;
     /// <summary>
     /// Gets or sets the associated order item identifier
     /// </summary>
     public int? PurchasedWithOrderItemId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the associated order item
+    /// </summary>
+    public virtual OrderItem PurchasedWithOrderItem { get; set; }
 
     /// <summary>
     /// Gets or sets the gift card type identifier
@@ -58,6 +64,16 @@ public partial class GiftCard : BaseEntity
     public string Message { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether gift card is a rewards certificate
+    /// </summary>
+    public bool IsRewardsCertificate { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value of rewards account id associated with rewards certificate
+    /// </summary>
+    public string RewardsAccountId { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether recipient is notified
     /// </summary>
     public bool IsRecipientNotified { get; set; }
@@ -74,5 +90,14 @@ public partial class GiftCard : BaseEntity
     {
         get => (GiftCardType)GiftCardTypeId;
         set => GiftCardTypeId = (int)value;
+    }
+
+    /// <summary>
+    /// Gets or sets the gift card usage history
+    /// </summary>
+    public virtual ICollection<GiftCardUsageHistory> GiftCardUsageHistory
+    {
+        get { return _giftCardUsageHistory ?? (_giftCardUsageHistory = new List<GiftCardUsageHistory>()); }
+        protected set { _giftCardUsageHistory = value; }
     }
 }
