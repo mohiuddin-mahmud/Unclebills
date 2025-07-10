@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © Nop Solutions, Ltd")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb2d67af733315091ec9007d074af3c78c31e594")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b110961f6078f07062f34882f96fbe81d454c09")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nop.Plugin.Pickup.PickupInStore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nop.Plugin.Pickup.PickupInStore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -322,3 +322,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\refint\Nop.Plugin.Shipping.FixedByWeightByTotal.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\ref\Nop.Plugin.Shipping.FixedByWeightByTotal.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\refint\Nop.Plugin.Shipping.FixedByWeightByTotal.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\obj\Debug\net9.0\Nop.Plugin.Shipping.FixedByWeightByTotal.pdb

@@ -1,0 +1,61 @@
+﻿@model KitModel
+
+@inject IStoreService storeService
+@using Nop.Plugin.Misc.ProductKits.Models
+@using Nop.Core.Domain.Catalog;
+@using Nop.Services
+@using Nop.Services.Stores
+
+@{
+    var stores = await storeService.GetAllStoresAsync();
+}
+@* resources for product tags input *@
+<script src="~/lib_npm/jquery-tageditor/jquery.caret.min.js"></script>
+<script src="~/lib_npm/jquery-tageditor/jquery.tag-editor.min.js"></script>
+<link rel="stylesheet" href="~/lib_npm/jquery-tageditor/jquery.tag-editor.css">
+
+
+<script asp-location="Footer">
+
+
+
+    $(function() {
+        if ('@Model.ProductSku') {
+            warningValidation('@Url.Action("SkuReservedWarning")', '@Html.NameFor(model => model.ProductSku)', { productId: @Model.Id, sku: '@Model.ProductSku' });
+        }
+        $('#@Html.IdFor(model => model.ProductSku)').on('input change', function () {
+            warningValidation('@Url.Action("SkuReservedWarning")', '@Html.NameFor(model => model.ProductSku)', { productId: @Model.Id, sku: $(this).val() });
+        });
+    });
+</script>
+
+
+<div class="card-body">
+    <div id="product-details-area">
+
+        <div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-label asp-for="ProductName" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="ProductName" asp-required="true" />
+                    <span asp-validation-for="ProductName"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="ProductSku" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="ProductSku" />
+                <span asp-validation-for="ProductSku"></span>
+            </div>
+        </div>
+    </div>
+
+
+</div>

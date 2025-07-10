@@ -1,19 +1,10 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Shipping;
 using Nop.Services.Catalog;
 using Nop.Services.Shipping;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nop.Services.Custom
 {
@@ -39,19 +30,18 @@ namespace Nop.Services.Custom
 
         #region Methods
 
-        public string Import(string csvFileFullLocalPath)
+        public async Task<string> Import(string csvFileFullLocalPath)
         {
             try
             {
                 // get list of all warehouses
-                IList<Warehouse> allWarehouses = this._shippingService.GetAllWarehouses();
+                IList<Warehouse> allWarehouses = await _shippingService.GetAllWarehousesAsync();
 
                 // process inventory import file
                 var file = File.OpenRead(csvFileFullLocalPath);
                 using (TextReader txtRdr = new StreamReader(file))
+                using (CsvReader csvRdr = new CsvReader(txtRdr, System.Globalization.CultureInfo.InvariantCulture))
                 {
-                    // read csv into object collection
-                    CsvReader csvRdr = new CsvReader(txtRdr);
                     List<ImportInventory> importInventories = csvRdr.GetRecords<ImportInventory>().ToList();
 
                     // get list of affected product SKUs from the import collection
@@ -60,7 +50,7 @@ namespace Nop.Services.Custom
                     // for each product SKU, update each warehouse inventory records
                     foreach (string importSku in importSkus)
                     {
-                        Product nopProduct = this._productService.GetProductBySku(importSku);
+                        Product nopProduct = await _productService.GetProductBySkuAsync(importSku);
                         if (nopProduct != null)
                         {
                             foreach (Warehouse warehouse in allWarehouses)
@@ -70,7 +60,10 @@ namespace Nop.Services.Custom
                                 {
                                     int importQuantity = Convert.ToInt32(importProductWarehouse.OnHand);
                                     if (importQuantity < 0) importQuantity = 0; // prevent negative stock counts from entering the system
-                                    ProductWarehouseInventory pwi = nopProduct.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
+                                    //ProductWarehouseInventory pwi = nopProduct.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
+
+                                    var pwiList = await _productService.GetAllProductWarehouseInventoryRecordsAsync(nopProduct.Id);
+                                    var pwi = pwiList.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
                                     if (pwi != null)
                                     {
                                         // update
@@ -78,20 +71,23 @@ namespace Nop.Services.Custom
                                     }
                                     else
                                     {
-                                        // insert
-                                        pwi = new ProductWarehouseInventory
-                                        {
-                                            WarehouseId = warehouse.Id,
-                                            ProductId = nopProduct.Id,
-                                            StockQuantity = importQuantity,
-                                            ReservedQuantity = 0
-                                        };
-                                        nopProduct.ProductWarehouseInventory.Add(pwi);
+                                        // insert                                       
+
+                                        await _productService.InsertProductWarehouseInventoryAsync(
+                                           new ProductWarehouseInventory
+                                           {
+                                               WarehouseId = warehouse.Id,
+                                               ProductId = nopProduct.Id,
+                                               StockQuantity = importQuantity,
+                                               ReservedQuantity = 0
+                                           });
+
+                                        /////////
                                     }
                                 }
                                 // else we don't need to do any update/insert for this warehouse-product combination
                             }
-                            this._productService.UpdateProduct(nopProduct); // commit updates to the database
+                            await _productService.UpdateProductAsync(nopProduct); // commit updates to the database
                         }
                         // else this product is not on the website, therefore we don't need to record inventory                        
                     }

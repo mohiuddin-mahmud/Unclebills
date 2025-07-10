@@ -13,6 +13,6 @@ namespace Nop.Services.Custom
         /// </summary>
         /// <param name="csvFileFullLocalPath">The full path to the csv file on the server</param>
         /// <returns>Message relating to the success of processing the csv file</returns>
-        string Import(string csvFileFullLocalPath);
+        Task<string> Import(string csvFileFullLocalPath);
     }
 }

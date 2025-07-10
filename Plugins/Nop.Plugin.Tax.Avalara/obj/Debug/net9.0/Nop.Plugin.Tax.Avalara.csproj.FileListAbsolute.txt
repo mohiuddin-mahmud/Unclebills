@@ -338,3 +338,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Tax.Aval
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\refint\Nop.Plugin.Tax.Avalara.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\ref\Nop.Plugin.Tax.Avalara.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\refint\Nop.Plugin.Tax.Avalara.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Tax.Avalara\obj\Debug\net9.0\Nop.Plugin.Tax.Avalara.pdb

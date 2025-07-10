@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
-using Nop.Admin.Models.Settings;
-using Nop.Admin.Validators.Catalog;
-using Nop.Web.Framework;
-using Nop.Web.Framework.Localization;
-using Nop.Web.Framework.Mvc;
-using Nop.Admin.Models.Catalog;
+﻿using System.ComponentModel.DataAnnotations;
+using Nop.Web.Framework.Models;
+using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Plugin.Misc.ProductKits.Models
 {
-    public class KitModel : BaseNopEntityModel
+    public record KitModel : BaseNopEntityModel
     {
         public KitModel() {
             KitProducts = new List<KitProduct>();
@@ -28,6 +18,9 @@ namespace Nop.Plugin.Misc.ProductKits.Models
         public KitProduct AddProductToKit { get; set; } // for adding new product to kit
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.Price")]
         public decimal Price { get; set; } // Price of the Kit
+
+
+        public string PrimaryStoreCurrencyCode { get; set; }
     }
 
     public class KitProduct
@@ -41,9 +34,10 @@ namespace Nop.Plugin.Misc.ProductKits.Models
         public int ProductAttributeId { get; set; }
         [NopResourceDisplayName("Plugins.Misc.ProductKits.Edit.Attribute")]
         public string ProductAttributeName { get; set; }
+
     }
 
-    public class KitProductModel : BaseNopEntityModel
+    public record KitProductModel : BaseNopEntityModel
     {
         public KitProductModel() { }
 
@@ -64,7 +58,7 @@ namespace Nop.Plugin.Misc.ProductKits.Models
         public decimal Price { get; set; }
     }
 
-    public class KitPriceModel : BaseNopEntityModel
+    public record KitPriceModel : BaseNopEntityModel
     {
         public KitPriceModel() { }
 
@@ -77,7 +71,7 @@ namespace Nop.Plugin.Misc.ProductKits.Models
         public decimal Price { get; set; }
     }
 
-    public class KitDeleteModel : BaseNopEntityModel
+    public record KitDeleteModel : BaseNopEntityModel
     {
         public KitDeleteModel() { }
 

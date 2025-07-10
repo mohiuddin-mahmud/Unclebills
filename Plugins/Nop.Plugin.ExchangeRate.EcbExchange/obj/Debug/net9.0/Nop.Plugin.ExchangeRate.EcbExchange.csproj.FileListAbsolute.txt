@@ -315,3 +315,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Exchange
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\refint\Nop.Plugin.ExchangeRate.EcbExchange.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\ref\Nop.Plugin.ExchangeRate.EcbExchange.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\refint\Nop.Plugin.ExchangeRate.EcbExchange.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExchangeRate.EcbExchange\obj\Debug\net9.0\Nop.Plugin.ExchangeRate.EcbExchange.pdb

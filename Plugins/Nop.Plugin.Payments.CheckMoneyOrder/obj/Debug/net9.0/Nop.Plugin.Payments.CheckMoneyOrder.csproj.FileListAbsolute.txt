@@ -324,3 +324,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\refint\Nop.Plugin.Payments.CheckMoneyOrder.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\ref\Nop.Plugin.Payments.CheckMoneyOrder.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\refint\Nop.Plugin.Payments.CheckMoneyOrder.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.CheckMoneyOrder\obj\Debug\net9.0\Nop.Plugin.Payments.CheckMoneyOrder.pdb

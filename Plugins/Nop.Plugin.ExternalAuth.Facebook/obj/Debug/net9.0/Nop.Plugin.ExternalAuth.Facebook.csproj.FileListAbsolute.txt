@@ -320,3 +320,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.External
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\refint\Nop.Plugin.ExternalAuth.Facebook.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\ref\Nop.Plugin.ExternalAuth.Facebook.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\refint\Nop.Plugin.ExternalAuth.Facebook.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.ExternalAuth.Facebook\obj\Debug\net9.0\Nop.Plugin.ExternalAuth.Facebook.pdb

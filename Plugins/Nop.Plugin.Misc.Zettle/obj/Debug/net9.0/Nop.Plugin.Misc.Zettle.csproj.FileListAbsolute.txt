@@ -324,3 +324,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.Zet
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\refint\Nop.Plugin.Misc.Zettle.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\ref\Nop.Plugin.Misc.Zettle.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\refint\Nop.Plugin.Misc.Zettle.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.Zettle\obj\Debug\net9.0\Nop.Plugin.Misc.Zettle.pdb

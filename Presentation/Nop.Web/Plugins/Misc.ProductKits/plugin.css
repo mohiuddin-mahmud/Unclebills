@@ -1,0 +1,11 @@
+﻿.display-none{
+    display: none !important;
+}
+.plugin-header-sku-label{
+    width: 50%;
+    padding-right: 0;
+}
+.plugin-header-sku-data{
+    width: 50%;
+    padding-left: 0;
+}

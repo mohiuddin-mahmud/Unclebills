@@ -1,0 +1,41 @@
+﻿@model KitModel
+@using Nop.Plugin.Misc.ProductKits.Models
+@{
+    var showTour = ViewBag.ShowTour ?? false;
+
+    const string hideInfoBlockAttributeName = "ProductPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = showTour ? false : await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hidePricesBlockAttributeName = "ProductPage.HidePricesBlock";
+    var hidePricesBlock = showTour ? false : await genericAttributeService.GetAttributeAsync<bool>(customer, hidePricesBlockAttributeName);
+
+   
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-md-12 clearfix">
+                    <div class="float-left">
+                        @await Component.InvokeAsync(typeof(SettingModeViewComponent), new { modeName = "product-advanced-mode" })
+                    </div>
+                    
+                </div>
+            </div>
+
+            <nop-cards id="product-cards">
+                <nop-card asp-name="product-info" asp-icon="fas fa-info" asp-title="@T("Admin.Catalog.Products.Info")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("~/Plugins/Misc.ProductKits/Views/ProductKits/_CreateOrUpdate.Info.cshtml", Model)</nop-card>
+                <nop-card asp-name="product-price" asp-icon="fas fa-dollar-sign" asp-title="@T("Admin.Catalog.Products.Price")" asp-hide-block-attribute-name="@hidePricesBlockAttributeName" asp-hide="@hidePricesBlock" asp-advanced="false">@await Html.PartialAsync("~/Plugins/Misc.ProductKits/Views/ProductKits/_CreateOrUpdate.Prices.cshtml", Model)</nop-card>
+              
+                
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.ProductDetailsBlock, additionalData = Model })
+            </nop-cards>
+        </div>
+    </div>
+</section>

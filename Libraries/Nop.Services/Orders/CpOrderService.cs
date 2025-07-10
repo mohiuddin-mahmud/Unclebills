@@ -134,8 +134,8 @@ public partial class CpOrderService : ICpOrderService
         var query = _cpOrderLineRepository.Table;
         query = query.Where(o => o.OrderId == orderId);
 
-        await Task.Yield();
-        return query.OrderBy(o => o.LineNumber).ToList();
+        //await Task.Yield();
+        return await query.OrderBy(o => o.LineNumber).ToListAsync();
     }
 
     #endregion

@@ -331,3 +331,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\refint\Nop.Plugin.Widgets.Swiper.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\ref\Nop.Plugin.Widgets.Swiper.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\refint\Nop.Plugin.Widgets.Swiper.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.Swiper\obj\Debug\net9.0\Nop.Plugin.Widgets.Swiper.pdb

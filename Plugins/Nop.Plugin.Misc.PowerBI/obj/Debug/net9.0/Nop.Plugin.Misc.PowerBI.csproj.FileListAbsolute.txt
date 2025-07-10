@@ -317,3 +317,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.Pow
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\refint\Nop.Plugin.Misc.PowerBI.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\ref\Nop.Plugin.Misc.PowerBI.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\refint\Nop.Plugin.Misc.PowerBI.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Misc.PowerBI\obj\Debug\net9.0\Nop.Plugin.Misc.PowerBI.pdb

@@ -324,3 +324,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\refint\Nop.Plugin.Payments.Manual.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\ref\Nop.Plugin.Payments.Manual.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\refint\Nop.Plugin.Payments.Manual.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Payments.Manual\obj\Debug\net9.0\Nop.Plugin.Payments.Manual.pdb

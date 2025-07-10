@@ -256,7 +256,7 @@ public partial interface IWorkflowMessageService
     /// The task result contains the queued email identifier
     /// </returns>
     Task<IList<int>> SendOrderCancelledCustomerNotificationAsync(Order order, int languageId);
-    
+
     /// <summary>
     /// Sends an order cancelled notification to a vendor
     /// </summary>
@@ -727,3 +727,4 @@ public partial interface IWorkflowMessageService
 
     #endregion
 
+}

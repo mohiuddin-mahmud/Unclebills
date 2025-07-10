@@ -317,3 +317,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Discount
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\refint\Nop.Plugin.DiscountRules.CustomerRoles.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\ref\Nop.Plugin.DiscountRules.CustomerRoles.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\refint\Nop.Plugin.DiscountRules.CustomerRoles.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.DiscountRules.CustomerRoles\obj\Debug\net9.0\Nop.Plugin.DiscountRules.CustomerRoles.pdb

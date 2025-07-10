@@ -61,7 +61,8 @@ var Checkout = {
         this.loadWaiting = step;
     },
 
-    gotoSection: function (section) {
+  gotoSection: function (section) {
+    Accordion.closeSection($('#opc-shipping'));
         section = $('#opc-' + section);
         section.addClass('allow');
         Accordion.openSection(section);
@@ -72,7 +73,9 @@ var Checkout = {
         Accordion.openPrevSection(true, true);
     },
 
-    setStepResponse: function(response) {
+  setStepResponse: function (response) {
+
+   
       if (response.update_section) {
         $('#checkout-' + response.update_section.name + '-load').html(response.update_section.html);
       }
@@ -85,13 +88,19 @@ var Checkout = {
       //TODO move it to a new method
       if ($("#billing-address-select").length > 0) {
         Billing.newAddress(!$('#billing-address-select').val());
-      } else {
-        Billing.newAddress(true);
       }
+      //else {
+      //  Billing.newAddress(true);
+      //}
+
+      //if ($("#shipping-address-select").length > 0) {
+      //  Shipping.newAddress(response.selected_id == undefined ? $('#shipping-address-select').val() : response.selected_id, $('#billing-address-select').children("option:selected").val());
+      //}
 
       if ($("#shipping-address-select").length > 0) {
-        Shipping.newAddress(response.selected_id == undefined ? $('#shipping-address-select').val() : response.selected_id, $('#billing-address-select').children("option:selected").val());
+        Shipping.newAddress(!$('#shipping-address-select').val());
       }
+
 
       if (response.goto_section) {
         Checkout.gotoSection(response.goto_section);
@@ -132,16 +141,19 @@ var Billing = {
       $('#edit-billing-address-button').show();
       $('#delete-billing-address-button').show();
     }
-    $(document).trigger({ type: "onepagecheckout_billing_address_new" });
-    Billing.initializeCountrySelect();
+    //$(document).trigger({ type: "onepagecheckout_billing_address_new" });
+    //Billing.initializeCountrySelect();
   },
 
   toggleNewBilling: function (useNewBilling) {
     if (useNewBilling.checked) {
-      $("#billing-address-select-dd").val("");
-      $("#billing-address-select-dd").trigger("change");
+   
+      $("#billing-address-select").val("");
+      $("#billing-address-select").trigger("change");
       $("#billing-address-select").removeAttr("checked");
       $("#ShipToSameAddress").removeAttr("checked");
+      $("#select-billing-address").hide();
+      $("#billing-new-address-form").show();
     }
     else {
       useNewBilling.checked = true;
@@ -149,7 +161,7 @@ var Billing = {
   },
   setDefaultCountry: function (defaultCountry) {
     $('#opc-billing select[data-trigger="country-select"] option[value="' + defaultCountry + '"]').prop('selected', true);
-    $('#opc-billing select[data-trigger="country-select"] option:selected').change()
+    $('#opc-billing select[data-trigger="country-select"] option:selected').change();
   },
   
   resetSelectedAddress: function() {
@@ -162,12 +174,15 @@ var Billing = {
 
   toggleUseBillingAddress: function (useBillingAddress) {
     if (useBillingAddress.checked) {
+      
       $("#ShipToSameAddress").removeAttr("checked");
       $("#new-billing-address").removeAttr("checked");
       //$("#new-billing-address").trigger("click");
       $("#select-billing-address").show();
-      $("#billing-address-select-dd")[0].selectedIndex = 0;
-      $("#billing-address-select-dd").trigger("change");
+      $("#billing-address-select")[0].selectedIndex = 0;
+      $("#billing-address-select").trigger("change");
+
+      $("#billing-new-address-form").hide();
     }
     else {
       useBillingAddress.checked = true;
@@ -177,8 +192,8 @@ var Billing = {
   toggleUseSameAddress: function (useSameAddress) {
     if (useSameAddress.checked) {
       $("#select-billing-address").hide();
-      $("#billing-address-select-dd")[0].selectedIndex = 0;
-      $("#billing-address-select-dd").trigger("change");
+      $("#billing-address-select")[0].selectedIndex = 0;
+      $("#billing-address-select").trigger("change");
       $("#new-billing-address").removeAttr("checked");
       $("#billing-address-select").removeAttr("checked");
     }
@@ -504,6 +519,13 @@ var Shipping = {
 
     save: function () {
         if (Checkout.loadWaiting !== false) return;
+
+      if ($('#pickup-points-form:visible').length > 0) {
+        if ($("#pickup-points-select").val() == "") {
+          alert("Please select a location");
+          return;
+        }
+      }
 
         Checkout.setLoadWaiting('shipping');
 

@@ -317,3 +317,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\refint\Nop.Plugin.Shipping.UPS.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\ref\Nop.Plugin.Shipping.UPS.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\refint\Nop.Plugin.Shipping.UPS.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Shipping.UPS\obj\Debug\net9.0\Nop.Plugin.Shipping.UPS.pdb

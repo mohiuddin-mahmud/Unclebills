@@ -55,12 +55,12 @@
         <ol class="opc" id="checkout-steps">
             @if (Model.ShippingRequired)
             {
-                <li id="opc-shipping" class="tab-section allow">
+                <li id="opc-shipping" class="tab-section allow active">
                     <div class="step-title">
                         <span class="number">@shippingAddressStepNumber</span>
                         <h2 class="title">@T("Checkout.ShippingAddress")</h2>
                     </div>
-                    <div id="checkout-step-shipping" class="step a-item" style="display: none;">
+                    <div id="checkout-step-shipping" class="step a-item">
                         <form action="" id="co-shipping-form" method="post">
                             <div id="checkout-shipping-load">
                                 @*shipping address content will be loaded here*@

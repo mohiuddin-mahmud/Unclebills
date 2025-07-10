@@ -319,3 +319,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.MultiFac
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\refint\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\ref\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\refint\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator\obj\Debug\net9.0\Nop.Plugin.MultiFactorAuth.GoogleAuthenticator.pdb

@@ -317,3 +317,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Search.L
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\refint\Nop.Plugin.Search.Lucene.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\ref\Nop.Plugin.Search.Lucene.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\refint\Nop.Plugin.Search.Lucene.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Search.Lucene\obj\Debug\net9.0\Nop.Plugin.Search.Lucene.pdb

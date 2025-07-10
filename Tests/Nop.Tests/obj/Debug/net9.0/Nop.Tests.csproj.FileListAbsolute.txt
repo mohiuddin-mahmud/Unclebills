@@ -696,3 +696,13 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Tests\Nop.Tests\obj\Debug\n
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Tests\Nop.Tests\bin\Debug\net9.0\AuthorizeNet.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Tests\Nop.Tests\bin\Debug\net9.0\BarcodeStandard.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Tests\Nop.Tests\bin\Debug\net9.0\System.Resources.Extensions.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_Nop.Tests
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\refint\Nop.Tests.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Tests\Nop.Tests\obj\Debug\net9.0\Nop.Tests.pdb

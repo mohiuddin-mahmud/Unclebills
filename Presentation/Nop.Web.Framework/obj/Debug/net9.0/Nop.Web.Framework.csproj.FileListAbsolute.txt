@@ -641,3 +641,4 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Presentation\Nop.Web
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Presentation\Nop.Web.Framework\obj\Debug\net9.0\refint\Nop.Web.Framework.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Presentation\Nop.Web.Framework\obj\Debug\net9.0\Nop.Web.Framework.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Presentation\Nop.Web.Framework\obj\Debug\net9.0\ref\Nop.Web.Framework.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Presentation\Nop.Web.Framework\bin\Debug\net9.0\BarcodeLib.dll

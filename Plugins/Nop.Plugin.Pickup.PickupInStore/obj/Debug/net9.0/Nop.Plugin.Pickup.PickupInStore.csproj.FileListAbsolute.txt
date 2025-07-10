@@ -320,3 +320,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Pickup.P
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\refint\Nop.Plugin.Pickup.PickupInStore.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\ref\Nop.Plugin.Pickup.PickupInStore.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\refint\Nop.Plugin.Pickup.PickupInStore.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Pickup.PickupInStore\obj\Debug\net9.0\Nop.Plugin.Pickup.PickupInStore.pdb

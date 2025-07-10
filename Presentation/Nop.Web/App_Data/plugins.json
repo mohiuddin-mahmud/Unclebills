@@ -26,6 +26,10 @@
     {
       "SystemName": "Tax.FixedOrByCountryStateZip",
       "Version": "4.80.3"
+    },
+    {
+      "SystemName": "Misc.ProductKits",
+      "Version": "1.00"
     }
   ],
   "PluginNamesToUninstall": [],

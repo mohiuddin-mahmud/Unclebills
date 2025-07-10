@@ -2856,4 +2856,30 @@ public partial class ProductService : IProductService
         var product = query.ToList().FirstOrDefault();
         return product;
     }
+
+    public async Task HideOutOfStockProducts()
+    {
+        // Prevent Gift Cards from being unpublished
+        List<string> exemptSkus = new List<string>()
+            {
+                "GIFTCARD25",
+                "GIFTCARD50",
+                "GIFTCARD100",
+                "GIFTCARD250",
+                "RECURRINGORDER"
+            };
+
+        var productQuery = _productRepository.Table;
+        IList<Product> allProducts = productQuery.Where(x => x.Deleted == false).ToList();
+
+        foreach (Product product in allProducts)
+        {
+            if (!exemptSkus.Contains(product.Sku))
+            {
+                product.Published = GetAllProductWarehouseInventoryRecordsAsync(product.Id).Result.Sum(x => x.StockQuantity) > 0;
+            }
+        }
+
+        await UpdateProductsAsync(allProducts);
+    }
 }

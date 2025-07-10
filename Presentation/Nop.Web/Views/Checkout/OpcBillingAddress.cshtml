@@ -121,6 +121,9 @@
         });
         /** End Fix for billing address same as shipping **/
 
+         $("#new-billing-address").trigger("click");
+         $("#billing-new-address-form").show();
+
     });
 
     function FixBillingShippingSame() {
@@ -129,4 +132,6 @@
             $("#new-billing-address").click();
         }
     }
+
+   
 </script>

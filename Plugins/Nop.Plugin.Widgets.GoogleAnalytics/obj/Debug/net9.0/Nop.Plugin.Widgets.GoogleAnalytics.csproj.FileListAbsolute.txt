@@ -324,3 +324,12 @@ D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\refint\Nop.Plugin.Widgets.GoogleAnalytics.dll
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.pdb
 D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\src\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\ref\Nop.Plugin.Widgets.GoogleAnalytics.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.csproj.AssemblyReference.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.GeneratedMSBuildEditorConfig.editorconfig
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.AssemblyInfoInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.AssemblyInfo.cs
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.csproj.CoreCompileInputs.cache
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.sourcelink.json
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\refint\Nop.Plugin.Widgets.GoogleAnalytics.dll
+D:\Fiverr Pro Clients\BoxCrush\unclebills_4.80.8\Unclebills\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\obj\Debug\net9.0\Nop.Plugin.Widgets.GoogleAnalytics.pdb

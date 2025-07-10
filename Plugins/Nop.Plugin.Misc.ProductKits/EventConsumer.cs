@@ -23,7 +23,7 @@ public class EventConsumer : IConsumer<AdminMenuCreatedEvent>
         if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
             return;
 
-        eventMessage.RootMenuItem.InsertBefore("Local plugins",
+        eventMessage.RootMenuItem.InsertBefore("Categories",
             new AdminMenuItem
             {
                 SystemName = "Nop.Plugin.Misc.ProductKits.List",

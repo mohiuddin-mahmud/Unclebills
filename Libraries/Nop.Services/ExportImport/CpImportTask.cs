@@ -41,6 +41,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using ZXing.Common;
+using DocumentFormat.OpenXml.InkML;
+using Nop.Core.Domain.Blogs;
+using static System.Net.Mime.MediaTypeNames;
+using ZXing.ImageSharp.Rendering;
+using SixLabors.ImageSharp.Formats;
+using System.Drawing;
+
+using System.Drawing.Imaging;
+
+using System.IO;
+using System.Linq;
+
+using System.Threading.Tasks;
+
 
 namespace Nop.Services.ExportImport.CpImports
 {
@@ -1665,7 +1679,7 @@ namespace Nop.Services.ExportImport.CpImports
         public async Task ExecuteAsync()
         {
             string fileFullPath = @"D:\ftp.unclebills.com\Inventory_Full_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
-            string result = _warehouseInventoryImportService.Import(fileFullPath);
+            string result = await _warehouseInventoryImportService.Import(fileFullPath);
 
             await Task.Yield();
         }
@@ -1688,7 +1702,7 @@ namespace Nop.Services.ExportImport.CpImports
         public async Task ExecuteAsync()
         {
             string fileFullPath = @"D:\ftp.unclebills.com\Inventory_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
-            string result = _warehouseInventoryImportService.Import(fileFullPath);
+            string result = await _warehouseInventoryImportService.Import(fileFullPath);
             await Task.Yield();
         }
     }
@@ -1708,7 +1722,7 @@ namespace Nop.Services.ExportImport.CpImports
         public async Task ExecuteAsync()
         {
             string fileFullPath = @"D:\ftp.unclebills.com\Inventory_LiveDeltas_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv";
-            string result = _warehouseInventoryImportService.Import(fileFullPath);
+            string result = await _warehouseInventoryImportService.Import(fileFullPath);
             // to prevent i/o write issues with the next update today, delete this file
             File.Delete(fileFullPath);
             await Task.Yield();
@@ -1997,6 +2011,115 @@ namespace Nop.Services.ExportImport.CpImports
     //    }
     //}
 
+
+    public partial class RewardsCertificateEmailTask : IScheduleTask
+    {
+        private readonly IGiftCardService _giftCardService;
+        private readonly IWorkflowMessageService _workflowMessageService;
+        private readonly LocalizationSettings _localizationSettings;
+
+        public RewardsCertificateEmailTask(
+            IGiftCardService giftCardService,
+            IWorkflowMessageService workflowMessageService,
+            LocalizationSettings localizationSettings)
+        {
+            _giftCardService = giftCardService;
+            _workflowMessageService = workflowMessageService;
+            _localizationSettings = localizationSettings;
+        }
+
+        public async Task ExecuteAsync()
+        {
+            var failedCerts = new List<ImportRewardsCertificate>();
+            int count = 0;
+            string today = DateTime.Now.ToString("yyyy-MM-dd");
+
+            string inputFilePath = $@"D:\ftp.unclebills.com\RewardsCertificates_{today}.csv";
+
+            using (var reader = new StreamReader(inputFilePath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var csvCertificates = csv.GetRecords<ImportRewardsCertificate>();
+
+                foreach (var csvCert in csvCertificates)
+                {
+                    try
+                    {
+                        var giftCard = await _giftCardService.GetGiftCardByCouponCode(csvCert.RewardCode);
+                        if (giftCard == null || string.IsNullOrEmpty(csvCert.CustomerEmail))
+                        {
+                            failedCerts.Add(csvCert);
+                            continue;
+                        }
+
+                        bool closeToExpiration = csvCert.ExpiresOn <= DateTime.Now.AddDays(14);
+                        string barcodeName = $"{DateTime.Now:yyyyMMdd}_{count}_{csvCert.RewardCode}.png";
+                        string barcodePath = $@"D:\barcodes\{barcodeName}";
+
+                        // Generate barcode using ZXing.Net with ImageSharp
+                        GenerateBarcodeAsync(csvCert.RewardCode, barcodePath);
+
+                        await _workflowMessageService.SendRewardCertificateNotification(
+                            barcodeName,
+                            barcodePath,
+                            csvCert,
+                            closeToExpiration,
+                            _localizationSettings.DefaultAdminLanguageId
+                        );
+                        count++;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error and add to failed certs
+                        failedCerts.Add(csvCert);
+                    }
+                }
+            }
+
+            if (failedCerts.Count > 0)
+            {
+                string fileName = $"FailedCertificates_{today}.csv";
+                string filePath = $@"D:\failedcerts\{fileName}";
+
+                await using (var writer = new StreamWriter(filePath, false, Encoding.UTF8))
+                await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    await csv.WriteRecordsAsync(failedCerts);
+                }
+
+                await _workflowMessageService.SendFailedCertsNotification(
+                    fileName,
+                    filePath,
+                    _localizationSettings.DefaultAdminLanguageId
+                );
+            }
+        }
+
+        private void GenerateBarcodeAsync(string code, string outputPath)
+        {
+            var barcode = new BarcodeLib.Barcode();
+            barcode.IncludeLabel = true;
+            barcode.LabelPosition = LabelPositions.BOTTOMCENTER;
+
+            // Customize barcode appearance
+            barcode.Alignment = AlignmentPositions.CENTER;
+            barcode.Width = 290;
+            barcode.Height = 120;
+            barcode.BackColor = Color.White;
+            barcode.ForeColor = Color.Black;
+
+            // Generate CODE39 barcode
+            var image = barcode.Encode(
+                TYPE.CODE39,
+                code,
+                barcode.Width,
+                barcode.Height
+            );
+
+            // Save image synchronously
+            image.Save(outputPath, ImageFormat.Png);
+        }
+    }
     public partial class GiftCardImportTask : IScheduleTask
     {
         private readonly IGiftCardService _giftCardService;
@@ -2206,7 +2329,7 @@ namespace Nop.Services.ExportImport.CpImports
 
                             // must be in customer role registered
 
-                            var discountRequirement2 = (await _discountService.GetAllDiscountRequirementsAsync(discount.Id, true)).FirstOrDefault(requirement => => requirement.DiscountRequirementRuleSystemName == "DiscountRequirement.MustBeAssignedToCustomerRole");
+                            var discountRequirement2 = (await _discountService.GetAllDiscountRequirementsAsync(discount.Id, true)).FirstOrDefault(requirement => requirement.DiscountRequirementRuleSystemName == "DiscountRequirement.MustBeAssignedToCustomerRole");
 
                             if (discountRequirement2 == null)
                             {
@@ -2230,18 +2353,29 @@ namespace Nop.Services.ExportImport.CpImports
                             }
 
                             // Step 3 - Discounted Products
-                            foreach (string sku in jsonDiscount.DiscountedSkus)
+                           
+
+                            foreach (var sku in jsonDiscount.DiscountedSkus)
                             {
                                 var product = await _productService.GetProductBySkuAsync(sku);
-                                if (product != null)
-                                {
-                                    if (product.AppliedDiscounts.Count(d => d.Id == discount.Id) == 0)
-                                        product.AppliedDiscounts.Add(discount);
+                                if (product == null)
+                                    continue; // skip non-existent SKUs
 
-                                    await _productService.UpdateProductAsync(product);
-                                    await _productService.UpdateHasDiscountsAppliedAsync(product);
+                                // Check if mapping already exists to avoid duplicates.
+                                var existingMapping = await _productService.GetDiscountAppliedToProductAsync(product.Id, discount.Id);
+                                if (existingMapping == null)
+                                {
+                                    var mapping = new DiscountProductMapping
+                                    {
+                                        DiscountId = discount.Id,
+                                        EntityId = product.Id
+                                    };
+                                    await _productService.InsertDiscountProductMappingAsync(mapping);
                                 }
                             }
+
+
+                            
                         }
                     }
                     catch
@@ -2250,6 +2384,714 @@ namespace Nop.Services.ExportImport.CpImports
                     } // skip any fails
                 }
             }
+        }
+    }
+
+    public partial class FrequentBuyerImportTask : IScheduleTask
+    {
+        private readonly ICpDiscountService _cpDiscountService;
+
+        public FrequentBuyerImportTask(ICpDiscountService cpDiscountService)
+        {
+            this._cpDiscountService = cpDiscountService;
+        }
+
+        public async Task ExecuteAsync()
+        {
+            var file = File.OpenRead(@"D:\ftp.unclebills.com\FrequentBuyerPrograms_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+            using (TextReader txtRdr = new StreamReader(file))
+            {
+                string jsonString = txtRdr.ReadToEnd();
+                List<ImportFrequentBuyerProgram> jsonPrograms = JsonConvert.DeserializeObject<List<ImportFrequentBuyerProgram>>(jsonString);
+                foreach (ImportFrequentBuyerProgram jsonFBP in jsonPrograms)
+                {
+                    try
+                    {
+                        // Get any existing database records for this program
+                        List<CpDiscountProduct> existingFBPproducts = _cpDiscountService.GetCpDiscountProducts(jsonFBP.LoyaltyCode).Result.ToList();
+                        // Remove any skus in database that are not in the import
+                        existingFBPproducts.ForEach(discProd =>
+                        {
+                            if (!jsonFBP.ProductSkus.Contains(discProd.ProductSku))
+                            { _cpDiscountService.DeleteCpDiscountProduct(discProd); }
+                        });
+                        // Add each sku that doesn't already exist
+                        jsonFBP.ProductSkus.ForEach(prodSku =>
+                        {
+                            CpDiscountProduct progProduct = _cpDiscountService.GetCpDiscountProduct(jsonFBP.LoyaltyCode, prodSku).Result;
+                            if (progProduct == null)
+                            {
+                                progProduct = new CpDiscountProduct() { LoyaltyCode = jsonFBP.LoyaltyCode, ProductSku = prodSku };
+                                _cpDiscountService.InsertCpDiscountProduct(progProduct);
+                            }
+                        });
+                    }
+                    catch { } // skip any fails
+                }
+
+                await Task.Yield();
+            }
+        }
+    }
+
+    //public partial class MultilineDiscountImportTask : IScheduleTask
+    //{
+    //    private readonly IProductService _productService;
+    //    private readonly ISettingService _settingService;
+    //    private readonly IUrlRecordService _urlRecordService;
+    //    private readonly ICategoryService _categoryService;
+    //    private readonly IProductAttributeService _productAttributeService;
+
+    //    public MultilineDiscountImportTask(IProductService productService,
+    //        ISettingService settingService,
+    //        IUrlRecordService urlRecordService,
+    //        ICategoryService categoryService,
+    //        IProductAttributeService productAttributeService)
+    //    {
+    //        this._productService = productService;
+    //        this._settingService = settingService;
+    //        this._urlRecordService = urlRecordService;
+    //        this._categoryService = categoryService;
+    //    }
+
+    //    public async Task ExecuteAsync()
+    //    {
+    //        // Get kit category id
+    //        int kitCategoryId = 0; // assume missing
+    //        var pluginSettings = _settingService.LoadSetting<ProductKitsPluginSettings>();
+    //        if (pluginSettings != null)
+    //            kitCategoryId = pluginSettings.CategoryId;
+
+    //        // Need categories to check if relationship already exists
+    //        var allProductCategories = await _categoryService.GetAllProductCategoryAsync();
+    //        allProductCategories = allProductCategories.Where(x => x.CategoryId == kitCategoryId);
+
+    //        var file = File.OpenRead(@"D:\ftp.unclebills.com\MultilineKits_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+    //        using (TextReader txtRdr = new StreamReader(file))
+    //        {
+    //            string jsonString = txtRdr.ReadToEnd();
+    //            List<ImportMultilineKit> jsonKitProducts = JsonConvert.DeserializeObject<List<ImportMultilineKit>>(jsonString);
+    //            // flat file where multiple records should be tied together - therefore select distinct groups and loop through those
+    //            List<string> kitCodes = jsonKitProducts.Select(x => x.KitCode).Distinct().ToList();
+    //            foreach (string kitCode in kitCodes)
+    //            {
+    //                try
+    //                {
+    //                    bool deletedAny = false;
+    //                    bool addedAny = false;
+
+    //                    // get all import products related to this group
+    //                    List<ImportMultilineKit> kitProducts = jsonKitProducts.Where(x => x.KitCode == kitCode).ToList();
+
+    //                    bool update = true;
+    //                    Product kitProduct = await _productService.GetProductBySkuAsync(kitCode);
+    //                    if (kitProduct == null)
+    //                    {
+    //                        update = false;
+    //                        kitProduct = new Product();
+    //                        kitProduct.CreatedOnUtc = DateTime.UtcNow;
+    //                    }
+    //                    // update all simple properties
+    //                    kitProduct.ProductTypeId = 5; // Simple Product = 5; Grouped Product = 10
+    //                    kitProduct.ParentGroupedProductId = 0;
+    //                    kitProduct.VisibleIndividually = false;
+    //                    kitProduct.Name = kitCode;
+    //                    kitProduct.ShortDescription = kitProducts.First().KitDescription;
+    //                    kitProduct.VendorId = 0;
+    //                    kitProduct.ProductTemplateId = 1;
+    //                    kitProduct.ShowOnHomepage = false;
+    //                    kitProduct.MetaKeywords = string.Empty;
+    //                    kitProduct.MetaDescription = string.Empty;
+    //                    kitProduct.MetaTitle = string.Empty;
+    //                    kitProduct.AllowCustomerReviews = false;
+    //                    kitProduct.Published = true;
+    //                    kitProduct.Sku = kitCode;
+    //                    kitProduct.ManufacturerPartNumber = string.Empty;
+    //                    kitProduct.Gtin = string.Empty;
+    //                    kitProduct.IsGiftCard = false;
+    //                    kitProduct.GiftCardTypeId = 0;
+    //                    kitProduct.OverriddenGiftCardAmount = 0;
+    //                    kitProduct.RequireOtherProducts = false;
+    //                    kitProduct.RequiredProductIds = string.Empty;
+    //                    kitProduct.AutomaticallyAddRequiredProducts = false;
+    //                    kitProduct.IsDownload = false;
+    //                    kitProduct.DownloadId = 0;
+    //                    kitProduct.UnlimitedDownloads = false;
+    //                    kitProduct.MaxNumberOfDownloads = 0;
+    //                    kitProduct.DownloadActivationTypeId = 0;
+    //                    kitProduct.HasSampleDownload = false;
+    //                    kitProduct.SampleDownloadId = 0;
+    //                    kitProduct.HasUserAgreement = false;
+    //                    kitProduct.UserAgreementText = string.Empty;
+    //                    kitProduct.IsRecurring = false;
+    //                    kitProduct.RecurringCycleLength = 0;
+    //                    kitProduct.RecurringCyclePeriodId = 0;
+    //                    kitProduct.RecurringTotalCycles = 0;
+    //                    kitProduct.IsRental = false;
+    //                    kitProduct.RentalPriceLength = 0;
+    //                    kitProduct.RentalPricePeriodId = 0;
+    //                    kitProduct.IsShipEnabled = true;
+    //                    kitProduct.IsPickupOnly = false;
+    //                    kitProduct.HasHiddenPrice = false;
+    //                    kitProduct.IsFreeShipping = false;
+    //                    kitProduct.ShipSeparately = false;
+    //                    kitProduct.AdditionalShippingCharge = 0;
+    //                    kitProduct.DeliveryDateId = 0;
+    //                    kitProduct.IsTaxExempt = false;
+    //                    kitProduct.TaxCategoryId = 6; // 6 = Taxable Item
+    //                    kitProduct.IsTelecommunicationsOrBroadcastingOrElectronicServices = false;
+    //                    kitProduct.ManageInventoryMethodId = 0; // Don't manage stock = 0
+    //                    kitProduct.UseMultipleWarehouses = false;
+    //                    kitProduct.WarehouseId = 0;
+    //                    kitProduct.StockQuantity = 0;
+    //                    kitProduct.DisplayStockAvailability = false;
+    //                    kitProduct.DisplayStockQuantity = false;
+    //                    kitProduct.MinStockQuantity = 0;
+    //                    kitProduct.LowStockActivityId = 0; // Nothing
+    //                    kitProduct.NotifyAdminForQuantityBelow = 0;
+    //                    kitProduct.BackorderModeId = 0; // No Backorders
+    //                    kitProduct.AllowBackInStockSubscriptions = false;
+    //                    kitProduct.OrderMinimumQuantity = 1;
+    //                    kitProduct.OrderMaximumQuantity = 10000;
+    //                    kitProduct.AllowedQuantities = string.Empty;
+    //                    kitProduct.AllowAddingOnlyExistingAttributeCombinations = false;
+    //                    kitProduct.DisableBuyButton = false;
+    //                    kitProduct.DisableWishlistButton = false;
+    //                    kitProduct.AvailableForPreOrder = false;
+    //                    kitProduct.PreOrderAvailabilityStartDateTimeUtc = DateTime.UtcNow;
+    //                    kitProduct.CallForPrice = false;
+    //                    kitProduct.Price = Convert.ToDecimal(kitProducts.First().KitPrice);
+    //                    kitProduct.OldPrice = 0;
+    //                    kitProduct.ProductCost = 0;
+    //                    kitProduct.CustomerEntersPrice = false;
+    //                    kitProduct.MinimumCustomerEnteredPrice = 0;
+    //                    kitProduct.MaximumCustomerEnteredPrice = 0;
+    //                    kitProduct.BasepriceEnabled = false;
+    //                    kitProduct.BasepriceAmount = 0;
+    //                    kitProduct.BasepriceUnitId = 0;
+    //                    kitProduct.BasepriceBaseAmount = 0;
+    //                    kitProduct.BasepriceBaseUnitId = 0;
+    //                    kitProduct.MarkAsNew = false;
+    //                    kitProduct.MarkAsNewStartDateTimeUtc = DateTime.UtcNow;
+    //                    kitProduct.MarkAsNewEndDateTimeUtc = DateTime.UtcNow;
+    //                    kitProduct.Weight = 0;
+    //                    kitProduct.Length = 0;
+    //                    kitProduct.Width = 0;
+    //                    kitProduct.Height = 0;
+
+    //                    // save changes to database
+    //                    kitProduct.UpdatedOnUtc = DateTime.UtcNow;
+    //                    if (!update)
+    //                        await _productService.InsertProductAsync(kitProduct);
+    //                    else
+    //                        await _productService.UpdateProductAsync(kitProduct);
+                       
+    //                    var productSeName = await _urlRecordService.GetSeNameAsync(kitProduct);
+
+    //                    // update slug
+    //                    if (!update || string.IsNullOrWhiteSpace(productSeName))
+    //                    {
+    //                        //search engine name
+    //                        var seName = await _urlRecordService.ValidateSeNameAsync(kitProduct, string.Empty, kitProduct.Name, true);
+    //                        await _urlRecordService.SaveSlugAsync(kitProduct, seName, 0);
+    //                    }
+
+
+    //                    // ensure placement in kit category
+    //                    if (!update || !allProductCategories.Any(x => x.ProductId == kitProduct.Id))
+    //                    {
+    //                        var productCategory = new ProductCategory
+    //                        {
+    //                            ProductId = kitProduct.Id,
+    //                            CategoryId = kitCategoryId,
+    //                            IsFeaturedProduct = false,
+    //                            DisplayOrder = 1
+    //                        };
+    //                        await _categoryService.InsertProductCategoryAsync(productCategory);
+    //                    }
+
+    //                    // manage kit products
+    //                    // if update, then might need to remove products from the kit?
+    //                    if (update)
+    //                    {
+    //                        var attributeMappings = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+    //                        // get the products that are already in the kit - if not in import list then delete
+    //                        foreach (ProductAttributeMapping pam in attributeMappings)
+    //                        {
+    //                            var attributeValues = await _productAttributeService.GetProductAttributeValuesAsync(pam.Id);
+    //                            foreach (ProductAttributeValue pav in attributeValues)
+    //                            {
+    //                                if (pav.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct)
+    //                                {
+    //                                    // get this product
+    //                                    var p = await _productService.GetProductByIdAsync(pav.AssociatedProductId);
+    //                                    // if this product isn't in the import list, we must remove it from the kit
+    //                                    if (p != null && !kitProducts.Exists(x => x.ProductSku == p.Sku))
+    //                                    {
+    //                                        // remove selected product from the kit
+    //                                        var prodAttrMap = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+
+
+    //                                        // var prodAttrMaps = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+
+    //                                        ProductAttributeMapping pam3 = null;
+    //                                        foreach (var pam2 in prodAttrMap)
+    //                                        {
+    //                                            // Fetch attribute values for each mapping
+    //                                            var pavs = await _productAttributeService.GetProductAttributeValuesAsync(pam2.Id);
+
+    //                                            // Filter for AssociatedToProduct type
+    //                                            var associatedValue = pavs.Where(v => v.AttributeValueType == AttributeValueType.AssociatedToProduct && v.AssociatedProductId == p.Id).FirstOrDefault();
+    //                                            if (associatedValue != null)
+    //                                            {
+    //                                                pam3 = pam2;
+    //                                                await _productAttributeService.DeleteProductAttributeValueAsync(associatedValue);
+    //                                            }
+    //                                        }
+
+    //                                        if (pam3 != null)
+    //                                        {
+    //                                            await _productAttributeService.DeleteProductAttributeMappingAsync(pam3);
+    //                                            deletedAny = true;
+    //                                        }
+
+    //                                    }
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+
+    //                    // for all imports, we perform the add/exists check
+    //                    foreach (ImportMultilineKit kProd in kitProducts)
+    //                    {
+    //                        Product p = await _productService.GetProductBySkuAsync(kProd.ProductSku);
+    //                        if (p != null)
+    //                        {
+
+    //                            var attributeMappings = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+
+    //                            foreach (ProductAttributeMapping pam in attributeMappings)
+    //                            {
+    //                                var attributeValues = await _productAttributeService.GetProductAttributeValuesAsync(pam.Id);
+
+    //                                if (attributeValues.FirstOrDefault(x => x.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct && x.AssociatedProductId == p.Id) == null)
+    //                                {
+    //                                    // add product to kit
+    //                                    // Product Attribute
+    //                                    var prodAttrList = _productAttributeService.GetAllProductAttributesAsync().Result.ToList();
+    //                                    prodAttrList = prodAttrList.Where(a => a.Name == "Multiline").ToList();
+    //                                    var prodAttr = prodAttrList.FirstOrDefault();
+
+    //                                    if (prodAttr == null)
+    //                                    {
+    //                                        // create new attribute
+    //                                        prodAttr = new ProductAttribute();
+    //                                        prodAttr.Name = "Multiline";
+    //                                        await _productAttributeService.InsertProductAttributeAsync(prodAttr);
+    //                                    }
+
+    //                                    // Product Attribute Mapping
+    //                                    var prodAttrMap = new ProductAttributeMapping();
+    //                                    prodAttrMap.ProductId = kitProduct.Id;
+    //                                    prodAttrMap.ProductAttributeId = prodAttr.Id;
+    //                                    prodAttrMap.IsRequired = true;
+    //                                    prodAttrMap.AttributeControlTypeId = (int)AttributeControlType.ReadonlyCheckboxes;
+    //                                    prodAttrMap.TextPrompt = prodAttr.Name;
+    //                                    prodAttrMap.DisplayOrder = 0;
+    //                                    await _productAttributeService.InsertProductAttributeMappingAsync(prodAttrMap);
+
+    //                                    // Product Attribute Value
+    //                                    var prodAttrVal = new ProductAttributeValue();
+    //                                    prodAttrVal.ProductAttributeMappingId = prodAttrMap.Id;
+    //                                    prodAttrVal.Name = p.Name;
+    //                                    prodAttrVal.AttributeValueTypeId = (int)AttributeValueType.AssociatedToProduct;
+    //                                    prodAttrVal.AssociatedProductId = p.Id;
+    //                                    prodAttrVal.Quantity = kProd.ProductQty;
+    //                                    prodAttrVal.IsPreSelected = true;
+    //                                   await _productAttributeService.InsertProductAttributeValueAsync(prodAttrVal);
+
+    //                                    addedAny = true;
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+    //                    // Clean up data if anything has been changed
+    //                    if (deletedAny || addedAny)
+    //                    {
+    //                        // Remove Existing Product Attribute Combinations because they don't include the newly added PAV
+    //                        var prodAttrCombos = await _productAttributeService.GetAllProductAttributeCombinationsAsync(kitProduct.Id);
+    //                        foreach (ProductAttributeCombination pac in prodAttrCombos)
+    //                        {
+    //                            await _productAttributeService.DeleteProductAttributeCombinationAsync(pac);
+    //                        }
+    //                        // Create the Product Attribute Combination
+    //                        var prodAttrCombo = new ProductAttributeCombination();
+    //                        prodAttrCombo.ProductId = kitProduct.Id;
+    //                        prodAttrCombo.StockQuantity = 10000;
+    //                        prodAttrCombo.OverriddenPrice = kitProduct.Price;
+    //                        prodAttrCombo.AllowOutOfStockOrders = false;
+    //                        prodAttrCombo.NotifyAdminForQuantityBelow = 1;
+                          
+
+
+    //                        // 3. Fetch attribute mappings
+    //                        var prodAttrMaps = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+
+    //                        string attrXml = "<Attributes>";
+    //                        foreach (var pam in prodAttrMaps)
+    //                        {
+    //                            // Fetch attribute values for each mapping
+    //                            var pavs = await _productAttributeService.GetProductAttributeValuesAsync(pam.Id);
+
+    //                            // Filter for AssociatedToProduct type
+    //                            var associatedValue = pavs.FirstOrDefault(v => v.AttributeValueType == AttributeValueType.AssociatedToProduct);
+    //                            if (associatedValue != null)
+    //                            {
+    //                                attrXml += $"<ProductAttribute ID=\"{pam.Id}\">" +
+    //                                           $"<ProductAttributeValue><Value>{associatedValue.Id}</Value></ProductAttributeValue>" +
+    //                                           $"</ProductAttribute>";
+    //                            }
+    //                        }
+    //                        attrXml += "</Attributes>";
+
+    //                        prodAttrCombo.AttributesXml = attrXml;
+
+    //                        // 4. Insert new combination
+    //                        await _productAttributeService.InsertProductAttributeCombinationAsync(prodAttrCombo);
+    //                    }
+    //                }
+    //                catch { } // skip any fails
+    //            }
+    //        }
+    //    }
+    //}
+
+    public partial class ProductOutOfStockTask : IScheduleTask
+    {
+        private readonly IProductService _productService;
+
+        public ProductOutOfStockTask(IProductService productService)
+        {
+            this._productService = productService;
+        }
+
+        public async Task ExecuteAsync()
+        {
+            await _productService.HideOutOfStockProducts();
+        }
+    }
+
+    public partial class MultilineDiscountImportTask : IScheduleTask
+    {
+        private readonly IProductService _productService;
+        private readonly ISettingService _settingService;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly ICategoryService _categoryService;
+        private readonly IProductAttributeService _productAttributeService;
+
+        public MultilineDiscountImportTask(
+            IProductService productService,
+            ISettingService settingService,
+            IUrlRecordService urlRecordService,
+            ICategoryService categoryService,
+            IProductAttributeService productAttributeService)
+        {
+            _productService = productService;
+            _settingService = settingService;
+            _urlRecordService = urlRecordService;
+            _categoryService = categoryService;
+            _productAttributeService = productAttributeService;
+        }
+
+        public async Task ExecuteAsync()
+        {
+            // Get kit category id
+            int kitCategoryId = 0;
+            var pluginSettings = await _settingService.LoadSettingAsync<ProductKitsPluginSettings>();
+            if (pluginSettings != null)
+                kitCategoryId = pluginSettings.CategoryId;
+
+            // Get all product categories for the kit category
+            //var allProductCategories = (await _categoryService.GetAllProductCategoriesAsync(categoryId: kitCategoryId)).ToList();
+
+            var allProductCategories = await _categoryService.GetAllProductCategoryAsync();
+            allProductCategories = allProductCategories.Where(x => x.CategoryId == kitCategoryId);
+
+
+            var filePath = @"D:\ftp.unclebills.com\MultilineKits_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+            string jsonString = await File.ReadAllTextAsync(filePath);
+            List<ImportMultilineKit> jsonKitProducts = JsonConvert.DeserializeObject<List<ImportMultilineKit>>(jsonString);
+
+            List<string> kitCodes = jsonKitProducts.Select(x => x.KitCode).Distinct().ToList();
+            foreach (string kitCode in kitCodes)
+            {
+                try
+                {
+                    bool deletedAny = false;
+                    bool addedAny = false;
+
+                    List<ImportMultilineKit> kitProducts = jsonKitProducts.Where(x => x.KitCode == kitCode).ToList();
+
+                    bool update = true;
+                    Product kitProduct = await _productService.GetProductBySkuAsync(kitCode);
+                    if (kitProduct == null)
+                    {
+                        update = false;
+                        kitProduct = new Product { CreatedOnUtc = DateTime.UtcNow };
+                    }
+
+                    // Update product properties
+                    kitProduct.ProductTypeId = (int)ProductType.GroupedProduct;
+                    kitProduct.VisibleIndividually = false;
+                    kitProduct.Name = kitCode;
+                    kitProduct.ShortDescription = kitProducts.First().KitDescription;
+                    kitProduct.Published = true;
+                    kitProduct.Sku = kitCode;
+                    kitProduct.Price = Convert.ToDecimal(kitProducts.First().KitPrice);
+                    kitProduct.UpdatedOnUtc = DateTime.UtcNow;
+
+                    // Set other properties as needed (omitted for brevity)
+                    // ...
+
+                    if (!update)
+                        await _productService.InsertProductAsync(kitProduct);
+                    else
+                        await _productService.UpdateProductAsync(kitProduct);
+
+                    // Update slug
+                    if (!update || string.IsNullOrWhiteSpace(await _urlRecordService.GetSeNameAsync(kitProduct)))
+                    {
+                        var seName = await _urlRecordService.ValidateSeNameAsync(kitProduct, kitProduct.Name, kitProduct.Name, true);
+                        await _urlRecordService.SaveSlugAsync(kitProduct, seName, 0);
+                    }
+
+                    // Ensure category placement
+                    if (!update || !allProductCategories.Any(x => x.ProductId == kitProduct.Id))
+                    {
+                        await _categoryService.InsertProductCategoryAsync(new ProductCategory
+                        {
+                            ProductId = kitProduct.Id,
+                            CategoryId = kitCategoryId,
+                            IsFeaturedProduct = false,
+                            DisplayOrder = 1
+                        });
+                    }
+
+                    // Process kit products
+                    if (update)
+                    {
+                        // Get all attribute mappings for this product
+                        var attributeMappings = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id);
+                        foreach (var pam in attributeMappings)
+                        {
+                            // Get values for each mapping separately
+                            var attributeValues = await _productAttributeService.GetProductAttributeValuesAsync(pam.Id);
+                            foreach (var pav in attributeValues)
+                            {
+                                if (pav.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct)
+                                {
+                                    var p = await _productService.GetProductByIdAsync(pav.AssociatedProductId);
+                                    if (p != null && !kitProducts.Exists(x => x.ProductSku == p.Sku))
+                                    {
+                                        await _productAttributeService.DeleteProductAttributeValueAsync(pav);
+                                        deletedAny = true;
+
+                                        // Delete mapping if no values remain
+                                        var remainingValues = await _productAttributeService.GetProductAttributeValuesAsync(pam.Id);
+                                        if (!remainingValues.Any())
+                                        {
+                                            await _productAttributeService.DeleteProductAttributeMappingAsync(pam);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Get or create the "Multiline" product attribute
+                    var prodAttr = (await _productAttributeService.GetAllProductAttributesAsync())
+                        .FirstOrDefault(a => a.Name == "Multiline")
+                        ?? new ProductAttribute { Name = "Multiline" };
+
+                    if (prodAttr.Id == 0)
+                        await _productAttributeService.InsertProductAttributeAsync(prodAttr);
+
+                    // Get or create attribute mapping
+                    var prodAttrMap = (await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(kitProduct.Id))
+                        .FirstOrDefault(m => m.ProductAttributeId == prodAttr.Id);
+
+                    if (prodAttrMap == null)
+                    {
+                        prodAttrMap = new ProductAttributeMapping
+                        {
+                            ProductId = kitProduct.Id,
+                            ProductAttributeId = prodAttr.Id,
+                            IsRequired = true,
+                            AttributeControlTypeId = (int)AttributeControlType.ReadonlyCheckboxes,
+                            TextPrompt = prodAttr.Name,
+                            DisplayOrder = 0
+                        };
+                        await _productAttributeService.InsertProductAttributeMappingAsync(prodAttrMap);
+                    }
+
+                    // Get existing values for this mapping
+                    var existingValues = (await _productAttributeService.GetProductAttributeValuesAsync(prodAttrMap.Id))
+                        .Where(v => v.AttributeValueTypeId == (int)AttributeValueType.AssociatedToProduct)
+                        .ToList();
+
+                    // Add new products to kit
+                    foreach (ImportMultilineKit kProd in kitProducts)
+                    {
+                        Product p = await _productService.GetProductBySkuAsync(kProd.ProductSku);
+                        if (p == null)
+                            continue;
+
+                        // Check if product already exists in kit
+                        bool productExists = existingValues.Any(v => v.AssociatedProductId == p.Id);
+
+                        if (!productExists)
+                        {
+                            var prodAttrVal = new ProductAttributeValue
+                            {
+                                ProductAttributeMappingId = prodAttrMap.Id,
+                                Name = p.Name,
+                                AttributeValueTypeId = (int)AttributeValueType.AssociatedToProduct,
+                                AssociatedProductId = p.Id,
+                                Quantity = kProd.ProductQty,
+                                IsPreSelected = true
+                            };
+                            await _productAttributeService.InsertProductAttributeValueAsync(prodAttrVal);
+                            addedAny = true;
+                        }
+                    }
+
+                    // Update combinations if changes occurred
+                    if (deletedAny || addedAny)
+                    {
+                        var combinations = await _productAttributeService.GetAllProductAttributeCombinationsAsync(kitProduct.Id);
+                        foreach (var pac in combinations)
+                        {
+                            await _productAttributeService.DeleteProductAttributeCombinationAsync(pac);
+                        }
+
+                        var newCombination = new ProductAttributeCombination
+                        {
+                            ProductId = kitProduct.Id,
+                            StockQuantity = 10000,
+                            OverriddenPrice = kitProduct.Price,
+                            AllowOutOfStockOrders = false,
+                            NotifyAdminForQuantityBelow = 1
+                        };
+
+                        // Build attributes XML
+                        var attributeXml = new StringBuilder("<Attributes>");
+
+                        // Get all values for our specific attribute mapping
+                        var allValues = await _productAttributeService.GetProductAttributeValuesAsync(prodAttrMap.Id);
+                        foreach (var value in allValues)
+                        {
+                            attributeXml.Append($@"<ProductAttribute ID=""{prodAttrMap.Id}"">");
+                            attributeXml.Append($@"<ProductAttributeValue><Value>{value.Id}</Value></ProductAttributeValue>");
+                            attributeXml.Append("</ProductAttribute>");
+                        }
+                        attributeXml.Append("</Attributes>");
+
+                        newCombination.AttributesXml = attributeXml.ToString();
+                        await _productAttributeService.InsertProductAttributeCombinationAsync(newCombination);
+                    }
+                }
+                catch
+                {
+                    // Consider adding logging here
+                }
+            }
+        }
+    }
+    public partial class RelatedProductImportTask : IScheduleTask
+    {
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly INopDataProvider _dataProvider;
+        protected readonly IRepository<RelatedProduct> _relatedProductRepository;
+        public RelatedProductImportTask(IProductService productService, 
+            ICategoryService categoryService,
+            INopDataProvider dataProvider,
+            IRepository<RelatedProduct> relatedProductRepository)
+        {
+            this._productService = productService;
+            this._categoryService = categoryService;
+            _dataProvider = dataProvider;
+            _relatedProductRepository = relatedProductRepository;
+        }
+        public async Task ExecuteAsync()
+        {
+            var file = File.OpenRead(@"D:\ftp.unclebills.com\RelatedProducts_" + DateTime.Now.ToString("yyyy-MM-dd") + ".csv");
+            //var file = File.OpenRead(@"E:\UBProductUpdates\related-products.csv"); 
+
+            List<RelatedProduct> newRelatedProducts = new List<RelatedProduct>();
+
+            using (TextReader txtRdr = new StreamReader(file))
+            using (CsvReader csvRdr = new CsvReader(txtRdr, System.Globalization.CultureInfo.InvariantCulture))
+            {
+
+                List<ImportRelatedProduct> csvRelatedProducts = csvRdr.GetRecords<ImportRelatedProduct>().ToList();
+
+                var allCategories = await _categoryService.GetAllCategoriesAsync();
+                var allProductCategories = await _categoryService.GetAllProductCategoryAsync();
+
+                foreach (ImportRelatedProduct rp in csvRelatedProducts)
+                {
+                    var category = allCategories.Where(a => a.Name == rp.Category);
+
+                    IList<Product> products = new List<Product>();
+                    products = await _productService.GetProductsBySkuAsync(rp.Skus.Split(','));
+
+                    //var productsInCategory = allProductCategories.Where(async c =>  (await _categoryService.GetCategoryByIdAsync(c.CategoryId)).Name == rp.Category);
+
+                    var productsInCategory = new List<ProductCategory>();
+                    foreach (var c in allProductCategories)
+                    {
+                        var category2 = await _categoryService.GetCategoryByIdAsync(c.CategoryId);
+                        if (category2.Name == rp.Category)
+                        {
+                            productsInCategory.Add(c);
+                        }
+                    }
+
+                    foreach (var prod in productsInCategory)
+                    {
+                        foreach (var product in products)
+                        {
+                            RelatedProduct newRP = new RelatedProduct();
+                            newRP.ProductId1 = prod.ProductId;
+                            newRP.ProductId2 = product.Id;
+                            newRP.DisplayOrder = 0;
+
+                            newRelatedProducts.Add(newRP);
+                        }
+                    }
+                }
+            }
+
+            // Delete all existing related products
+            var existing = await _relatedProductRepository.Table.ToListAsync();
+            foreach (var rel in existing)
+                await _relatedProductRepository.DeleteAsync(rel);
+
+            // Insert new related products
+            foreach (var newRP in newRelatedProducts)
+                await _relatedProductRepository.InsertAsync(newRP);
+
+          
+        }
+
+        /// <summary>
+        /// Deletes all records from dbo.RelatedProduct by calling the stored procedure.
+        /// </summary>
+        public async Task DeleteAllRelatedProductsAsync()
+        {
+            // Call the stored procedure (no parameters)
+            await _dataProvider.ExecuteNonQueryAsync("EXEC dbo.DeleteAllRelatedProducts");
         }
     }
 

@@ -4,32 +4,51 @@ using Nop.Services.Plugins;
 using Microsoft.AspNetCore.Routing;
 using Nop.Web.Models.Sitemap;
 using Nop.Services.Localization;
+using Nop.Services.Cms;
+using Nop.Core;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.Misc.ProductKits;
 
-public class ProductKitsPlugin : BasePlugin, IMiscPlugin
+public class ProductKitsPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
 {
     protected readonly ILocalizationService _localizationService;
+    protected readonly IWebHelper _webHelper;
     public ProductKitsPlugin(
-        ILocalizationService localizationService)
+        ILocalizationService localizationService,
+        IWebHelper webHelper)
     {       
         _localizationService = localizationService;      
+        _webHelper = webHelper;
     }
 
     #region Methods
 
-    /// <summary>
-    /// Gets a route for provider configuration
-    /// </summary>
-    /// <param name="actionName">Action name</param>
-    /// <param name="controllerName">Controller name</param>
-    /// <param name="routeValues">Route values</param>
-    public void GetConfigurationRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues)
+    public override string GetConfigurationPageUrl()
     {
-        actionName = "Configure";
-        controllerName = "ProductKits";
-        routeValues = new RouteValueDictionary { { "Namespaces", "Nop.Plugin.Misc.ProductKits.Controllers" }, { "area", null } };
+        return _webHelper.GetStoreLocation() + "Admin/ProductKits/Configure";
     }
+
+
+    /// <summary>
+    /// Gets a name of a view component for displaying widget
+    /// </summary>
+    /// <param name="widgetZone">Name of the widget zone</param>
+    /// <returns>View component name</returns>
+ 
+
+    /// <summary>
+    /// Gets widget zones where this widget should be rendered
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation
+    /// The task result contains the widget zones
+    /// </returns>
+    public Task<IList<string>> GetWidgetZonesAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string> {  });
+    }
+
 
     //public void ManageSiteMap(SiteMapNode rootNode)
     //{
@@ -80,6 +99,11 @@ public class ProductKitsPlugin : BasePlugin, IMiscPlugin
         await base.UninstallAsync();
     }
 
+    public Type GetWidgetViewComponent(string widgetZone)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 
     //#region Licensing
@@ -98,6 +122,15 @@ public class ProductKitsPlugin : BasePlugin, IMiscPlugin
     //}
 
     //#endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets a value indicating whether to hide this plugin on the widget list page in the admin area
+    /// </summary>
+    public bool HideInWidgetList => false;
+
+    #endregion
 }
 
 public class ProductKitsPluginSettings : ISettings
