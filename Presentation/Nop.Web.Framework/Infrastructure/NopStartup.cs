@@ -19,6 +19,7 @@ using Nop.Services.Catalog;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
+using Nop.Services.Custom;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Discounts;
@@ -234,6 +235,18 @@ public partial class NopStartup : INopStartup
         services.AddScoped<IVideoService, VideoService>();
         services.AddScoped<INopUrlHelper, NopUrlHelper>();
         services.AddScoped<IWidgetModelFactory, WidgetModelFactory>();
+
+
+        services.AddScoped<ICpOrderService, CpOrderService>();
+        services.AddScoped<ICpDiscountService, CpDiscountService>();
+        services.AddScoped<IPetProfileService, PetProfileService>();
+        services.AddScoped<ICpInventoryService, CpInventoryService>();
+        services.AddScoped<ICustomerInfoChangeService, CustomerInfoChangeService>();
+        services.AddScoped<IWidgetModelFactory, WidgetModelFactory>();
+
+        services.AddScoped<IProductSubstitutionService, ProductSubstitutionService>();
+        services.AddScoped<IRecurringOrderService, RecurringOrderService>();
+
 
         //attribute services
         services.AddScoped(typeof(IAttributeService<,>), typeof(AttributeService<,>));

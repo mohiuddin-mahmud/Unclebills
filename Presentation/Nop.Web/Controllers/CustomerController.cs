@@ -44,6 +44,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework.Validators;
+using Nop.Web.Models.Boards;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Customer;
 using ILogger = Nop.Services.Logging.ILogger;
@@ -1196,10 +1197,12 @@ public partial class CustomerController : BasePublicController
             });
         }
 
-        var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
+        //var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
+
+        var customAttrXml = customer.CustomCustomerAttributesXML;
         foreach (CustomerAttributeModel attr in model.CustomerAttributes)
         {
-            attr.DefaultValue = _customerAttributeParser.ParseValues(customAttrXml, attr.Id).FirstOrDefault();
+            attr.DefaultValue = _customerAttributeParser.ParseValues(customer.CustomCustomerAttributesXML, attr.Id).FirstOrDefault();
         }
 
         // Counterpoint data - Rewards
@@ -1252,6 +1255,12 @@ public partial class CustomerController : BasePublicController
             if (address == null)
                 address = new Address();
             string storePhone = address.PhoneNumber.Replace("(", "").Replace(")", "").Replace("-", "");
+            
+            var stateProvinceId = address.StateProvinceId != null ? address.StateProvinceId??0 : 0;
+
+            var stateProvinceName = await _stateProvinceService
+            .GetStateProvinceByIdAsync(stateProvinceId);       
+
             model.CpPreferredStore = new CpPreferredStoreModel()
             {
                 StoreName = store.Name,
@@ -1259,7 +1268,7 @@ public partial class CustomerController : BasePublicController
                 Address1 = address.Address1,
                 Address2 = address.Address2,
                 City = address.City,
-                State = address.StateProvince.Abbreviation,
+                State = stateProvinceName.Abbreviation,
                 Zip = address.ZipPostalCode,
                 Phone = string.Format("({0}) {1}-{2}", storePhone.Substring(0, 3), storePhone.Substring(3, 3), storePhone.Substring(6, 4))
             };
@@ -1491,7 +1500,7 @@ public partial class CustomerController : BasePublicController
     }
 
     [HttpPost] 
-    public virtual async Task<IActionResult> EditProfile(FormCollection form)
+    public virtual async Task<IActionResult> EditProfile(IFormCollection form)
     {
         if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
             return Challenge();
@@ -1516,22 +1525,29 @@ public partial class CustomerController : BasePublicController
         }
 
         //form fields
-        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.FirstName, form["first-name"]);
-        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.LastName, form["last-name"]);
+
+        await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.FirstName, form["first-name"]);
+        await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.LastName, form["last-name"]);
+
+
         if (_customerSettings.StreetAddressEnabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress, form["address-1"]);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.StreetAddress, form["address-1"]);
         if (_customerSettings.StreetAddress2Enabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress2, form["address-2"]);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.StreetAddress2, form["address-2"]);
+
         if (_customerSettings.ZipPostalCodeEnabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZipPostalCode, form["address-zip"]);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.ZipPostalCode, form["address-zip"]);
+
         if (_customerSettings.CityEnabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.City, form["address-city"]);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.City, form["address-city"]);
 
         int stateProvinceId = int.Parse(form["StateProvinceId"]);
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StateProvinceId, stateProvinceId);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.StateProvinceId, stateProvinceId);
+        
         if (_customerSettings.PhoneEnabled)
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, form["address-phone"]);
+            await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.Phone, form["address-phone"]);
+
 
         // Update address records
         foreach (var addr in customer.Addresses)
@@ -1547,9 +1563,11 @@ public partial class CustomerController : BasePublicController
             LastName = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.LastName),
             Email = customer.Email,
             Company = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.Company),
-            CountryId = await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId) > 0
-                ? (int?)await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId)
-                : null,
+            //CountryId = await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId) > 0
+            //    ? (int?)await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId)
+            //    : null,
+
+            CountryId = 1,
             StateProvinceId = await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.StateProvinceId) > 0
                 ? (int?)await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.StateProvinceId)
                 : null,
@@ -1561,19 +1579,65 @@ public partial class CustomerController : BasePublicController
             FaxNumber = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.Fax),
             CreatedOnUtc = DateTime.UtcNow
         };
+
+        await _genericAttributeService.SaveAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId, 1);
+
+        var countryId = await _genericAttributeService.GetAttributeAsync<int>(customer, SystemCustomerAttributeNames.CountryId);
+
         if (await _addressService.IsAddressValidAsync(customerAddress))
         {
             //set default address
-            customer.Addresses.Add(customerAddress);
+            // customer.Addresses.Add(customerAddress);
+            // customer.BillingAddress = customerAddress;
+            // customer.ShippingAddress = customerAddress;
+            //await _customerService.UpdateCustomerAsync(customer);
+
+            await _addressService.InsertAddressAsync(customerAddress);
+
+            await _customerService.InsertCustomerAddressAsync(customer, customerAddress);
             customer.BillingAddress = customerAddress;
             customer.ShippingAddress = customerAddress;
-           await _customerService.UpdateCustomerAsync(customer);
+
+            customer.ShippingAddressId = customerAddress.Id;
+            customer.BillingAddressId = customerAddress.Id;
+
+            customer.FirstName = customerAddress.FirstName;
+            customer.ZipPostalCode = customerAddress.ZipPostalCode;
+            customer.LastName = customerAddress.LastName;
+            customer.Email = customerAddress.Email;
+            customer.Phone = customerAddress.PhoneNumber;
+            customer.StreetAddress = customerAddress.Address1;
+            customer.StreetAddress2 = customerAddress.Address2;
+            customer.City = customerAddress.City;
+            customer.StateProvinceId = (int)customerAddress.StateProvinceId;
+
+            await _customerService.UpdateCustomerAsync(customer);
+
+
+            //customer.Addresses.Add(customerAddress);
+            //customer.BillingAddress = customerAddress;
+            //customer.ShippingAddress = customerAddress;
+          
+
+            //await _customerService.InsertCustomerAddressAsync(customer, customerAddress);
+
+            //customer.BillingAddressId = customerAddress.Id;
+            //customer.ShippingAddressId = customerAddress.Id;
+
+            await _customerService.UpdateCustomerAsync(customer);
+
+
         }
 
         /***************************************************************************************/
-        var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
+        //var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
 
-        CustomerAttribute receiveAttr = await _customerAttributeService.GetAllCustomerAttributesAsync().Where(x => x.Name == "Preferred Mode of Contact").FirstOrDefault();
+        //CustomerAttribute receiveAttr = await _customerAttributeService.GetAllCustomerAttributesAsync().Where(x => x.Name == "Preferred Mode of Contact").FirstOrDefault();
+
+        var customAttrXml = customer.CustomCustomerAttributesXML;
+        var customerAttributes = await _customerAttributeService.GetAllAttributesAsync();
+        
+        var receiveAttr = customerAttributes.Where(x => x.Name == "Preferred Mode of Contact").FirstOrDefault();
 
         // Remove any existing selections
         try
@@ -1591,11 +1655,16 @@ public partial class CustomerController : BasePublicController
         var receiveSelection = form["mail-group"];
         if (!String.IsNullOrEmpty(receiveSelection) && (receiveSelection == "Mail" || receiveSelection == "Email"))
         {
-            int itemId = receiveAttr.CustomerAttributeValues.Where(x => x.Name == receiveSelection).FirstOrDefault().Id;
-            customAttrXml = _customerAttributeParser.AddCustomerAttribute(customAttrXml, receiveAttr, itemId.ToString());
+
+            var customerAttributeValues = (await _customerAttributeService
+           .GetAttributeValuesAsync(receiveAttr.Id)).ToList();
+
+            int itemId = customerAttributeValues.Where(x => x.Name == receiveSelection).FirstOrDefault().Id;
+
+            customAttrXml = _customerAttributeParser.AddAttribute(customAttrXml, receiveAttr, itemId.ToString());
         }
 
-        _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, SystemCustomerAttributeNames.CustomCustomerAttributes, customAttrXml);
+        await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customAttrXml);
 
         /***************************************************************************************/
 
@@ -1603,7 +1672,7 @@ public partial class CustomerController : BasePublicController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> EditInterestedIn(FormCollection form)
+    public virtual async Task<IActionResult> EditInterestedIn(IFormCollection form)
     {
         if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
             return Challenge();
@@ -1612,7 +1681,9 @@ public partial class CustomerController : BasePublicController
 
         var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
 
-        CustomerAttribute interestedInAttribute = _customerAttributeService.GetAllCustomerAttributes().Where(x => x.Name == "Interested In").FirstOrDefault();
+
+        var customerAttributes = await _customerAttributeService.GetAllAttributesAsync();
+        var interestedInAttribute = customerAttributes.Where(x => x.Name == "Interested In").FirstOrDefault();
 
         // Remove any existing selections
         try
@@ -1635,24 +1706,7 @@ public partial class CustomerController : BasePublicController
             {
                 int selectedAttributeId = int.Parse(item);
                 if (selectedAttributeId > 0)
-                    customAttrXml = _customerAttributeParser.AddCustomerAttribute(customAttrXml,
-                        interestedInAttribute, selectedAttributeId.ToString());
-
-                //// Get current attributes (comma-separated string)
-                //var customAttributes = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CustomCustomerAttributes);
-
-                //// Add new attribute
-                //customAttributes = _customerAttributeParser.AddCustomerAttribute(
-                //    customAttributes,
-                //    interestedInAttribute,
-                //    selectedAttributeId.ToString()
-                //);
-
-                await _customerAttributeService.InsertAttributeAsync .InsertCustomerAttributeAsync(customerAttribute);
-
-
-                //// Save updated attributes
-                //await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CustomCustomerAttributes, customAttributes);
+                    customAttrXml = _customerAttributeParser.AddAttribute(customAttrXml, interestedInAttribute, selectedAttributeId.ToString());
 
             }
         }
@@ -1662,7 +1716,7 @@ public partial class CustomerController : BasePublicController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> EditPreferredStore(FormCollection form)
+    public virtual async Task<IActionResult> EditPreferredStore(IFormCollection form)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (!await _customerService.IsRegisteredAsync(customer))
@@ -1670,7 +1724,8 @@ public partial class CustomerController : BasePublicController
 
         var customAttrXml = await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.CustomCustomerAttributes);
 
-        CustomerAttribute preferredStoreAttr = await _customerAttributeService.GetAllCustomerAttributesAsync().Where(x => x.Name == "cpPreferredStoreId").FirstOrDefault();
+        var customerAttributes = await _customerAttributeService.GetAllAttributesAsync();
+        var preferredStoreAttr = customerAttributes.Where(x => x.Name == "cpPreferredStoreId").FirstOrDefault();
 
         // Remove any existing selections
         try
@@ -1692,8 +1747,8 @@ public partial class CustomerController : BasePublicController
             {
                 int selectedAttributeId = int.Parse(item);
                 if (selectedAttributeId > 0)
-                    customAttrXml = _customerAttributeParser.AddCustomerAttribute(customAttrXml,
-                        preferredStoreAttr, selectedAttributeId.ToString());
+                    customAttrXml = _customerAttributeParser.AddAttribute(customAttrXml, preferredStoreAttr, selectedAttributeId.ToString());
+
             }
         }
 
@@ -1703,7 +1758,7 @@ public partial class CustomerController : BasePublicController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> AddPetProfile(FormCollection form)
+    public virtual async Task<IActionResult> AddPetProfile(IFormCollection form)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (!await _customerService.IsRegisteredAsync(customer))
@@ -1726,7 +1781,7 @@ public partial class CustomerController : BasePublicController
 
     [HttpPost]
 
-    public virtual async Task<IActionResult> EditPetProfile(FormCollection form)
+    public virtual async Task<IActionResult> EditPetProfile(IFormCollection form)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (!await _customerService.IsRegisteredAsync(customer))
@@ -1781,7 +1836,7 @@ public partial class CustomerController : BasePublicController
             await RecordCustomerInfoChangeData(infoChange.Id, "Phone", await _genericAttributeService.GetAttributeAsync<string>(customer, SystemCustomerAttributeNames.Phone), model.Phone);
     }
 
-    private async Task TrackCustomerInfoChanges(FormCollection form, Customer customer)
+    private async Task TrackCustomerInfoChanges(IFormCollection form, Customer customer)
     {
         CustomerInfoChange infoChange = new CustomerInfoChange();
         infoChange.CustomerId = customer.Id;
@@ -2454,6 +2509,12 @@ public partial class CustomerController : BasePublicController
     }
 
     #endregion
+
+    public virtual async Task<IActionResult> ReOrder(string orderId)
+    {
+        await Task.Yield();
+        return RedirectToAction("ReOrder", "ShoppingCart", new { orderId = orderId });
+    }
 
     #endregion
 }

@@ -86,6 +86,7 @@ public partial class OrderProcessingService : IOrderProcessingService
     protected readonly RewardPointsSettings _rewardPointsSettings;
     protected readonly ShippingSettings _shippingSettings;
     protected readonly TaxSettings _taxSettings;
+    private readonly IRecurringOrderService _recurringOrderService;
 
     #endregion
 
@@ -137,7 +138,8 @@ public partial class OrderProcessingService : IOrderProcessingService
         PaymentSettings paymentSettings,
         RewardPointsSettings rewardPointsSettings,
         ShippingSettings shippingSettings,
-        TaxSettings taxSettings)
+        TaxSettings taxSettings,
+        IRecurringOrderService recurringOrderService)
     {
         _currencySettings = currencySettings;
         _addressService = addressService;
@@ -186,6 +188,7 @@ public partial class OrderProcessingService : IOrderProcessingService
         _rewardPointsSettings = rewardPointsSettings;
         _shippingSettings = shippingSettings;
         _taxSettings = taxSettings;
+        _recurringOrderService = recurringOrderService;
     }
 
     #endregion
@@ -299,6 +302,18 @@ public partial class OrderProcessingService : IOrderProcessingService
             return details;
 
         await PrepareAndValidateRecurringShoppingAsync(details, processPaymentRequest);
+
+        // recurring order
+        RecurringOrderContext cxt = processPaymentRequest.CustomValues["RecurringOrderContext"] as RecurringOrderContext;
+
+        if (cxt == null)
+        {
+            cxt = new RecurringOrderContext();
+            cxt.IsRecurring = false;
+            cxt.RecurringOrderPeriod = (RecurringOrderPeriod)1;
+        }
+
+        details.RecurringOrderContext = cxt;
 
         return details;
     }
@@ -1566,6 +1581,12 @@ public partial class OrderProcessingService : IOrderProcessingService
                     //recurring orders
                     if (placeOrderContainer.IsRecurringShoppingCart)
                         await CreateFirstRecurringPaymentAsync(processPaymentRequest, order);
+
+                    if (details.RecurringOrderContext.IsRecurring)
+                    {
+                        _recurringOrderService.CreateRecurringOrder(result.PlacedOrder.Id, details.RecurringOrderContext, processPaymentRequest);
+                    }
+
 
                     //notifications
                     await SendNotificationsAndSaveNotesAsync(order);
@@ -3421,6 +3442,8 @@ public partial class OrderProcessingService : IOrderProcessingService
         /// Order total
         /// </summary>
         public decimal OrderTotal { get; set; }
+
+        public RecurringOrderContext RecurringOrderContext { get; set; }
     }
 
     #endregion

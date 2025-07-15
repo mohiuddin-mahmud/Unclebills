@@ -8,6 +8,7 @@ using Nop.Data;
 using Nop.Services.Attributes;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
+using Nop.Services.Custom;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -42,6 +43,7 @@ public partial class ShippingService : IShippingService
     protected readonly IStoreContext _storeContext;
     protected readonly ShippingSettings _shippingSettings;
     protected readonly ShoppingCartSettings _shoppingCartSettings;
+    //private readonly ILocationService _locationService;
 
     #endregion
 
@@ -1024,6 +1026,55 @@ public partial class ShippingService : IShippingService
 
         return additionalShippingCharge;
     }
+
+    /// <summary>
+    /// Does the warehouse contains all items in stock
+    /// </summary>
+    /// <param name="cartItems">All Items in the shopping cart</param>
+    /// <param name="warehouseId">Id of the warehouse being checked</param>
+    /// <returns></returns>
+    public virtual  bool AllItemsInStockAtWarehouse(IList<ShoppingCartItem> cartItems, int warehouseId)
+    {
+      
+        foreach (var sci in cartItems)
+        {
+
+            var productWarehouseInventoryList = _productService.GetAllProductWarehouseInventoryRecordsAsync(sci.ProductId).Result;
+
+            if (!sci.IsShipEnabled)
+                continue;
+            else if (productWarehouseInventoryList.FirstOrDefault(pws => pws.Id == warehouseId && pws.StockQuantity > sci.Quantity) == null)
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Get the nearest warehouse for the specified address
+    /// </summary>
+    /// <param name="address">Address</param>
+    /// <param name="warehouses">List of warehouses, if null all warehouses are used.</param>
+    /// <returns></returns>
+    //public virtual Warehouse GetNearestWarehouseWithAllItemsInStock(Address address, IList<ShoppingCartItem> cartItems, IList<Warehouse> warehouses = null)
+    //{
+    //    warehouses = warehouses ?? GetAllWarehousesAsync().Result;
+
+    //    if (address != null)
+    //    {
+
+    //        List<Warehouse> matchedWarehouses = new List<Warehouse>();
+    //        foreach (Warehouse warehouse in warehouses)
+    //        {
+    //            if (AllItemsInStockAtWarehouse(cartItems, warehouse.Id))
+    //                matchedWarehouses.Add(warehouse);
+    //        }
+
+    //        if (matchedWarehouses.Count > 0)
+    //            return _locationService.GetNearestWarehouse(address, matchedWarehouses);
+    //    }
+
+    //    return null;
+    //}
 
     #endregion
 

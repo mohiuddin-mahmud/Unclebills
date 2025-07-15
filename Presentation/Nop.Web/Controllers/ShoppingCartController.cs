@@ -83,6 +83,7 @@ public partial class ShoppingCartController : BasePublicController
     protected readonly ShoppingCartSettings _shoppingCartSettings;
     protected readonly ShippingSettings _shippingSettings;
     private static readonly char[] _separator = [','];
+    private readonly ICpOrderService _cpOrderService;
 
     #endregion
 
@@ -124,7 +125,8 @@ public partial class ShoppingCartController : BasePublicController
         MediaSettings mediaSettings,
         OrderSettings orderSettings,
         ShoppingCartSettings shoppingCartSettings,
-        ShippingSettings shippingSettings)
+        ShippingSettings shippingSettings,
+        ICpOrderService cpOrderService)
     {
         _captchaSettings = captchaSettings;
         _customerSettings = customerSettings;
@@ -163,6 +165,7 @@ public partial class ShoppingCartController : BasePublicController
         _orderSettings = orderSettings;
         _shoppingCartSettings = shoppingCartSettings;
         _shippingSettings = shippingSettings;
+        _cpOrderService = cpOrderService;
     }
 
     #endregion
@@ -1711,4 +1714,113 @@ public partial class ShoppingCartController : BasePublicController
     }
 
     #endregion
+
+    public virtual async Task<IActionResult> ReOrder(string orderId)
+    {
+        var orderLines = await _cpOrderService.GetCpOrderLines(orderId);
+
+        List<string> warnings = new List<string>();
+
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        foreach (var oline in orderLines)
+        {
+            Product productToAdd = await _productService.GetProductBySkuAsync(oline.ProductId);
+
+            // make sure the product still exists
+            if (productToAdd != null)
+            {
+                int qty = (int)Convert.ToDouble(oline.Quantity);
+
+                // prepare to validate the quantity
+                string qtyWarning = null;
+                int qtyInStock = productToAdd.GetTotalStockQuantity();
+
+                // if the requested quantity is higher than what is in stock, adjust the quantity and create a warning message
+                if (qty > qtyInStock && qtyInStock > 0)
+                {
+                    qtyWarning = $"Item {productToAdd.Sku} ({productToAdd.Name}): The quantity requested ({qty}) was greater than the quantity available ({qtyInStock}).";
+                    qty = qtyInStock;
+                }
+
+                // add the items to the cart and get the warnings
+                var myWarnings = await _shoppingCartService.AddToCartAsync(customer,
+                productToAdd,
+                ShoppingCartType.ShoppingCart,
+                store.Id,
+                null, 0, null, null,
+                qty);
+
+                // add the quantity warning, if it exists
+                if (qtyWarning != null)
+                {
+                    myWarnings.Add(qtyWarning);
+                }
+
+                // add all the warnings
+                if (myWarnings.Count > 0)
+                {
+                    foreach (var wng in myWarnings)
+                    {
+                        warnings.Add(wng);
+                    }
+                }
+            }
+            else
+            {
+                warnings.Add($"Item {oline.ProductId} ({oline.ProductDescription}): This item no longer exists.");
+            }
+        }
+
+        return View("Cart", await CreateCartModel(warnings));
+    }
+
+    private async Task<ShoppingCartModel> CreateCartModel(List<string> warnings = null, int? recurringOrderId = null)
+    {
+        var customer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+       // var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        var model = new ShoppingCartModel();
+        IList<ShoppingCartItem> cart = new List<ShoppingCartItem>();
+        if (recurringOrderId == null)
+        {
+            //cart = customer.ShoppingCartItems
+            //    .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+            //    .LimitPerStore(store.Id)
+            //    .ToList();
+
+            cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        }
+        else
+        {
+            model.IsRecurringOrder = true;
+
+            cart = await _shoppingCartService.GetShoppingCartAsync(customer, null, store.Id);
+
+            cart = cart
+                .Where(sci => sci.ShoppingCartType == ShoppingCartType.Recurring && sci.RecurringOrderId == recurringOrderId)
+                .LimitPerStore(store.Id)
+                .ToList();
+
+            //cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+        }
+
+        model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+
+        if (warnings != null)
+        {
+            foreach (var wng in warnings)
+            {
+                model.Warnings.Add(wng);
+            }
+        }
+
+        return model;
+    }
+
 }

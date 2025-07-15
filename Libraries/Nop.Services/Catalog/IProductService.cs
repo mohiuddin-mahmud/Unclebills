@@ -974,4 +974,8 @@ public partial interface IProductService
     #endregion
     Product GetRecurringOrderProduct();
     Task HideOutOfStockProducts();
+
+    IList<Product> GetAllProductSizes(string baseSku);
+
+
 }

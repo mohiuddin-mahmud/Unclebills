@@ -1,11 +1,6 @@
-﻿using Nop.Core.Data;
-using Nop.Core.Domain.Customers;
-using Nop.Services.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Nop.Core.Domain.Customers;
+using Nop.Data;
+
 
 namespace Nop.Services.Customers
 {
@@ -14,17 +9,17 @@ namespace Nop.Services.Customers
         #region Fields
 
         private readonly IRepository<PetProfile> _petProfileRepository;
-        private readonly IEventPublisher _eventPublisher;
+   
 
         #endregion
 
         #region Ctor
 
-        public PetProfileService(IRepository<PetProfile> petProfileRepository,
-            IEventPublisher eventPublisher)
+        public PetProfileService(IRepository<PetProfile> petProfileRepository
+          )
         {
             this._petProfileRepository = petProfileRepository;
-            this._eventPublisher = eventPublisher;
+   
         }
 
         #endregion
@@ -38,7 +33,6 @@ namespace Nop.Services.Customers
 
             _petProfileRepository.Insert(pet);
 
-            _eventPublisher.EntityInserted(pet);
         }
 
         public virtual void UpdatePetProfile(PetProfile pet)
@@ -48,8 +42,7 @@ namespace Nop.Services.Customers
 
             _petProfileRepository.Update(pet);
 
-            //event notification
-            _eventPublisher.EntityUpdated(pet);
+
         }
 
         public virtual void DeletePetProfile(PetProfile pet)
@@ -59,7 +52,6 @@ namespace Nop.Services.Customers
 
             _petProfileRepository.Delete(pet);
 
-            _eventPublisher.EntityDeleted(pet);
         }
 
         public virtual PetProfile GetPetProfile(int id)

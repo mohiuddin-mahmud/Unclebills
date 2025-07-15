@@ -39,4 +39,9 @@ public partial class ShippingOption
     /// Gets or sets a display order
     /// </summary>
     public int? DisplayOrder { get; set; }
+
+    /// <summary>
+    /// Gets or sets the WarehouseId associated with this shipping option
+    /// </summary>
+    public int WarehouseId { get; set; }
 }

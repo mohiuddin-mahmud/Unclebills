@@ -19,18 +19,26 @@
                 </div>
                 <div class="footer-nav">
                     <ul class="list">
-                        @if (Model.SitemapEnabled && Model.DisplaySitemapFooterItem)
-                        {
-                            <li><a href="@Url.RouteUrl("Sitemap")">@T("Sitemap")</a></li>
-                        }
-                        @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
-                        {
-                            <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
-                        }
-                        @if (Model.DisplayContactUsFooterItem)
-                        {
-                            <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
-                        }
+                        <li><a href="https://www.unclebills.com/pets-and-pet-supplies">Pets and Pet Supplies</a></li>
+                        <li><a href="https://www.unclebills.com/about">About</a></li>
+                        <li><a href="https://www.unclebills.com/community">Community</a></li>
+                        <li><a href="https://www.unclebills.com/locations-and-contact">Locations and Contact</a></li>
+                        <li><a href="https://www.unclebills.com/rewards-deals">Rewards &amp; Deals</a></li>
+                        <li><a href="https://www.unclebills.com/which-pet-is-right-for-me">Which Pet is Right for Me?</a></li>
+                        <li><a href="https://www.unclebills.com/terms-conditions">Terms &amp; Conditions</a></li>
+                        <li><a href="https://www.unclebills.com/community/faq">Frequently Asked Questions</a></li>
+                        <li><a href="https://www.unclebills.com/return-policy">Return Policy</a></li>
+                        <li><a href="https://www.unclebills.com/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="https://www.unclebills.com/shipping-terms-of-service">Shipping Terms of Service</a></li>
+                        @*@if (Model.SitemapEnabled)
+        {
+            <li><a href="@Url.RouteUrl("Sitemap")">@T("Sitemap")</a></li>
+        }
+        @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
+        {
+            <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+        }
+        <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>*@
                     </ul>
                 </div>
             </div>
@@ -43,8 +51,8 @@
                 </div>
                 <!-- (c) 2005, 2018. Authorize.Net is a registered trademark of CyberSource Corporation -->
                 <div class="AuthorizeNetSeal">
-                    <script type="text/javascript" language="javascript">var ANS_customer_id = "83be6b80-7c7b-4dea-9295-aec04dcc2591";</script>
-                    <script type="text/javascript" language="javascript" src="https://verify.authorize.net:443/anetseal/seal.js"></script>
+                    <script asp-location="Footer" type="text/javascript" language="javascript">var ANS_customer_id = "83be6b80-7c7b-4dea-9295-aec04dcc2591";</script>
+                    <script asp-location="Footer" type="text/javascript" language="javascript" src="https://verify.authorize.net:443/anetseal/seal.js"></script>
                 </div>
             </div>
         </div>

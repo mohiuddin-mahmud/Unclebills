@@ -16,6 +16,7 @@ using Nop.Core.Http.Extensions;
 using Nop.Services.Attributes;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
+using Nop.Services.Custom;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Discounts;
@@ -94,6 +95,9 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
     protected readonly VendorSettings _vendorSettings;
     private static readonly char[] _separator = [','];
 
+    private readonly IProductSubstitutionService _productSubstitutionService;
+    private readonly IRecurringOrderService _recurringOrderService;
+
     #endregion
 
     #region Ctor
@@ -145,7 +149,9 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
         TaxSettings taxSettings,
-        VendorSettings vendorSettings)
+        VendorSettings vendorSettings,
+        IProductSubstitutionService productSubstitutionService,
+        IRecurringOrderService recurringOrderService)
     {
         _addressSettings = addressSettings;
         _addressService = addressService;
@@ -195,6 +201,8 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         _shoppingCartSettings = shoppingCartSettings;
         _taxSettings = taxSettings;
         _vendorSettings = vendorSettings;
+        _productSubstitutionService = productSubstitutionService;
+        _recurringOrderService = recurringOrderService;
     }
 
     #endregion
@@ -505,6 +513,21 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
             sci.Id);
         foreach (var warning in itemWarnings)
             cartItemModel.Warnings.Add(warning);
+
+        // item substitutions
+        // to do item subs, we need to know shipping estimates - this will associate sci with WarehouseId
+           
+        var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var customerShippingAddress = await _customerService.GetCustomerShippingAddressAsync(currentCustomer);
+
+        var shippingOptionsResponse = await _shippingService.GetShippingOptionsAsync(cart, customerShippingAddress, currentCustomer, storeId: store.Id);
+
+
+        // if item requested is greater than current stock level at "shipping from" warehouse
+        cartItemModel.OfferSubstituteProducts = _productSubstitutionService.ProductOutOfStock(sci);
+        if (cartItemModel.OfferSubstituteProducts)
+            cartItemModel.SubstituteProducts = _productSubstitutionService.GetSubstituteProducts(sci);
 
         return cartItemModel;
     }
@@ -952,6 +975,21 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
         if (prepareAndDisplayOrderReviewData)
         {
             model.OrderReviewData = await PrepareOrderReviewDataModelAsync(cart);
+        }
+
+        // recurring order edit view
+        if (model.IsRecurringOrder)
+        {
+            var ro = _recurringOrderService.GetRecurringOrderByShoppingCartItem(cart.FirstOrDefault());
+            model.RecurringOrderData.Id = ro.Id;
+            model.RecurringOrderData.Name = ro.Name;
+            model.RecurringOrderData.RecurringOrderPeriod = ro.RecurringOrderPeriod;
+            model.RecurringOrderData.CreatedOnUtc = ro.CreatedOnUtc;
+            model.RecurringOrderData.UpdatedOnUtc = ro.UpdatedOnUtc;
+            model.RecurringOrderData.NextOrderUtc = ro.NextOrderUtc;
+
+            var today = DateTime.UtcNow;
+            model.DisableUpdateRecurringOrder = (ro.NextOrderUtc.Date == today.Date || ro.NextOrderUtc.Date == today.AddDays(1).Date);
         }
 
         return model;

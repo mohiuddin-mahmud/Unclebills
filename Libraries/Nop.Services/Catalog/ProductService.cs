@@ -1,4 +1,7 @@
-﻿using System.Data.SqlTypes;
+﻿using System.Data;
+using System.Data.SqlTypes;
+using LinqToDB.DataProvider;
+using Microsoft.Data.SqlClient;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
@@ -2882,4 +2885,78 @@ public partial class ProductService : IProductService
 
         await UpdateProductsAsync(allProducts);
     }
+
+
+    public virtual IList<Product> GetAllProductSizesOld(string baseSku)
+    {
+        if (string.IsNullOrEmpty(baseSku))
+            return new List<Product>();
+
+        var query = from p in _productRepository.Table
+                    join psam in _productSpecificationAttributeRepository.Table on p.Id equals psam.ProductId
+                    where psam.SpecificationAttributeOptionId == 11
+                          && psam.CustomValue == baseSku
+                          && !p.Deleted
+                    orderby p.Weight
+                    select p;
+
+        return query.ToList();
+    }
+
+    public virtual IList<Product> GetAllProductSizes(string baseSku)
+    {
+        if (string.IsNullOrEmpty(baseSku))
+            return new List<Product>();
+
+        // Get product IDs first from specification attributes
+        var productIds = _productSpecificationAttributeRepository.Table
+            .Where(psam =>
+                psam.SpecificationAttributeOptionId == 11 &&
+                psam.CustomValue == baseSku)
+            .Select(psam => psam.ProductId)
+            .Distinct()
+            .ToList();
+
+        if (!productIds.Any())
+            return new List<Product>();
+
+        // Now get products by those IDs
+        var query = _productRepository.Table
+            .Where(p => productIds.Contains(p.Id) && !p.Deleted)
+            .OrderBy(p => p.Weight);
+
+        return query.ToList();
+    }
+
+    //public virtual IList<Product> GetAllProductSizesStore(string baseSku)
+    //{
+    //    var parameter = new SqlParameter("BASE_SKU", baseSku ?? (object)DBNull.Value);
+    //    var products = _dbContext.Set<Product>()
+    //        .FromSqlRaw("EXEC ProductAllSizes @BASE_SKU", parameter)
+    //        .AsNoTracking()
+    //        .IgnoreQueryFilters() // Bypass EF Core's global filters
+    //        .ToList();
+
+    //    return products;
+    //}
+
+    //public virtual IList<Product> GetAllProductSizesqqq2(string baseSku)
+    //{
+
+    
+    //    //prepare parameters
+    //    var pBaseSku = _dataProvider.GetParameter();
+    //    pBaseSku.ParameterName = "BASE_SKU";
+    //    pBaseSku.Value = baseSku;
+    //    pBaseSku.DbType = DbType.String;
+
+    //    //invoke stored procedure
+    //    var products = _dbContext.ExecuteStoredProcedureList<Product>(
+    //        "ProductAllSizes",
+    //        pBaseSku);
+
+
+
+    //    return products;
+    //}
 }

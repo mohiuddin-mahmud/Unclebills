@@ -14,6 +14,17 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="MiscPlugin.cs" />
+    <Compile Remove="MiscSettings.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <None Remove="logo.png" />

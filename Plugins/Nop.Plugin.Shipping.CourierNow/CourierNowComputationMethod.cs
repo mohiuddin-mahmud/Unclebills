@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nop.Services.Custom;
 using Microsoft.AspNetCore.Routing;
+using Nop.Core;
 
 namespace Nop.Plugin.Shipping.CourierNow
 {
@@ -19,7 +20,8 @@ namespace Nop.Plugin.Shipping.CourierNow
         private readonly CourierNowSettings _courierNowSettings;
         private readonly IShippingService _shippingService;
         private readonly IRepository<Warehouse> _warehouseRepository;
-        private readonly ILocationService _locationService;
+   
+        protected readonly IWebHelper _webHelper;
 
         private bool initialRequest = false;
         private Guid lastRequest;
@@ -28,22 +30,20 @@ namespace Nop.Plugin.Shipping.CourierNow
         private int totalRequests = 0;
         private decimal currentRequestWeight;
 
-        public CourierNowComputationMethod(CourierNowSettings courierNowSettings, IRepository<Warehouse> warehouseRepository, ILocationService locationService, IShippingService shippingService)
+        public CourierNowComputationMethod(CourierNowSettings courierNowSettings, 
+            IRepository<Warehouse> warehouseRepository,
+          
+            IShippingService shippingService,
+            IWebHelper webHelper)
         {
-            this._courierNowSettings = courierNowSettings;
-            this._warehouseRepository = warehouseRepository;
-            this._locationService = locationService;
-            this._shippingService = shippingService;
+            _courierNowSettings = courierNowSettings;
+            _warehouseRepository = warehouseRepository;
+      
+            _shippingService = shippingService;
+            _webHelper = webHelper;
         }
 
-        public ShippingRateComputationMethodType ShippingRateComputationMethodType
-        {
-            get
-            {
-                return ShippingRateComputationMethodType.Realtime;
-            }
-        }
-
+       
         public IShipmentTracker ShipmentTracker => throw new NotImplementedException();
 
         public IList<Warehouse> GetAllowedWarehouses(IList<Warehouse> allWarehouses)
@@ -62,19 +62,25 @@ namespace Nop.Plugin.Shipping.CourierNow
             return allWarehouses.Where(p => ints.Contains(p.Id)).ToList();
         }
 
-        public void GetConfigurationRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues)
+       
+        public override string GetConfigurationPageUrl()
         {
-            actionName = "Configure";
-            controllerName = "ShippingCourierNow";
-            routeValues = new RouteValueDictionary { { "Namespaces", "Nop.Plugin.Shipping.CourierNow.Controllers" }, { "area", null } };
+            return _webHelper.GetStoreLocation() + "Admin/ShippingCourierNow/Configure";
         }
 
-        public decimal? GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        /// <summary>
+        /// Gets widget zones where this widget should be rendered
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the widget zones
+        /// </returns>
+        public Task<IList<string>> GetWidgetZonesAsync()
         {
-            return null;
+            return Task.FromResult<IList<string>>(new List<string> { });
         }
 
-        public GetShippingOptionResponse GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
+        public async Task<GetShippingOptionResponse> GetShippingOptionsAsync(GetShippingOptionRequest getShippingOptionRequest)
         {
             if (getShippingOptionRequest == null)
                 throw new ArgumentNullException("getShippingOptionRequest");
@@ -110,7 +116,7 @@ namespace Nop.Plugin.Shipping.CourierNow
             //totalRequests = getShippingOptionRequest.UniqueRequests;
 
             // Check if 2-day option is available
-            ShippingOption twoDay = GetTwoDayOption(getShippingOptionRequest);
+            ShippingOption twoDay = await GetTwoDayOption(getShippingOptionRequest);
             if (twoDay != null)
             {
                 response.ShippingOptions.Add(twoDay);
@@ -118,15 +124,16 @@ namespace Nop.Plugin.Shipping.CourierNow
             }
 
             // Check if standard option is available
-            ShippingOption standard = GetStandardOption(getShippingOptionRequest);
+            ShippingOption standard = await GetStandardOption(getShippingOptionRequest);
             if (standard != null)
                 response.ShippingOptions.Add(standard);
 
             return response;
         }
 
-        private ShippingOption GetStandardOption(GetShippingOptionRequest getShippingOptionRequest)
+        private async Task<ShippingOption> GetStandardOption(GetShippingOptionRequest getShippingOptionRequest)
         {
+            await Task.Yield();
             // can only return standard option if we're within the radius
             //if (_locationService.GetDistanceInMiles(getShippingOptionRequest.ShippingAddress, getShippingOptionRequest.WarehouseFrom) <= this._courierNowSettings.Radius)
             if (this._courierNowSettings.SupportedZipCodes.Contains(getShippingOptionRequest.ShippingAddress.ZipPostalCode.Trim()))
@@ -140,10 +147,14 @@ namespace Nop.Plugin.Shipping.CourierNow
             }
             else
                 return null;
+
+           
         }
 
-        private ShippingOption GetTwoDayOption(GetShippingOptionRequest getShippingOptionRequest)
+        private async Task<ShippingOption> GetTwoDayOption(GetShippingOptionRequest getShippingOptionRequest)
         {
+            await Task.Yield();
+
             if (!IsTwoDayAllowed())
                 return null;
 
@@ -166,7 +177,7 @@ namespace Nop.Plugin.Shipping.CourierNow
 
         private decimal CalculateRate(GetShippingOptionRequest getShippingOptionRequest)
         {
-            decimal shippingCost = 10 * Math.Ceiling(this._shippingService.GetTotalWeight(getShippingOptionRequest, true) / 51);
+            decimal shippingCost = 10 * Math.Ceiling(_shippingService.GetTotalWeightAsync(getShippingOptionRequest, true).Result / 51);
             if (getShippingOptionRequest.OrderSubTotal >= 60)
                 shippingCost -= 5;
             return shippingCost;
@@ -205,14 +216,34 @@ namespace Nop.Plugin.Shipping.CourierNow
             return true;
         }
 
-        public override void Install()
+        public override async Task InstallAsync()
         {
-            base.Install();
+            await base.InstallAsync();
         }
 
-        public override void Uninstall()
+        public override async Task UninstallAsync()
         {
-            base.Uninstall();
+            await base.UninstallAsync();
         }
+
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal?> GetFixedRateAsync(GetShippingOptionRequest getShippingOptionRequest)
+        {
+            return null;
+        }
+
+        public Task<IShipmentTracker> GetShipmentTrackerAsync()
+        {
+            return Task.FromResult<IShipmentTracker>(null);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether to hide this plugin on the widget list page in the admin area
+        /// </summary>
+        public bool HideInWidgetList => false;
     }
 }

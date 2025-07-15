@@ -658,7 +658,7 @@ h3 {
     }
 
     .GaugeMeter .simple-logo {
-        background-image: url(../images/logo-single.png);
+        background-image: url("../images/logo-single.png");
         background-repeat: no-repeat;
         background-size: contain;
         width: 86px;
@@ -1684,11 +1684,20 @@ nav#menu .mm-spacer a {
     display: none;
 }
 
+.cart .remove-from-cart input[type="checkbox"] {
+    display:none;
+}
+.cart .remove-from-cart .remove-btn {
+  width: 11px;
+  height: 11px;
+  border: 0;
+  background: #ffffffab url(../images/remove.png) center no-repeat;
+}
 .shopping-cart-page .cart-footer {
-    float: right;
-    clear: right;
-    width: 440px;
-    border-top: 0;
+  float: right;
+  clear: right;
+  width: 440px;
+  border-top: 0;
 }
 
 .shopping-cart-page .page-title {

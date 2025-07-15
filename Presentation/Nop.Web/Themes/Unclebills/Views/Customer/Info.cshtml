@@ -35,7 +35,7 @@
                                     <div class="gm-strong">Points Earned</div>
                                     @*<div class="gm-oblique">33 Points Pending <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></i></div>*@
                                 </div>
-                                <script>
+                                <script asp-location="Footer">
                                     $(".GaugeMeter").gaugeMeter();
                                     $(function () {
                                         $('[data-toggle="tooltip"]').tooltip();
@@ -82,7 +82,7 @@
                                 </div>
                             }
                         </div>
-                        <script>
+                        <script asp-location="Footer">
                             $('.profile-carousel').slick({
                                 infinite: false,
                                 slidesToShow: 3,
@@ -400,9 +400,95 @@
 										</div>
 									</div>
 								}
-								<div class="tab-pane fade" id="order-history" role="tabpanel" aria-labelledby="order-history-tab">
-									
-																
+                                <div class="tab-pane fade" id="order-history" role="tabpanel" aria-labelledby="order-history-tab">
+                                    @if (Model.CpOrders.Count == 0)
+                                    {
+                                        <div class="oh-item">
+                                            <div class="row">
+                                                @T("account.orders.none")
+                                            </div>
+                                        </div>
+                                    }
+                                    @foreach (var order in Model.CpOrders)
+                                    {
+                                        <div class="oh-item">
+                                            <div class="row">
+                                                <div class="col-sm-5 text-left">
+                                                    <div class="form-group">
+                                                        <label>#@order.Order.OrderId</label>
+                                                        @order.StoreNameText
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Purchased on</label>
+                                                        @order.Order.PurchaseDate.ToString("d MMM yyyy")
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        &nbsp;
+                                                        @*<label>Points status</label>
+								<em>@order.PointsText Points @order.PointsPendingText</em>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-5 text-left">
+                                                    <div class="form-group">
+                                                        <label>Item</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Qty</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                            @foreach (var oline in order.OrderLines)
+                                            {
+                                                <div class="row">
+                                                    <div class="col-sm-5 text-left">
+                                                        <div class="form-group">
+                                                            @oline.ProductId @oline.ProductDescription
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <div class="form-group">
+                                                            @oline.Quantity
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        &nbsp;
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="row">
+                                                <div class="col-sm-5 text-left">
+                                                    <div class="form-group">
+                                                        <label>Re-Order</label>
+                                                        <a href="@Url.Action("ReOrder", "ShoppingCart", new { orderId = order.Order.OrderId })" class = "re-order-button">Order This Again!</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        &nbsp;
+                                                        @*<label>(Savings)</label>
+								<strong>$22.22</strong>*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label>Total</label>
+                                                        <strong>$@order.Order.OrderTotal</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
 							</div>
 
@@ -414,7 +500,15 @@
                             <div class="preferred-store">
                                 <h4>Preferred Store</h4>
                                 <div class="store">
-                                   
+                                    <p>@Model.CpPreferredStore.StoreName</p>
+                                    <p>
+                                        @Model.CpPreferredStore.Address1 @Model.CpPreferredStore.Address2<br />
+                                        @Model.CpPreferredStore.City, @Model.CpPreferredStore.State @Model.CpPreferredStore.Zip
+                                    </p>
+                                    <p>@Model.CpPreferredStore.Phone</p>
+                                    <p>
+                                        @Model.CpPreferredStore.Description
+                                    </p>
                                     <a class="edit-link" href="javascript:void(0)">edit</a>
                                 </div>
                                 <div class="edit-store">

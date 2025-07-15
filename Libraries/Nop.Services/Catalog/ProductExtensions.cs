@@ -1,5 +1,6 @@
 ﻿using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Infrastructure;
 using Nop.Data;
 
 namespace Nop.Services.Catalog;
@@ -68,4 +69,72 @@ public static class ProductExtensions
             _ => productsQuery.OrderBy(p => p.DisplayOrder).ThenBy(p => p.Id)
         };
     }
+
+    public static int GetTotalStockQuantity(this Product product,
+           bool useReservedQuantity = true, int warehouseId = 0)
+    {
+        if (product == null)
+            throw new ArgumentNullException(nameof(product));
+
+        // Check inventory management method
+        if (product.ManageInventoryMethod != ManageInventoryMethod.ManageStock)
+            return 0;
+
+        // Handle multiple warehouses
+        if (product.UseMultipleWarehouses)
+        {
+            var repo = EngineContext.Current.Resolve<IRepository<ProductWarehouseInventory>>();
+            var query = repo.Table.Where(pwi => pwi.ProductId == product.Id);
+
+            // Apply warehouse filter if specified
+            if (warehouseId > 0)
+            {
+                query = query.Where(pwi => pwi.WarehouseId == warehouseId);
+            }
+
+            var warehouseInventory = query.ToList();
+
+            if (!warehouseInventory.Any())
+                return 0;
+
+            var totalStock = warehouseInventory.Sum(x => x.StockQuantity);
+
+            if (useReservedQuantity)
+                totalStock -= warehouseInventory.Sum(x => x.ReservedQuantity);
+
+            return totalStock;
+        }
+
+        // Single warehouse - use the main stock quantity
+        return product.StockQuantity;
+    }
+    //public static int GetTotalStockQuantity(this Product product,
+    //       bool useReservedQuantity = true, int warehouseId = 0)
+    //{
+    //    if (product == null)
+    //        throw new ArgumentNullException("product");
+
+    //    if (product.ManageInventoryMethod != ManageInventoryMethod.ManageStock)
+    //    {
+    //        //We can calculate total stock quantity when 'Manage inventory' property is set to 'Track inventory'
+    //        return 0;
+    //    }
+
+    //    if (product.UseMultipleWarehouses)
+    //    {
+    //        var pwi = product.ProductWarehouseInventory;
+    //        if (warehouseId > 0)
+    //        {
+    //            pwi = pwi.Where(x => x.WarehouseId == warehouseId).ToList();
+    //        }
+    //        var result = pwi.Sum(x => x.StockQuantity);
+    //        if (useReservedQuantity)
+    //        {
+    //            result = result - pwi.Sum(x => x.ReservedQuantity);
+    //        }
+    //        return result;
+    //    }
+
+    //    return product.StockQuantity;
+    //}
 }

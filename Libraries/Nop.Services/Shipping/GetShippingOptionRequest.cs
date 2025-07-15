@@ -78,6 +78,14 @@ public partial class GetShippingOptionRequest
     /// </summary>
     public int StoreId { get; set; }
 
+    public bool ShippingFromMultipleLocations { get; set; }
+
+    public Guid RequestId { get; set; }
+
+    public int UniqueRequests { get; set; }
+
+    public decimal OrderSubTotal { get; set; }
+
     #endregion
 
     #region Nested classes

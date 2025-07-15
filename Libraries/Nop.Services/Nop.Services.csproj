@@ -12,6 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Custom\ILocationService.cs" />
+    <Compile Remove="Custom\LocationService.cs" />
     <Compile Remove="ScheduleTasks\ITask.cs" />
     <Compile Remove="ScheduleTasks\Task.cs" />
   </ItemGroup>

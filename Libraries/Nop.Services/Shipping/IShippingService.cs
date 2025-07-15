@@ -271,4 +271,6 @@ public partial interface IShippingService
     Task<decimal> GetAdditionalShippingChargeAsync(ShoppingCartItem shoppingCartItem);
 
     #endregion
+
+    bool AllItemsInStockAtWarehouse(IList<ShoppingCartItem> cartItems, int warehouseId);
 }
