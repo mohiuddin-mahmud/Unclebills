@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © Nop Solutions, Ltd")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ca17ee6867576117287642d6981487ddf6106a96")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a612089caee0e4a40e41d0a73ec0dc02d34ada38")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nop.Plugin.MultiFactorAuth.GoogleAuthenticator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nop.Plugin.MultiFactorAuth.GoogleAuthenticator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

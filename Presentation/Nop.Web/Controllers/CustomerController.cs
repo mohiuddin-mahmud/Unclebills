@@ -37,6 +37,7 @@ using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Services.Orders;
 using Nop.Services.Security;
+using Nop.Services.Stores;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
 using Nop.Web.Factories;
@@ -110,6 +111,7 @@ public partial class CustomerController : BasePublicController
     private readonly IPetProfileService _petProfileService;
 
     private readonly ICustomerInfoChangeService _customerInfoChangeService;
+    protected readonly IStoreMappingService _storeMappingService;
 
     #endregion
 
@@ -165,7 +167,8 @@ public partial class CustomerController : BasePublicController
         ICpOrderService cpOrderService,
         IVendorService vendorService,
         IPetProfileService petProfileService,
-        ICustomerInfoChangeService customerInfoChangeService)
+        ICustomerInfoChangeService customerInfoChangeService,
+        IStoreMappingService storeMappingService)
     {
         _addressSettings = addressSettings;
         _captchaSettings = captchaSettings;
@@ -218,6 +221,7 @@ public partial class CustomerController : BasePublicController
         _vendorService = vendorService;
         _petProfileService = petProfileService;
         _customerInfoChangeService = customerInfoChangeService;
+        _storeMappingService = storeMappingService;
     }
 
     #endregion
@@ -1306,7 +1310,7 @@ public partial class CustomerController : BasePublicController
         }
 
         // Pet Profiles
-        model.PetProfiles = _petProfileService.GetPetProfiles(model.RewardsNumber);
+        model.PetProfiles = await _petProfileService.GetPetProfiles(model.RewardsNumber);
 
         // Interested In
         model.InterestedIn = model.CustomerAttributes.Where(x => x.Name == "Interested In").FirstOrDefault();
@@ -1548,6 +1552,12 @@ public partial class CustomerController : BasePublicController
         if (_customerSettings.PhoneEnabled)
             await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.Phone, form["address-phone"]);
 
+        var addresses = await (await _customerService.GetAddressesByCustomerIdAsync(customer.Id))
+           //enabled for the current store
+           .WhereAwait(async a => a.CountryId == null || await _storeMappingService.AuthorizeAsync(await _countryService.GetCountryByAddressAsync(a)))
+           .ToListAsync();
+
+
 
         // Update address records
         foreach (var addr in customer.Addresses)
@@ -1591,6 +1601,12 @@ public partial class CustomerController : BasePublicController
             // customer.BillingAddress = customerAddress;
             // customer.ShippingAddress = customerAddress;
             //await _customerService.UpdateCustomerAsync(customer);
+
+            foreach (var addr in customer.Addresses)
+            {
+                await _customerService.RemoveCustomerAddressAsync(customer, addr);
+                //await _addressService.DeleteAddressAsync(addr);
+            }            
 
             await _addressService.InsertAddressAsync(customerAddress);
 
@@ -1666,6 +1682,12 @@ public partial class CustomerController : BasePublicController
 
         await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customAttrXml);
 
+        customerAddress.CustomAttributes = customAttrXml;
+        await _addressService.UpdateAddressAsync(customerAddress);
+
+        customer.CustomCustomerAttributesXML = customAttrXml;
+        await _customerService.UpdateCustomerAsync(customer);
+
         /***************************************************************************************/
 
         return RedirectToRoute("CustomerInfo");
@@ -1712,6 +1734,10 @@ public partial class CustomerController : BasePublicController
         }
 
         await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customAttrXml);
+
+        customer.CustomCustomerAttributesXML = customAttrXml;
+        await _customerService.UpdateCustomerAsync(customer);
+
         return RedirectToRoute("CustomerInfo");
     }
 
@@ -1754,6 +1780,9 @@ public partial class CustomerController : BasePublicController
 
         await _genericAttributeService.SaveAttributeAsync(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customAttrXml);
 
+        customer.CustomCustomerAttributesXML = customAttrXml;
+        await _customerService.UpdateCustomerAsync(customer);
+
         return RedirectToRoute("CustomerInfo");
     }
 
@@ -1774,7 +1803,7 @@ public partial class CustomerController : BasePublicController
             CustomerId = form["add-rewards-number"]
         };
 
-        _petProfileService.InsertPetProfile(newPet);
+        await _petProfileService.InsertPetProfile(newPet);
 
         return RedirectToRoute("CustomerInfo");
     }
@@ -1787,7 +1816,7 @@ public partial class CustomerController : BasePublicController
         if (!await _customerService.IsRegisteredAsync(customer))
             return Challenge();
 
-        var petProfile = _petProfileService.GetPetProfile(int.Parse(form["edit-pet-profile-id"]));
+        var petProfile = await _petProfileService.GetPetProfile(int.Parse(form["edit-pet-profile-id"]));
 
         if (petProfile != null)
         {
@@ -1797,7 +1826,7 @@ public partial class CustomerController : BasePublicController
             petProfile.Birthday = DateTime.Parse(form["edit-pet-bday"]);
             petProfile.Gender = form["edit-pet-gender"];
 
-            _petProfileService.UpdatePetProfile(petProfile);
+           await _petProfileService.UpdatePetProfile(petProfile);
         }
 
         return RedirectToRoute("CustomerInfo");

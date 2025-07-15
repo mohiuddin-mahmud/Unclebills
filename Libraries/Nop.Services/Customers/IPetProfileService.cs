@@ -13,32 +13,32 @@ namespace Nop.Services.Customers
         /// Inserts a pet profile
         /// </summary>
         /// <param name="pet">pet profile</param>
-        void InsertPetProfile(PetProfile pet);
+        Task InsertPetProfile(PetProfile pet);
 
         /// <summary>
         /// Updates the PetProfile
         /// </summary>
         /// <param name="pet">The pet profile</param>
-        void UpdatePetProfile(PetProfile pet);
+        Task UpdatePetProfile(PetProfile pet);
 
         /// <summary>
         /// Deletes a PetProfile
         /// </summary>
         /// <param name="pet">The pet profile</param>
-        void DeletePetProfile(PetProfile pet);
+        Task DeletePetProfile(PetProfile pet);
 
         /// <summary>
         /// Gets specific PetProfile
         /// </summary>
         /// <param name="id">The Pet Profile Id</param>
         /// <returns>Order</returns>
-        PetProfile GetPetProfile(int id);
+        Task<PetProfile> GetPetProfile(int id);
 
         /// <summary>
         /// Gets all PetProfile associated with customer
         /// </summary>
         /// <param name="customerId">The CounterPoint customer Id</param>
         /// <returns>Order</returns>
-        IList<PetProfile> GetPetProfiles(string customerId);
+        Task<IList<PetProfile>> GetPetProfiles(string customerId);
     }
 }
