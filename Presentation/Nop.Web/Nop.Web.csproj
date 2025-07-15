@@ -43,6 +43,9 @@
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <Content Remove="Themes\Unclebills\Views\Customer\PreRegister.cshtml" />
     <None Remove="Plugins\Uploaded\placeholder.txt" />
+    <Content Include="Plugins\Shipping.CourierNow\Views\_ViewImports.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Plugins\Uploaded\placeholder.txt">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -50,6 +53,10 @@
 
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Update="Plugins\Shipping.CourierNow\Views\Configure.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © NopValley")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.00+a612089caee0e4a40e41d0a73ec0dc02d34ada38")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.00+fd809f5cedc820d99e7ae743af8a983ac40ee025")]
 [assembly: System.Reflection.AssemblyProductAttribute("NopValley.Plugins.Misc")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NopValley.Plugins.Misc")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,11 +1,9 @@
-﻿@{
-    Layout = "";
-}
-
-@model Nop.Plugin.Shipping.CourierNow.Models.CourierNowShippingModel
+﻿@model Nop.Plugin.Shipping.CourierNow.Models.CourierNowShippingModel
 @using Nop.Web.Framework;
 
-
+@{
+    Layout = "_ConfigurePlugin";
+}
 
 @using (Html.BeginForm())
 {
@@ -62,56 +60,59 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-3">
-                        @Html.NopLabelFor(model => model.SupportedZipCodes)
+                        <nop-label asp-for="SupportedZipCodes" />
                     </div>
-                    <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.SupportedZipCodes)
-                        @Html.ValidationMessageFor(model => model.SupportedZipCodes)
-                    </div>
-                </div>
-                <div class="form-group" style="background-color:pink;">
-                    <div class="col-md-3">
-                        @Html.NopLabelFor(model => model.OrderSubtotalEvalLine) <span style="color:red;">(DEPRECATED)</span>
-                    </div>
-                    <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.OrderSubtotalEvalLine)
-                        @Html.ValidationMessageFor(model => model.OrderSubtotalEvalLine)
+                    <div class="col-md-9">                       
+                        @* @Html.ValidationMessageFor(model => model.SupportedZipCodes) *@
+                        <nop-editor asp-for="SupportedZipCodes" />
                     </div>
                 </div>
                 <div class="form-group" style="background-color:pink;">
                     <div class="col-md-3">
-                        @Html.NopLabelFor(model => model.OrderWeightEvalLine) <span style="color:red;">(DEPRECATED)</span>
+                        <nop-label asp-for="OrderSubtotalEvalLine" /> <span style="color:red;">(DEPRECATED)</span>
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.OrderWeightEvalLine)
-                        @Html.ValidationMessageFor(model => model.OrderWeightEvalLine)
+           
+                        <nop-editor asp-for="OrderSubtotalEvalLine" />
+                       @*  @Html.ValidationMessageFor(model => model.OrderSubtotalEvalLine) *@
+                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+                    <div class="col-md-3">
+                        <nop-label asp-for="OrderWeightEvalLine" /> <span style="color:red;">(DEPRECATED)</span>
+                    </div>
+                    <div class="col-md-9">               
+                        <nop-editor asp-for="OrderWeightEvalLine" />
+@*                         @Html.ValidationMessageFor(model => model.OrderWeightEvalLine)
+ *@                    </div>
+                </div>
+                <div class="form-group" style="background-color:pink;">
+					<div class="col-md-3">
+                        <nop-label asp-for="UnderSubtotalEvalShippingFee" /> <span style="color:red;">(DEPRECATED)</span>
+					</div>
+                    <div class="col-md-9">
+                       
+                        <nop-editor asp-for="UnderSubtotalEvalShippingFee" />
+                      @*   @Html.ValidationMessageFor(model => model.UnderSubtotalEvalShippingFee) *@
                     </div>
                 </div>
                 <div class="form-group" style="background-color:pink;">
 					<div class="col-md-3">
-						@Html.NopLabelFor(model => model.UnderSubtotalEvalShippingFee) <span style="color:red;">(DEPRECATED)</span>
+                        <nop-label asp-for="OverSubtotalEvalShippingFee" /> <span style="color:red;">(DEPRECATED)</span>
 					</div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.UnderSubtotalEvalShippingFee)
-                        @Html.ValidationMessageFor(model => model.UnderSubtotalEvalShippingFee)
+                        <nop-editor asp-for="OverSubtotalEvalShippingFee" />    
+                       @*  @Html.ValidationMessageFor(model => model.OverSubtotalEvalShippingFee) *@
                     </div>
                 </div>
                 <div class="form-group" style="background-color:pink;">
 					<div class="col-md-3">
-						@Html.NopLabelFor(model => model.OverSubtotalEvalShippingFee) <span style="color:red;">(DEPRECATED)</span>
+                        <nop-label asp-for="UnderWeightEvalShippingDiscount" /> <span style="color:red;">(DEPRECATED)</span>
 					</div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.OverSubtotalEvalShippingFee)
-                        @Html.ValidationMessageFor(model => model.OverSubtotalEvalShippingFee)
-                    </div>
-                </div>
-                <div class="form-group" style="background-color:pink;">
-					<div class="col-md-3">
-						@Html.NopLabelFor(model => model.UnderWeightEvalShippingDiscount) <span style="color:red;">(DEPRECATED)</span>
-					</div>
-                    <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.UnderWeightEvalShippingDiscount)
-                        @Html.ValidationMessageFor(model => model.UnderWeightEvalShippingDiscount)
+        
+                        <nop-editor asp-for="UnderWeightEvalShippingDiscount" />
+                        @* @Html.ValidationMessageFor(model => model.UnderWeightEvalShippingDiscount) *@
                     </div>
                 </div>
                 <div class="form-group">

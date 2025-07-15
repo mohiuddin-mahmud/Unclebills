@@ -30,6 +30,10 @@
     {
       "SystemName": "Misc.ProductKits",
       "Version": "1.00"
+    },
+    {
+      "SystemName": "Shipping.CourierNow",
+      "Version": "1.00"
     }
   ],
   "PluginNamesToUninstall": [],
